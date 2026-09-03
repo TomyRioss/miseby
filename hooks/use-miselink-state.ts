@@ -60,11 +60,35 @@ export function useMiseLinkState(initial: Initial) {
     socials,
     pending,
 
-    addLink: (input: { title: string; url: string }) =>
-      run(
-        () => createLinkAction(input),
-        () => toast.success("Enlace agregado"),
-      ),
+    addLink: async (input: { title: string; url: string }) => {
+      const res = await createLinkAction(input);
+      if (!res.ok) {
+        toast.error(res.error);
+        return false;
+      }
+      setItems((prev) => [
+        ...prev,
+        {
+          id: res.id ?? crypto.randomUUID(),
+          pageId: "",
+          type: "link",
+          parentId: null,
+          position: prev.length,
+          active: true,
+          title: input.title,
+          url: input.url,
+          data: {},
+          scheduledStart: null,
+          scheduledEnd: null,
+          clickCount: 0,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        } as MiseLinkItem,
+      ]);
+      toast.success("Enlace agregado");
+      startTransition(() => router.refresh());
+      return true;
+    },
 
     editLink: (id: string, input: Partial<{ title: string; url: string; active: boolean }>) => {
       setItems((prev) => prev.map((i) => (i.id === id ? { ...i, ...input } : i)));
@@ -84,11 +108,26 @@ export function useMiseLinkState(initial: Initial) {
       return run(() => reorderLinksAction({ ids }));
     },
 
-    addSocial: (input: { network: string; url: string }) =>
-      run(
-        () => createSocialAction(input),
-        () => toast.success("Red social agregada"),
-      ),
+    addSocial: async (input: { network: string; url: string }) => {
+      const res = await createSocialAction(input);
+      if (!res.ok) {
+        toast.error(res.error);
+        return false;
+      }
+      setSocials((prev) => [
+        ...prev,
+        {
+          id: res.id ?? crypto.randomUUID(),
+          pageId: "",
+          network: input.network,
+          url: input.url,
+          position: prev.length,
+        } as MiseLinkSocial,
+      ]);
+      toast.success("Red social agregada");
+      startTransition(() => router.refresh());
+      return true;
+    },
 
     removeSocial: (id: string) => {
       setSocials((prev) => prev.filter((s) => s.id !== id));

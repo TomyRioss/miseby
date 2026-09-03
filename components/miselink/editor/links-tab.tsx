@@ -107,7 +107,12 @@ export function LinksTab({ state }: { state: State }) {
             Todavía no agregaste enlaces.
           </p>
         ) : (
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+          <DndContext
+            id="miselink-links-dnd"
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={onDragEnd}
+          >
             <SortableContext
               items={state.items.map((i) => i.id)}
               strategy={verticalListSortingStrategy}
