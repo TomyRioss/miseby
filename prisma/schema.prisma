@@ -1,0 +1,337 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum UserRole {
+  platform_owner
+  business_owner
+  business_member
+}
+
+enum UserStatus {
+  active
+  pending
+  suspended
+}
+
+model UserProfile {
+  id           String     @id @default(uuid()) @db.Uuid
+  name         String?
+  email        String     @unique
+  passwordHash String     @map("password_hash")
+  role         UserRole
+  status       UserStatus
+
+  organizationMembers OrganizationMember[]
+  activatedMemberships Membership[]        @relation("MembershipActivatedBy")
+  invitationsSent      Invitation[]        @relation("InvitationInvitedBy")
+  invitationsAccepted  Invitation[]        @relation("InvitationAcceptedBy")
+  auditLogs            AuditLog[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("profiles")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("password_reset_tokens")
+}
+
+enum BusinessType {
+  restaurant
+  commerce
+  services
+  other
+}
+
+enum OrganizationStatus {
+  pending
+  active
+  suspended
+  cancelled
+}
+
+model Organization {
+  id             String             @id @default(uuid()) @db.Uuid
+  commercialName String             @map("commercial_name")
+  legalName      String?            @map("legal_name")
+  taxId          String?            @map("tax_id")
+  businessType   BusinessType       @map("business_type")
+  country        String?
+  city           String?
+  address        String?
+  phone          String?
+  email          String?
+  currency       String?
+  timezone       String?
+  logo           String?
+  slug           String             @unique
+  status         OrganizationStatus
+  internalNotes  String?            @map("internal_notes")
+
+  members      OrganizationMember[]
+  memberships  Membership[]
+  invitations  Invitation[]
+  auditLogs    AuditLog[]
+  miselinkPage MiseLinkPage?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@map("organizations")
+}
+
+enum OrganizationMemberRole {
+  business_owner
+  business_member
+}
+
+enum OrganizationMemberStatus {
+  active
+  inactive
+}
+
+model OrganizationMember {
+  id             String                   @id @default(uuid()) @db.Uuid
+  organizationId String                   @map("organization_id") @db.Uuid
+  userId         String                   @map("user_id") @db.Uuid
+  role           OrganizationMemberRole
+  status         OrganizationMemberStatus
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         UserProfile  @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([organizationId, userId])
+  @@map("organization_members")
+}
+
+enum PlanCode {
+  mise_link
+  mise
+  mise_restaurant
+}
+
+enum PlanStatus {
+  active
+  inactive
+}
+
+model Plan {
+  id          String     @id @default(uuid()) @db.Uuid
+  code        PlanCode   @unique
+  name        String
+  description String?
+  status      PlanStatus
+
+  memberships Membership[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("plans")
+}
+
+enum MembershipStatus {
+  pending
+  trial
+  active
+  suspended
+  expired
+  cancelled
+}
+
+enum MembershipSource {
+  manual
+  trial
+  founder
+  internal
+  stripe
+}
+
+model Membership {
+  id             String           @id @default(uuid()) @db.Uuid
+  organizationId String           @map("organization_id") @db.Uuid
+  planId         String           @map("plan_id") @db.Uuid
+  status         MembershipStatus
+  source         MembershipSource
+  startsAt       DateTime?        @map("starts_at")
+  expiresAt      DateTime?        @map("expires_at")
+  trialEndsAt    DateTime?        @map("trial_ends_at")
+  activatedById  String?          @map("activated_by") @db.Uuid
+  internalNotes  String?          @map("internal_notes")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  plan         Plan         @relation(fields: [planId], references: [id], onDelete: Restrict)
+  activatedBy  UserProfile? @relation("MembershipActivatedBy", fields: [activatedById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([organizationId, status])
+  @@map("memberships")
+}
+
+enum InvitationRole {
+  business_owner
+  business_member
+}
+
+enum InvitationStatus {
+  pending
+  accepted
+  expired
+  cancelled
+}
+
+model Invitation {
+  id             String           @id @default(uuid()) @db.Uuid
+  organizationId String           @map("organization_id") @db.Uuid
+  email          String
+  role           InvitationRole
+  invitedById    String           @map("invited_by") @db.Uuid
+  token          String           @unique
+  status         InvitationStatus
+  expiresAt      DateTime         @map("expires_at")
+  acceptedAt     DateTime?        @map("accepted_at")
+  acceptedById   String?          @map("accepted_by") @db.Uuid
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  invitedBy    UserProfile  @relation("InvitationInvitedBy", fields: [invitedById], references: [id], onDelete: Restrict)
+  acceptedBy   UserProfile? @relation("InvitationAcceptedBy", fields: [acceptedById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([email])
+  @@index([organizationId])
+  @@map("invitations")
+}
+
+enum AuditAction {
+  organization_created
+  organization_updated
+  organization_activated
+  organization_suspended
+  organization_cancelled
+  membership_created
+  membership_changed
+  membership_activated
+  membership_suspended
+  membership_cancelled
+  invitation_created
+  invitation_resent
+  invitation_cancelled
+  invitation_accepted
+  user_password_changed
+  platform_owner_login
+}
+
+model AuditLog {
+  id             String       @id @default(uuid()) @db.Uuid
+  actorUserId    String?      @map("actor_user") @db.Uuid
+  organizationId String?      @map("organization") @db.Uuid
+  action         AuditAction
+  entityType     String?      @map("entity_type")
+  entityId       String?      @map("entity_id")
+  metadata       Json?
+
+  actorUser    UserProfile?  @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([organizationId])
+  @@index([actorUserId])
+  @@map("audit_logs")
+}
+
+enum MiseLinkItemType {
+  link
+  header
+  collection
+  embed
+}
+
+model MiseLinkPage {
+  id             String  @id @default(uuid()) @db.Uuid
+  organizationId String  @unique @map("organization_id") @db.Uuid
+  username       String  @unique
+  published      Boolean @default(false)
+
+  displayName   String? @map("display_name")
+  bio           String? @db.Text
+  avatarUrl     String? @map("avatar_url")
+  showFollowers Boolean @default(false) @map("show_followers")
+
+  theme Json @default("{}")
+
+  metaTitle       String? @map("meta_title")
+  metaDescription String? @map("meta_description")
+  passwordHash    String? @map("password_hash")
+
+  organization Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  items        MiseLinkItem[]
+  socials      MiseLinkSocial[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("miselink_pages")
+}
+
+model MiseLinkItem {
+  id       String           @id @default(uuid()) @db.Uuid
+  pageId   String           @map("page_id") @db.Uuid
+  type     MiseLinkItemType @default(link)
+  parentId String?          @map("parent_id") @db.Uuid
+  position Int
+  active   Boolean          @default(true)
+
+  title String?
+  url   String?
+  data  Json   @default("{}")
+
+  scheduledStart DateTime? @map("scheduled_start")
+  scheduledEnd   DateTime? @map("scheduled_end")
+  clickCount     Int       @default(0) @map("click_count")
+
+  page MiseLinkPage @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([pageId, position])
+  @@map("miselink_items")
+}
+
+model MiseLinkSocial {
+  id       String @id @default(uuid()) @db.Uuid
+  pageId   String @map("page_id") @db.Uuid
+  network  String
+  url      String
+  position Int
+
+  page MiseLinkPage @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@index([pageId, position])
+  @@map("miselink_socials")
+}
