@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { MiseLinkHeader } from "./miselink-header";
 import { MiseLinkSocials } from "./miselink-socials";
 import { MiseLinkButton } from "./miselink-button";
@@ -22,9 +23,9 @@ export function MiseLinkPublicView({
         ))}
       </div>
       <footer className="mt-auto pt-8 text-xs text-muted-foreground">
-        <a href="/" className="hover:text-foreground">
+        <Link href="/" className="hover:text-foreground">
           Hecho con MISE BY
-        </a>
+        </Link>
       </footer>
     </div>
   );

@@ -1,4 +1,5 @@
-import { Building2 } from "lucide-react";
+import Link from "next/link";
+import { Building2, Link2 } from "lucide-react";
 import { MiseMark } from "@/components/brand/mise-mark";
 import { LogoutButton } from "@/components/business/logout-button";
 
@@ -18,10 +19,20 @@ export function BusinessSidebar() {
   return (
     <aside className="hidden w-56 shrink-0 flex-col border-r border-border bg-card p-4 md:flex">
       <nav className="mt-2 space-y-1">
-        <span className="flex items-center gap-3 rounded-xl bg-[#075296]/10 px-3 py-2.5 text-sm font-medium text-[#075296]">
+        <Link
+          href="/dashboard"
+          className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted"
+        >
           <Building2 className="h-4 w-4" />
           Inicio
-        </span>
+        </Link>
+        <Link
+          href="/dashboard/miselink"
+          className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted"
+        >
+          <Link2 className="h-4 w-4" />
+          MISE LINK
+        </Link>
       </nav>
     </aside>
   );
