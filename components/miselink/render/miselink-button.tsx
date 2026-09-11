@@ -17,6 +17,25 @@ export function MiseLinkButton({ item, theme }: { item: RenderItem; theme?: Mise
   const btnFg = theme?.colors.buttonText ?? "#171717";
   const outline = style === "outline";
 
+  function trackClick() {
+    try {
+      const payload = JSON.stringify({ id: item.id });
+      if (navigator.sendBeacon) {
+        const blob = new Blob([payload], { type: "application/json" });
+        navigator.sendBeacon("/api/miselink/click", blob);
+      } else {
+        void fetch("/api/miselink/click", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: payload,
+          keepalive: true,
+        }).catch((e) => console.error("click track failed", e));
+      }
+    } catch (e) {
+      console.error("click track failed", e);
+    }
+  }
+
   async function copyLink() {
     try {
       await navigator.clipboard.writeText(item.url as string);
@@ -35,6 +54,7 @@ export function MiseLinkButton({ item, theme }: { item: RenderItem; theme?: Mise
         href={item.url}
         target="_blank"
         rel="noopener noreferrer nofollow"
+        onClick={trackClick}
         style={
           outline
             ? { borderColor: btnBg, color: btnFg, background: "transparent" }

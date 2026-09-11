@@ -1,4 +1,4 @@
-export type ThemeHeader = "classic" | "hero" | "compact";
+export type ThemeHeader = "classic" | "hero" | "banner" | "cutout" | "shape" | "compact";
 export type ThemeWallpaper = "fill" | "gradient" | "soft";
 export type ThemeButtonStyle = "fill" | "outline" | "soft" | "round";
 export type ThemeFont = "sans" | "serif" | "mono" | "round";
@@ -74,7 +74,14 @@ export function normalizeTheme(raw: unknown): MiseLinkTheme {
   const gradient = { ...THEME_DEFAULT.wallpaperGradient!, ...(t.wallpaperGradient ?? {}) };
   return {
     preset: typeof t.preset === "string" ? t.preset : THEME_DEFAULT.preset,
-    header: t.header === "hero" || t.header === "compact" ? t.header : "classic",
+    header:
+      t.header === "hero" ||
+      t.header === "banner" ||
+      t.header === "cutout" ||
+      t.header === "shape" ||
+      t.header === "compact"
+        ? t.header
+        : "classic",
     wallpaper: t.wallpaper === "gradient" || t.wallpaper === "soft" ? t.wallpaper : "fill",
     buttonStyle:
       t.buttonStyle === "outline" || t.buttonStyle === "soft" || t.buttonStyle === "round"

@@ -33,13 +33,13 @@ export default async function BusinessDashboardPage() {
   const isActive = org?.status === "active";
 
   return (
-    <div className="flex min-h-[100dvh] flex-col bg-background">
+    <div className="flex h-full flex-col overflow-hidden bg-background">
       <BusinessHeader />
 
-      <div className="flex flex-1">
+      <div className="flex min-h-0 flex-1">
         <BusinessSidebar userLabel={user.email} />
 
-        <main className="flex-1 p-6 lg:p-10">
+        <main className="min-h-0 flex-1 overflow-y-auto p-6 lg:p-10">
           {error ? (
             <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
               {error}

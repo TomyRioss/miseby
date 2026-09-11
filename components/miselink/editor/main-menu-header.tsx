@@ -5,7 +5,6 @@ import { useState } from "react";
 import { FaUser, FaPencil } from "react-icons/fa6";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,6 +16,7 @@ import {
 import { MISELINK_SOCIAL_NETWORKS } from "@/lib/miselink/social-networks";
 import type { SocialNetwork } from "@/lib/validations/miselink";
 import type { useMiseLinkState } from "@/hooks/use-miselink-state";
+import { uploadAvatarAction } from "@/lib/actions/avatar";
 import { EditorHeaderActions } from "./editor-toolbar";
 import { ProfileTab } from "./profile-tab";
 import { SocialsTabSection } from "./socials-tab-section";
@@ -117,46 +117,56 @@ function AvatarEditDialog({
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
-  const [url, setUrl] = useState(state.page.avatarUrl ?? "");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [localPreview, setLocalPreview] = useState<string | null>(null);
 
-  const preview = url.trim() || state.page.avatarUrl || "";
+  const preview = localPreview || state.page.avatarUrl || "";
 
   const handleOpen = (v: boolean) => {
     setOpen(v);
     if (v) {
-      setUrl(state.page.avatarUrl ?? "");
       setError("");
+      setLocalPreview((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return null;
+      });
     }
   };
 
-  const handleSave = async () => {
-    const cleaned = url.trim();
-    if (cleaned) {
-      try {
-        const u = new URL(cleaned);
-        if (u.protocol !== "http:" && u.protocol !== "https:") {
-          setError("Pegá una URL válida (https://...)");
-          return;
-        }
-      } catch (e) {
-        console.error("[avatar-edit] URL inválida", e);
-        setError("Pegá una URL válida (https://...)");
+  const handleFile = async (file: File | undefined) => {
+    if (!file) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      setError("Solo JPG, PNG o WebP.");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      setError("Máximo 2 MB.");
+      return;
+    }
+    setError("");
+    setLocalPreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(file);
+    });
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await uploadAvatarAction(fd);
+      if (!res.ok) {
+        setError(res.error);
         return;
       }
-    }
-    setSaving(true);
-    setError("");
-    try {
-      const ok = await state.saveProfile({ avatarUrl: cleaned || "" });
+      const ok = await state.saveProfile({ avatarUrl: res.url });
       if (ok) setOpen(false);
-      else setError("No se pudo guardar la foto. Probá de nuevo.");
+      else setError("Subida ok, pero no se pudo guardar. Probá de nuevo.");
     } catch (e) {
-      console.error("[avatar-edit]", e);
-      setError("No se pudo guardar la foto. Probá de nuevo.");
+      console.error("[avatar-edit] upload", e);
+      setError("No se pudo subir la foto. Probá de nuevo.");
     } finally {
-      setSaving(false);
+      setUploading(false);
     }
   };
 
@@ -174,55 +184,43 @@ function AvatarEditDialog({
               <FaUser className="h-8 w-8" />
             </AvatarFallback>
           </Avatar>
-          <div className="w-full space-y-2">
-            <label className="text-sm font-medium">URL de la foto</label>
-            <Input
-              value={url}
-              onChange={(e) => {
-                setUrl(e.target.value);
-                setError("");
-              }}
-              placeholder="https://..."
-              inputMode="url"
-              className="rounded-xl"
+          <label
+            className={`w-full cursor-pointer rounded-full border border-dashed border-border px-4 py-2.5 text-center text-sm font-medium transition-colors hover:bg-muted ${uploading ? "pointer-events-none opacity-60" : ""}`}
+          >
+            {uploading ? "Subiendo…" : "Subir desde el dispositivo"}
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="hidden"
+              disabled={uploading || saving}
+              onChange={(e) => handleFile(e.target.files?.[0])}
             />
-            {error && <p className="text-xs text-red-600">{error}</p>}
-          </div>
-          <div className="flex w-full gap-2">
-            {state.page.avatarUrl || url.trim() ? (
-              <Button
-                type="button"
-                variant="outline"
-                className="flex-1 rounded-full"
-                disabled={saving}
-                onClick={async () => {
-                  setUrl("");
-                  setError("");
-                  setSaving(true);
-                  try {
-                    const ok = await state.saveProfile({ avatarUrl: "" });
-                    if (ok) setOpen(false);
-                    else setError("No se pudo quitar la foto.");
-                  } catch (e) {
-                    console.error("[avatar-edit] quitar", e);
-                    setError("No se pudo quitar la foto.");
-                  } finally {
-                    setSaving(false);
-                  }
-                }}
-              >
-                Quitar
-              </Button>
-            ) : null}
+          </label>
+          {error && <p className="text-xs text-red-600">{error}</p>}
+          {state.page.avatarUrl ? (
             <Button
               type="button"
-              className="flex-1 rounded-full bg-[#075296] text-white hover:bg-[#0E88E2]"
-              disabled={saving}
-              onClick={handleSave}
+              variant="outline"
+              className="w-full rounded-full"
+              disabled={saving || uploading}
+              onClick={async () => {
+                setError("");
+                setSaving(true);
+                try {
+                  const ok = await state.saveProfile({ avatarUrl: "" });
+                  if (ok) setOpen(false);
+                  else setError("No se pudo quitar la foto.");
+                } catch (e) {
+                  console.error("[avatar-edit] quitar", e);
+                  setError("No se pudo quitar la foto.");
+                } finally {
+                  setSaving(false);
+                }
+              }}
             >
-              {saving ? "Guardando…" : "Guardar"}
+              Quitar foto
             </Button>
-          </div>
+          ) : null}
         </div>
       </DialogContent>
     </Dialog>

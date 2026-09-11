@@ -27,11 +27,10 @@ async function resolvePage(username: string): Promise<{
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { username } = await params;
   const resolved = await resolvePage(username).catch(() => null);
-  if (!resolved) return { title: "Página no encontrada — MISE BY" };
+  if (!resolved) return { title: "Página no encontrada — Mise Link Oficial" };
   const { page } = resolved;
-  const title = page.displayName?.trim() || `@${page.username}`;
   return {
-    title: `${title} — MISE BY`,
+    title: `@${page.username} — Mise Link Oficial`,
     description: page.bio?.trim() || undefined,
     robots: resolved.preview ? { index: false, follow: false } : undefined,
   };

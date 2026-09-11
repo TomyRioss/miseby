@@ -18,7 +18,7 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="mise-gradient flex min-h-[100dvh] flex-col items-center justify-center px-6 text-white">
+    <div className="mise-gradient flex h-full flex-col items-center justify-center overflow-hidden px-6 text-white">
       <Reveal className="max-w-lg text-center">
         <MiseMark className="text-3xl text-white" />
         <p className="mt-4 text-sm font-medium tracking-wide text-white/80">

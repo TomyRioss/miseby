@@ -75,7 +75,7 @@ const hexColor = z.string().regex(/^#[0-9a-fA-F]{6}$/, "Color inválido");
 
 export const themeSchema = z.object({
   preset: z.string().trim().max(40).optional(),
-  header: z.enum(["classic", "hero", "compact"]).optional(),
+  header: z.enum(["classic", "hero", "banner", "cutout", "shape", "compact"]).optional(),
   wallpaper: z.enum(["fill", "gradient", "soft"]).optional(),
   buttonStyle: z.enum(["fill", "outline", "soft", "round"]).optional(),
   font: z.enum(["sans", "serif", "mono", "round"]).optional(),

@@ -1,28 +1,56 @@
 import type { Metadata } from "next";
 import { getCurrentUser } from "@/lib/auth/session";
+import { getOrCreateMiseLinkPage } from "@/lib/services/miselink";
+import { normalizeTheme } from "@/lib/miselink/theme";
 import { BusinessHeader, BusinessSidebar } from "@/components/business/business-header";
+import { DesignEditor } from "@/components/miselink/design/design-editor";
 
 export const metadata: Metadata = {
   title: "Diseño — My MiseLink",
-  description: "Plantillas de diseño para tu página de MiseLink.",
+  description: "Personalizá theme, header, fondo, botones, texto, colores y footer.",
 };
 
 export default async function MiseLinkDesignPage() {
   const user = await getCurrentUser();
   if (!user) return null;
 
+  const page = await getOrCreateMiseLinkPage(user.id).catch((e) => {
+    console.error("[design page]", e);
+    return null;
+  });
+
+  if (!page) {
+    return (
+      <div className="flex h-full flex-col overflow-hidden bg-background">
+        <BusinessHeader markSuffix="LINK" />
+        <div className="flex min-h-0 flex-1">
+          <BusinessSidebar userLabel={user.email} />
+          <main className="min-h-0 flex-1 overflow-y-auto px-6 py-6">No se pudo cargar el diseño.</main>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex min-h-[100dvh] flex-col bg-background">
+    <div className="flex h-full flex-col overflow-hidden bg-background">
       <BusinessHeader markSuffix="LINK" />
-      <div className="flex flex-1">
+      <div className="flex min-h-0 flex-1">
         <BusinessSidebar userLabel={user.email} />
-        <main className="flex-1 px-6 py-6 sm:px-10 lg:px-16 xl:px-24 lg:py-10">
-          <h1 className="font-display text-2xl font-semibold text-foreground">Diseño</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Elegí una plantilla para tu página de MiseLink.
-          </p>
-          <div className="mt-6 rounded-2xl border border-dashed border-border px-4 py-12 text-center text-sm text-muted-foreground">
-            Próximamente: plantillas de diseño para elegir.
+        <main className="min-h-0 w-full flex-1 overflow-y-auto px-6 py-6 sm:px-10 lg:px-12 lg:py-10">
+          <div className="mx-auto w-full max-w-6xl">
+            <DesignEditor
+              username={page.username}
+              initialTheme={normalizeTheme(page.theme)}
+              page={{
+                displayName: page.displayName,
+                bio: page.bio,
+                avatarUrl: page.avatarUrl,
+              }}
+              items={page.items
+                .filter((i) => i.active)
+                .map((i) => ({ id: i.id, title: i.title, url: i.url }))}
+              socials={page.socials.map((s) => ({ id: s.id, network: s.network, url: s.url }))}
+            />
           </div>
         </main>
       </div>
