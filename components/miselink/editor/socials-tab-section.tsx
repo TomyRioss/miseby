@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MISELINK_SOCIAL_NETWORKS } from "@/lib/miselink/social-networks";
+import { MISELINK_SOCIAL_NETWORKS, normalizeSocialUrl } from "@/lib/miselink/social-networks";
 import { SOCIAL_NETWORKS, type SocialNetwork } from "@/lib/validations/miselink";
 import type { useMiseLinkState } from "@/hooks/use-miselink-state";
 
@@ -21,13 +21,35 @@ export function SocialsTabSection({ state }: { state: State }) {
   const [network, setNetwork] = useState<SocialNetwork>("instagram");
   const [url, setUrl] = useState("");
   const [adding, setAdding] = useState(false);
+  const [error, setError] = useState("");
 
   const submit = async () => {
-    if (!url.trim()) return;
+    const raw = url.trim();
+    if (!raw) return;
+    const normalized = normalizeSocialUrl(network, raw);
+    try {
+      const u = new URL(normalized);
+      if (u.protocol !== "http:" && u.protocol !== "https:") {
+        setError("Pegá un link válido o un @usuario.");
+        return;
+      }
+    } catch (e) {
+      console.error("[socials-tab] URL inválida", e);
+      setError("Pegá un link válido o un @usuario.");
+      return;
+    }
     setAdding(true);
-    const ok = await state.addSocial({ network, url: url.trim() });
-    setAdding(false);
-    if (ok) setUrl("");
+    setError("");
+    try {
+      const ok = await state.addSocial({ network, url: normalized });
+      if (ok) setUrl("");
+      else setError("No se pudo agregar el icono. Probá de nuevo.");
+    } catch (e) {
+      console.error("[socials-tab]", e);
+      setError("No se pudo agregar el icono. Probá de nuevo.");
+    } finally {
+      setAdding(false);
+    }
   };
 
   return (
@@ -49,8 +71,11 @@ export function SocialsTabSection({ state }: { state: State }) {
         </Select>
         <Input
           value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          placeholder="https://..."
+          onChange={(e) => {
+            setUrl(e.target.value);
+            setError("");
+          }}
+          placeholder="@usuario o https://..."
           inputMode="url"
           className="rounded-lg"
         />
@@ -58,6 +83,7 @@ export function SocialsTabSection({ state }: { state: State }) {
           <Plus className="h-4 w-4" /> Agregar
         </Button>
       </div>
+      {error && <p className="text-xs text-red-600">{error}</p>}
 
       {state.socials.length > 0 ? (
         <ul className="flex flex-col gap-2">

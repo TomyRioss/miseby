@@ -46,12 +46,7 @@ export default async function MiseLinkPublicPage({ params }: Params) {
   const activeItems = preview ? page.items.filter((i) => i.active) : page.items;
 
   return (
-    <div className="min-h-[100dvh] bg-background">
-      {preview ? (
-        <p className="bg-amber-100 px-4 py-2 text-center text-xs font-medium text-amber-900">
-          Vista previa — esta página todavía no está publicada.
-        </p>
-      ) : null}
+    <div className="flex h-[100dvh] flex-col items-center overflow-hidden bg-[#e8eaed] sm:bg-[#a3a3a3] sm:px-6 sm:pt-6">
       <MiseLinkPublicView
         page={{
           username: page.username,
@@ -61,6 +56,7 @@ export default async function MiseLinkPublicPage({ params }: Params) {
         }}
         items={activeItems.map((i) => ({ id: i.id, title: i.title, url: i.url }))}
         socials={page.socials.map((s) => ({ id: s.id, network: s.network, url: s.url }))}
+        theme={page.theme}
       />
     </div>
   );

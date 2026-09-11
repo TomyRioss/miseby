@@ -115,14 +115,36 @@ export async function updateUsername(userId: string, username: string): Promise<
   }
 }
 
+export async function isUsernameAvailable(
+  userId: string,
+  username: string,
+): Promise<boolean> {
+  const next = username.toLowerCase();
+  if (RESERVED_USERNAMES.has(next)) return false;
+  const page = await resolvePageForUser(userId);
+  const taken = await prisma.miseLinkPage.findUnique({
+    where: { username: next },
+    select: { id: true },
+  });
+  return !taken || taken.id === page.id;
+}
+
+export async function updateTheme(userId: string, data: Record<string, unknown>): Promise<void> {
+  const page = await resolvePageForUser(userId);
+  const current = (page.theme ?? {}) as Record<string, unknown>;
+  const next = { ...(current as object), ...(data as object) };
+  await prisma.miseLinkPage.update({ where: { id: page.id }, data: { theme: next } });
+}
+
 export async function updateProfile(userId: string, data: ProfileInput): Promise<void> {
   const page = await resolvePageForUser(userId);
   await prisma.miseLinkPage.update({
     where: { id: page.id },
     data: {
-      displayName: data.displayName ?? null,
-      bio: data.bio ?? null,
-      avatarUrl: data.avatarUrl ? data.avatarUrl : null,
+      ...("displayName" in data ? { displayName: data.displayName ?? null } : {}),
+      ...("bio" in data ? { bio: data.bio ?? null } : {}),
+      ...("avatarUrl" in data ? { avatarUrl: data.avatarUrl ? data.avatarUrl : null } : {}),
+      ...(data.showFollowers !== undefined ? { showFollowers: data.showFollowers } : {}),
     },
   });
 }
@@ -150,11 +172,15 @@ export async function createLink(userId: string, data: LinkItemInput): Promise<s
   const item = await prisma.miseLinkItem.create({
     data: {
       pageId: page.id,
-      type: "link",
+      type: data.type ?? "link",
       title: data.title,
-      url: data.url,
+      url: data.url ? data.url : null,
       active: data.active ?? true,
       position: (last?.position ?? -1) + 1,
+      parentId: data.parentId ?? null,
+      data: data.data ?? {},
+      scheduledStart: data.scheduledStart ?? null,
+      scheduledEnd: data.scheduledEnd ?? null,
     },
   });
   return item.id;
@@ -170,8 +196,11 @@ export async function updateLink(
     where: { id: itemId, pageId: page.id },
     data: {
       ...(data.title !== undefined ? { title: data.title } : {}),
-      ...(data.url !== undefined ? { url: data.url } : {}),
+      ...(data.url !== undefined ? { url: data.url ? data.url : null } : {}),
       ...(data.active !== undefined ? { active: data.active } : {}),
+      ...(data.data !== undefined ? { data: data.data ?? {} } : {}),
+      ...(data.scheduledStart !== undefined ? { scheduledStart: data.scheduledStart } : {}),
+      ...(data.scheduledEnd !== undefined ? { scheduledEnd: data.scheduledEnd } : {}),
     },
   });
   if (count === 0) throw new Error("Enlace no encontrado.");

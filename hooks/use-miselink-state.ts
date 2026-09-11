@@ -15,12 +15,31 @@ import {
   updateUsernameAction,
   setPublishedAction,
 } from "@/lib/actions/miselink";
+import type { LinkData, MiseLinkItemKind } from "@/lib/validations/miselink";
+
+type NewLinkInput = {
+  title: string;
+  url?: string;
+  type?: MiseLinkItemKind;
+  parentId?: string | null;
+  data?: LinkData;
+};
+
+type EditLinkInput = Partial<{
+  title: string;
+  url: string;
+  active: boolean;
+  data: LinkData;
+  scheduledStart: Date | null;
+  scheduledEnd: Date | null;
+}>;
 
 export type EditorPage = {
   username: string;
   displayName: string | null;
   bio: string | null;
   avatarUrl: string | null;
+  showFollowers: boolean;
   published: boolean;
 };
 
@@ -60,7 +79,7 @@ export function useMiseLinkState(initial: Initial) {
     socials,
     pending,
 
-    addLink: async (input: { title: string; url: string }) => {
+    addLink: async (input: NewLinkInput) => {
       const res = await createLinkAction(input);
       if (!res.ok) {
         toast.error(res.error);
@@ -71,13 +90,13 @@ export function useMiseLinkState(initial: Initial) {
         {
           id: res.id ?? crypto.randomUUID(),
           pageId: "",
-          type: "link",
-          parentId: null,
+          type: input.type ?? "link",
+          parentId: input.parentId ?? null,
           position: prev.length,
           active: true,
           title: input.title,
-          url: input.url,
-          data: {},
+          url: input.url ?? null,
+          data: input.data ?? {},
           scheduledStart: null,
           scheduledEnd: null,
           clickCount: 0,
@@ -90,8 +109,18 @@ export function useMiseLinkState(initial: Initial) {
       return true;
     },
 
-    editLink: (id: string, input: Partial<{ title: string; url: string; active: boolean }>) => {
-      setItems((prev) => prev.map((i) => (i.id === id ? { ...i, ...input } : i)));
+    editLink: (id: string, input: EditLinkInput) => {
+      setItems((prev) =>
+        prev.map((i) =>
+          i.id === id
+            ? {
+                ...i,
+                ...input,
+                data: input.data !== undefined ? (input.data ?? {}) : i.data,
+              }
+            : i,
+        ),
+      );
       return run(() => updateLinkAction(id, input));
     },
 
@@ -134,7 +163,12 @@ export function useMiseLinkState(initial: Initial) {
       return run(() => deleteSocialAction(id));
     },
 
-    saveProfile: (input: { displayName?: string; bio?: string; avatarUrl?: string }) => {
+    saveProfile: (input: {
+      displayName?: string;
+      bio?: string;
+      avatarUrl?: string;
+      showFollowers?: boolean;
+    }) => {
       setPage((p) => ({ ...p, ...input }));
       return run(
         () => updateProfileAction(input),

@@ -13,7 +13,7 @@ export function LogoutButton() {
         await signOut({ redirect: false });
         router.replace("/login");
       }}
-      className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+      className="flex items-center gap-2 rounded-full border border-[#00E676]/70 px-3.5 py-1.5 text-sm font-medium text-white transition-colors hover:bg-white/10"
     >
       <LogOut className="h-4 w-4" />
       <span className="hidden sm:block">Salir</span>

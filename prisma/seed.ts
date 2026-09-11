@@ -93,6 +93,60 @@ async function main() {
     },
   });
 
+  // Cuenta demo con plan MISE LINK
+  const tomyPasswordHash = await bcrypt.hash("tomy1234", 10);
+  const tomyOwner = await prisma.userProfile.upsert({
+    where: { email: "tomy@gmail.com" },
+    update: { passwordHash: tomyPasswordHash, role: "business_owner", status: "active" },
+    create: {
+      name: "Tomy",
+      email: "tomy@gmail.com",
+      passwordHash: tomyPasswordHash,
+      role: "business_owner",
+      status: "active",
+    },
+  });
+
+  const tomyOrg = await prisma.organization.upsert({
+    where: { slug: "tomy-demo" },
+    update: {},
+    create: {
+      commercialName: "Tomy Demo",
+      businessType: "other",
+      country: "Colombia",
+      slug: "tomy-demo",
+      status: "active",
+    },
+  });
+
+  await prisma.organizationMember.upsert({
+    where: { organizationId_userId: { organizationId: tomyOrg.id, userId: tomyOwner.id } },
+    update: { role: "business_owner", status: "active" },
+    create: {
+      organizationId: tomyOrg.id,
+      userId: tomyOwner.id,
+      role: "business_owner",
+      status: "active",
+    },
+  });
+
+  const miseLinkPlan = await prisma.plan.findUniqueOrThrow({ where: { code: "mise_link" } });
+  const tomyMembership = await prisma.membership.findFirst({
+    where: { organizationId: tomyOrg.id },
+  });
+  if (!tomyMembership) {
+    await prisma.membership.create({
+      data: {
+        organizationId: tomyOrg.id,
+        planId: miseLinkPlan.id,
+        status: "active",
+        source: "internal",
+        startsAt: new Date(),
+        activatedById: platformOwner.id,
+      },
+    });
+  }
+
   const misePlan = await prisma.plan.findUniqueOrThrow({ where: { code: "mise" } });
   const existingMembership = await prisma.membership.findFirst({
     where: { organizationId: organization.id },

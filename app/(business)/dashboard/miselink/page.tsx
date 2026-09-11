@@ -27,6 +27,7 @@ export default async function MiseLinkDashboardPage() {
           displayName: page.displayName,
           bio: page.bio,
           avatarUrl: page.avatarUrl,
+          showFollowers: page.showFollowers,
           published: page.published,
         },
         items: page.items,
@@ -34,21 +35,17 @@ export default async function MiseLinkDashboardPage() {
       }}
     />
   ) : (
-    <NoPlanState />
+    <div className="px-6 py-6 sm:px-10 lg:px-16 xl:px-24 lg:py-10">
+      <NoPlanState />
+    </div>
   );
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-background">
-      <BusinessHeader userLabel={user.email} />
+      <BusinessHeader markSuffix="LINK" />
       <div className="flex flex-1">
-        <BusinessSidebar />
-        <main className="flex-1 p-6 lg:p-10">
-          <div className="mb-6">
-            <h1 className="font-display text-2xl font-semibold text-foreground">MISE LINK</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Tu página de enlaces pública.</p>
-          </div>
-          {editor}
-        </main>
+        <BusinessSidebar userLabel={user.email} />
+        <main className="flex-1">{editor}</main>
       </div>
     </div>
   );

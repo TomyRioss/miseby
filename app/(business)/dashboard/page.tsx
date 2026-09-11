@@ -34,10 +34,10 @@ export default async function BusinessDashboardPage() {
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-background">
-      <BusinessHeader userLabel={user.email} />
+      <BusinessHeader />
 
       <div className="flex flex-1">
-        <BusinessSidebar />
+        <BusinessSidebar userLabel={user.email} />
 
         <main className="flex-1 p-6 lg:p-10">
           {error ? (

@@ -9,6 +9,7 @@ import {
   linkItemSchema,
   socialSchema,
   reorderSchema,
+  themeSchema,
 } from "@/lib/validations/miselink";
 
 type ActionResult = { ok: true } | { ok: false; error: string };
@@ -46,6 +47,22 @@ export async function updateUsernameAction(input: unknown): Promise<ActionResult
   }
 }
 
+export async function checkUsernameAction(
+  input: unknown,
+): Promise<{ ok: true; available: boolean } | { ok: false; error: string }> {
+  try {
+    const user = await requireBusinessUser();
+    const parsed = usernameSchema.safeParse(input);
+    if (!parsed.success) {
+      return { ok: false, error: parsed.error.issues[0]?.message ?? "Nombre inválido" };
+    }
+    const available = await service.isUsernameAvailable(user.id, parsed.data);
+    return { ok: true, available };
+  } catch (e) {
+    return fail(e, "No se pudo verificar el nombre.");
+  }
+}
+
 export async function updateProfileAction(input: unknown): Promise<ActionResult> {
   try {
     const user = await requireBusinessUser();
@@ -58,6 +75,22 @@ export async function updateProfileAction(input: unknown): Promise<ActionResult>
     return { ok: true };
   } catch (e) {
     return fail(e, "No se pudo actualizar el perfil.");
+  }
+}
+
+export async function updateThemeAction(input: unknown): Promise<ActionResult> {
+  try {
+    const user = await requireBusinessUser();
+    const parsed = themeSchema.safeParse(input);
+    if (!parsed.success) {
+      return { ok: false, error: parsed.error.issues[0]?.message ?? "Diseño inválido" };
+    }
+    await service.updateTheme(user.id, parsed.data as Record<string, unknown>);
+    await revalidateFor(user.id);
+    revalidatePath("/dashboard/miselink/design");
+    return { ok: true };
+  } catch (e) {
+    return fail(e, "No se pudo guardar el diseño.");
   }
 }
 

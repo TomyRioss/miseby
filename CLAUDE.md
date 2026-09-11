@@ -19,6 +19,9 @@
 - Diseño responsivo siempre (mobile + desktop).
 - Nunca usar SVG para imágenes/iconos salvo pedido explícito — usar fuentes reales (react-icons, Pexels, etc).
 
+## Marca
+- Colores: blanco `#FFFFFF`, azul marino `#0A2540`.
+
 ## Skills por tarea
 - **DB / Supabase**: skill `supabase/agent-skills`, modelo sonnet, junto a MCP de Supabase.
 - **Testing / navegador**: skill playwright, modelo haiku, mínimo gasto de tokens (combinar con `/cavemen ultra` para más ahorro).

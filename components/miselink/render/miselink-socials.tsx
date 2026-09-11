@@ -1,11 +1,12 @@
+import type { RenderSocial } from "./types";
 import { MISELINK_SOCIAL_NETWORKS } from "@/lib/miselink/social-networks";
 import type { SocialNetwork } from "@/lib/validations/miselink";
-import type { RenderSocial } from "./types";
+import type { MiseLinkTheme } from "@/lib/miselink/theme";
 
-export function MiseLinkSocials({ socials }: { socials: RenderSocial[] }) {
+export function MiseLinkSocials({ socials, theme }: { socials: RenderSocial[]; theme?: MiseLinkTheme }) {
   if (socials.length === 0) return null;
   return (
-    <nav className="flex flex-wrap items-center justify-center gap-4">
+    <nav aria-label="Redes sociales" className="flex flex-wrap items-center justify-center gap-5 pt-1">
       {socials.map((s) => {
         const meta = MISELINK_SOCIAL_NETWORKS[s.network as SocialNetwork];
         if (!meta) return null;
@@ -17,9 +18,10 @@ export function MiseLinkSocials({ socials }: { socials: RenderSocial[] }) {
             target="_blank"
             rel="noopener noreferrer nofollow"
             aria-label={meta.label}
-            className="text-muted-foreground transition-colors hover:text-foreground"
+            style={{ color: theme?.colors.text ?? "#171717" }}
+            className="flex h-11 w-11 items-center justify-center transition-transform hover:scale-105 active:scale-95"
           >
-            <Icon className="h-5 w-5" />
+            <Icon className="h-7 w-7" />
           </a>
         );
       })}
