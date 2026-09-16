@@ -17,7 +17,7 @@ export function MenuEditorLayout({ left, preview }: { left: React.ReactNode; pre
       <aside className="hidden lg:block">
         <div className="fixed right-8 top-1/2 h-[calc(100vh-8rem)] max-h-[760px] w-[360px] -translate-y-1/2">{preview}</div>
       </aside>
-      <div className="h-[620px] lg:hidden">{preview}</div>
+      <div className="h-[min(620px,80vh)] lg:hidden">{preview}</div>
     </div>
   );
 }

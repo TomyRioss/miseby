@@ -30,7 +30,7 @@ Corre cada 5 minutos vía automation de Orca. Objetivo: convertir tasks nuevas d
 7. Normaliza el título al estándar de arriba (ajusta label + título si no cumplen).
 8. Pasa a In Progress e implementa según el issue. Si falta spec, la defines breve en el primer comentario.
 9. Merge a main permitido si gates verdes. Deploy a prod: PROHIBIDO.
-10. Éxito: mueve a In Review y comenta resumen (qué cambió, archivos, cómo verificar).
+10. Éxito: mueve a In Review y comenta resumen (qué cambió, archivos, cómo verificar). OBLIGATORIO adjuntar evidencia visual al issue: varias imágenes de TODA la funcionalidad completa (flujo entero, no una pantalla) en desktop (1440px), tablet (768px) y mobile (375px). Captura en /tmp, súbelas al issue (prepare_attachment_upload, PUT, create_attachment_from_upload), referéncialas en el comentario y borra los archivos de /tmp. Sin evidencia no se mueve a In Review.
 11. Fallo: comenta `Intento N/5: <error breve>`. Si N<5 vuelve a Backlog (mantiene label `auto`). Si N=5: agrega label `needs-human`, comenta diagnóstico + último error, deja en Backlog.
 12. N = cantidad de comentarios `Intento N/5` previos del operador en ese issue + 1.
 13. Si el issue es ambiguo o riesgoso (auth, pagos, datos sensibles, DB, scope gigante): no lo implementes, coméntalo y pásalo a In Review para humano.

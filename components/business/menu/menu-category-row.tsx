@@ -38,7 +38,7 @@ export function MenuCategoryRow({
     <div ref={setNodeRef} style={style} className={`rounded-2xl border border-border bg-card p-4 transition-opacity sm:p-5 ${isDragging ? "opacity-50" : ""}`}>
       <div className="flex items-center gap-2">
         <button type="button" {...attributes} {...listeners} aria-label={`Reordenar ${category.name}`}
-          className="shrink-0 cursor-grab touch-none rounded p-1 text-muted-foreground active:cursor-grabbing">
+          className="shrink-0 cursor-grab touch-none rounded p-1 text-muted-foreground active:cursor-grabbing focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
           <GripVertical className="h-4 w-4" />
         </button>
         <div className="min-w-0 flex-1">
@@ -52,11 +52,11 @@ export function MenuCategoryRow({
           <p className="text-xs tabular-nums text-muted-foreground">{products.length} platos</p>
         </div>
         <button type="button" onClick={onAddProduct}
-          className="shrink-0 whitespace-nowrap rounded-full border border-[#0A2540] px-3 py-1.5 text-xs font-semibold text-[#0A2540] hover:bg-[#0A2540]/5">
+          className="shrink-0 whitespace-nowrap rounded-full border border-[#0A2540] px-3 py-1.5 text-xs font-semibold text-[#0A2540] hover:bg-[#0A2540]/5 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
           + Producto
         </button>
         <DropdownMenu>
-          <DropdownMenuTrigger aria-label="Opciones de categoría" className="rounded-full p-1.5 text-muted-foreground outline-none hover:bg-muted">
+          <DropdownMenuTrigger aria-label="Opciones de categoría" className="min-h-10 min-w-10 rounded-full p-1.5 text-muted-foreground outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
             <MoreVertical className="h-4 w-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -64,7 +64,7 @@ export function MenuCategoryRow({
           </DropdownMenuContent>
         </DropdownMenu>
         <button type="button" onClick={onToggleCollapse} aria-label={collapsed ? "Expandir" : "Colapsar"}
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground hover:text-foreground">
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
           {collapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
         </button>
       </div>
@@ -103,16 +103,16 @@ export function MenuCategoryRow({
                   <button type="button" onClick={() => onToggleTakeAway(p.id, !(p.takeAway !== false))} disabled={false}
                     title={(p.takeAway !== false) ? "Llevar activado" : "Llevar desactivado"}
                     aria-label={`Llevar ${p.name}`}
-                    className={(p.takeAway !== false) ? "text-[#0A2540]" : "text-muted-foreground/50"}>
+                    className={`flex h-11 w-11 items-center justify-center rounded-lg ${(p.takeAway !== false) ? "text-[#0A2540]" : "text-muted-foreground/50"} focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`}>
                     <ShoppingBag className="h-5 w-5" />
                   </button>
                   <button type="button" onClick={() => onToggleActive(p.id, !p.available)}
                     title={p.available ? "Pausar" : "Activar"} aria-label={`${p.available ? "Pausar" : "Activar"} ${p.name}`}
-                    className={p.available ? "text-[#0A2540]" : "text-muted-foreground/50"}>
+                    className={`flex h-11 w-11 items-center justify-center rounded-lg ${p.available ? "text-[#0A2540]" : "text-muted-foreground/50"} focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`}>
                     {p.available ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
                   </button>
                   <DropdownMenu>
-                    <DropdownMenuTrigger aria-label={`Más acciones ${p.name}`} className="rounded-full p-1 text-muted-foreground outline-none hover:bg-muted">
+                    <DropdownMenuTrigger aria-label={`Más acciones ${p.name}`} className="min-h-10 min-w-10 rounded-full p-1 text-muted-foreground outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                       <MoreVertical className="h-5 w-5" />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
@@ -141,7 +141,7 @@ export function MenuCategoryRow({
           {products.length === 0 && (
             <button type="button" onClick={onAddProduct}
               className="flex w-full items-center gap-1.5 py-2.5 text-sm font-medium text-[#6D28D9] hover:text-[#6D28D9]/80">
-              <Plus className="h-4 w-4" /> Añadir producto
+              <Plus className="h-4 w-4" /> Agregar producto
             </button>
           )}
         </>

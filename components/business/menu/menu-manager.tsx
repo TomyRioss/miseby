@@ -1,8 +1,14 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import { CheckCircle2, ChevronDown, CircleAlert, Copy, ExternalLink, FoldVertical, Plus, UnfoldVertical } from "lucide-react";
-import { DndContext, closestCenter, PointerSensor, TouchSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
+import {
+  CheckCircle2, ChevronDown, CircleAlert, Copy, ExternalLink,
+  FoldVertical, Plus, UnfoldVertical, ArrowRight,
+} from "lucide-react";
+import {
+  DndContext, closestCenter, PointerSensor, TouchSensor,
+  useSensor, useSensors, type DragEndEvent,
+} from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 import { toast } from "sonner";
 import { saveMenuAction, setMenuPublishedAction } from "@/lib/actions/restaurant";
@@ -15,6 +21,19 @@ import { MenuEditorLayout } from "../restaurant/menu-editor-layout";
 import { CartaPhonePreview } from "../restaurant/carta-phone-preview";
 import { MenuCategoryRow } from "./menu-category-row";
 import { ProductSheet, type SheetState } from "./product-sheet";
+
+const TEMPLATES = [
+  { name: "Entradas", desc: "Tapas, picadas" },
+  { name: "Fuertes", desc: "Platos principales" },
+  { name: "Postres", desc: "Dulces y más" },
+  { name: "Bebidas", desc: "Líquidos y cócteles" },
+];
+
+const STEPS = [
+  { num: 1, title: "Creá una sección", desc: "Ej: Entradas, Fuertes, Postres… Organizá tu carta en grupos." },
+  { num: 2, title: "Agregá platos con precios", desc: "Dale nombre, precio y descripción a cada plato de la sección." },
+  { num: 3, title: "Publicá tu carta", desc: "Cuando estén listos, publicala y compartila con tus clientes." },
+];
 
 export function MenuManager({
   initialCategories, initialProducts, appearance, currency, slug, hours, menuPublished,
@@ -36,6 +55,7 @@ export function MenuManager({
   const [dirty, setDirty] = useState(false);
   const [published, setPublished] = useState(menuPublished);
   const [publishing, setPublishing] = useState(false);
+  const [inputFocused, setInputFocused] = useState(false);
   const newCatRef = useRef<HTMLInputElement>(null);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -56,6 +76,11 @@ export function MenuManager({
     if (cats.length >= 100) return toast.error("Máximo 100 secciones.");
     touchCats([...cats, { id: newId("cat"), name: n, order: cats.length }]);
     setNewCat("");
+  }
+
+  function handleTemplateClick(name: string) {
+    setNewCat(name);
+    setTimeout(() => newCatRef.current?.focus(), 0);
   }
 
   function handleDragEnd(e: DragEndEvent) {
@@ -84,9 +109,7 @@ export function MenuManager({
     } catch (e) {
       console.error("[menu]", e);
       toast.error(e instanceof Error ? e.message : "No se pudo guardar. Probá de nuevo.");
-    } finally {
-      setSaving(false);
-    }
+    } finally { setSaving(false); }
   }
 
   async function togglePublish() {
@@ -100,9 +123,7 @@ export function MenuManager({
     } catch (e) {
       console.error("[menu publish]", e);
       toast.error(e instanceof Error ? e.message : "No se pudo cambiar. Probá de nuevo.");
-    } finally {
-      setPublishing(false);
-    }
+    } finally { setPublishing(false); }
   }
 
   function copyLink() {
@@ -116,21 +137,29 @@ export function MenuManager({
     { ok: available.some((p) => (p.variants?.[0]?.price ?? p.price) > 0), label: "Precios cargados" },
   ];
 
+  const inputCls = `min-h-10 transition-all duration-200${inputFocused ? " border-[#6D28D9] ring-2 ring-[#6D28D9]/20" : ""}`;
+  const btnPrimary = "min-h-10 shrink-0 bg-[#0A2540] text-white transition-all duration-200 hover:bg-[#0A2540]/90 hover:shadow-md active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
+  const btnGhost = "transition-all duration-150 hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
+
   return (
     <MenuEditorLayout
       left={
         <div className="flex flex-col gap-4">
+          {/* Stats bar */}
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-2xl border border-border bg-card px-5 py-4">
             <p className="text-sm"><strong className="tabular-nums">{products.length}</strong> <span className="text-muted-foreground">platos</span></p>
             <p className="text-sm"><strong className="tabular-nums text-emerald-600">{available.length}</strong> <span className="text-muted-foreground">visibles</span></p>
             <p className="text-sm"><strong className="tabular-nums">{cats.length}</strong> <span className="text-muted-foreground">secciones</span></p>
-            {dirty && <Badge className="ml-auto bg-[#6D28D9]">Cambios sin guardar</Badge>}
+            {dirty && <Badge className="ml-auto animate-pulse bg-[#6D28D9] text-white">Cambios sin guardar</Badge>}
           </div>
 
+          {/* Estado de tu carta */}
           <section className="rounded-2xl border border-border bg-card p-5 sm:p-6">
             <div className="flex items-center gap-2">
               <h2 className="text-base font-semibold tracking-tight">Estado de tu carta</h2>
-              <Badge variant={published ? "default" : "secondary"} className={published ? "bg-emerald-600" : ""}>{published ? "En línea" : "Borrador"}</Badge>
+              <Badge variant={published ? "default" : "secondary"} className={published ? "bg-emerald-600 text-white" : ""}>
+                {published ? "En línea" : "Borrador"}
+              </Badge>
             </div>
             <ul className="mt-3 space-y-1.5">
               {checks.map((c) => (
@@ -140,20 +169,26 @@ export function MenuManager({
                 </li>
               ))}
             </ul>
-            <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-              <Button onClick={togglePublish} disabled={publishing} className="min-h-10 flex-1 bg-[#0A2540] hover:bg-[#0A2540]/90">
+            <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+              <Button onClick={togglePublish} disabled={publishing}
+                className="min-h-10 flex-1 bg-[#0A2540] text-white transition-all duration-200 hover:bg-[#0A2540]/90 hover:shadow-md active:scale-[0.98]">
                 {publishing ? "Cambiando..." : published ? "Pausar carta" : "Publicar carta"}
               </Button>
-              <Button variant="outline" onClick={copyLink} className="min-h-10"><Copy className="h-4 w-4" /> Copiar enlace</Button>
-              <Button variant="outline" asChild className="min-h-10"><a href={`/menu/${slug}`} target="_blank" rel="noreferrer"><ExternalLink className="h-4 w-4" /></a></Button>
+              <Button variant="outline" onClick={copyLink} className={`min-h-10 ${btnGhost}`}>
+                <Copy className="h-4 w-4" /> Copiar enlace
+              </Button>
+              <Button variant="outline" asChild className={`min-h-10 ${btnGhost}`}>
+                <a href={`/menu/${slug}`} target="_blank" rel="noreferrer" aria-label="Abrir menú en nueva pestaña"><ExternalLink className="h-4 w-4" /></a>
+              </Button>
             </div>
           </section>
 
+          {/* Secciones */}
           <section className="rounded-2xl border border-border bg-card p-5 sm:p-6">
             <div className="flex items-center justify-between gap-2">
               <h2 className="text-base font-semibold tracking-tight">Secciones</h2>
               <DropdownMenu>
-                <DropdownMenuTrigger className="flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-muted-foreground outline-none hover:bg-muted">
+                <DropdownMenuTrigger className="flex min-h-10 min-w-10 items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-muted-foreground outline-none transition-colors duration-150 hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                   Ordenar <ChevronDown className="h-3.5 w-3.5" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
@@ -163,29 +198,51 @@ export function MenuManager({
               </DropdownMenu>
             </div>
             <div className="mt-3 flex gap-2">
-              <Input ref={newCatRef} value={newCat} onChange={(e) => setNewCat(e.target.value)} placeholder="Ej: Postres..." maxLength={60}
-                onKeyDown={(e) => { if (e.key === "Enter") addCategory(); }} aria-label="Nueva sección" className="min-h-10" />
-              <Button onClick={addCategory} className="min-h-10 shrink-0 bg-[#0A2540] hover:bg-[#0A2540]/90"><Plus className="h-4 w-4" /><span className="hidden sm:inline">Agregar</span></Button>
+              <Input ref={newCatRef} value={newCat} onChange={(e) => setNewCat(e.target.value)}
+                placeholder="Ej: Postres, Bebidas, Especiales…" maxLength={60} disabled={cats.length >= 100}
+                onFocus={() => setInputFocused(true)} onBlur={() => setInputFocused(false)}
+                onKeyDown={(e) => { if (e.key === "Enter") addCategory(); }}
+                aria-label="Nueva sección" className={inputCls} />
+              <Button onClick={addCategory} disabled={!newCat.trim() || cats.length >= 100} className={btnPrimary} aria-label="Agregar sección">
+                <Plus className="h-4 w-4" /><span className="hidden sm:inline">Agregar</span>
+              </Button>
             </div>
-            <div className="mt-2.5 flex flex-wrap gap-1.5">
-              {["Entradas", "Fuertes", "Postres", "Bebidas"].map((s) => (
-                <button key={s} type="button" onClick={() => setNewCat(s)} className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">+ {s}</button>
+            {/* Template chips */}
+            <div className="mt-3 flex flex-wrap gap-2">
+              {TEMPLATES.map((t) => (
+                <button key={t.name} type="button" onClick={() => handleTemplateClick(t.name)}
+                  className="group flex items-center gap-1.5 rounded-full border border-[#6D28D9]/20 bg-[#6D28D9]/5 px-3.5 py-1.5 text-xs font-medium text-[#6D28D9] transition-all duration-200 hover:border-[#6D28D9]/40 hover:bg-[#6D28D9]/10 hover:shadow-sm active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                  <span className="hidden sm:inline">{t.name}<span className="ml-1 text-[11px] font-normal text-[#6D28D9]/60">· {t.desc}</span></span>
+                  <span className="sm:hidden">+ {t.name}</span>
+                  <ArrowRight className="h-3 w-3 opacity-0 transition-all duration-200 group-hover:translate-x-0.5 group-hover:opacity-100" />
+                </button>
               ))}
             </div>
           </section>
 
+          {/* Empty state / Category list */}
           {cats.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-border bg-card px-4 py-10 text-center">
-              <p className="text-sm font-semibold">Empezá con “Entradas”</p>
-              <p className="mx-auto mt-1 max-w-65 text-[13px] text-muted-foreground">Sin secciones no hay carta. Creá la primera arriba.</p>
+            <div className="rounded-2xl border border-dashed border-[#6D28D9]/30 bg-card px-5 py-8 sm:px-8">
+              <p className="text-center text-sm font-semibold text-[#0A2540]">Armá tu carta en 3 pasos</p>
+              <div className="mt-5 flex flex-col gap-4">
+                {STEPS.map((step) => (
+                  <div key={step.num} className="flex items-start gap-3">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#6D28D9] text-xs font-bold text-white shadow-md">{step.num}</div>
+                    <div className="pt-0.5">
+                      <p className="text-sm font-medium text-[#0A2540]">{step.title}</p>
+                      <p className="mt-0.5 text-[13px] leading-relaxed text-muted-foreground">{step.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-5 text-center text-xs text-muted-foreground">Empezá creando una sección arriba.</p>
             </div>
           ) : (
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
               <SortableContext items={cats.map((c) => c.id)} strategy={verticalListSortingStrategy}>
                 <div className="flex flex-col gap-3">
                   {cats.map((c) => (
-                    <MenuCategoryRow
-                      key={c.id} category={c} products={byCat(c.id)} currency={currency}
+                    <MenuCategoryRow key={c.id} category={c} products={byCat(c.id)} currency={currency}
                       collapsed={collapsed.has(c.id)}
                       moveTargets={cats.filter((x) => x.id !== c.id).map((x) => ({ id: x.id, name: x.name }))}
                       onToggleCollapse={() => setCollapsed((p) => { const n = new Set(p); if (n.has(c.id)) n.delete(c.id); else n.add(c.id); return n; })}
@@ -217,8 +274,10 @@ export function MenuManager({
             </DndContext>
           )}
 
+          {/* Sticky save */}
           <div className="sticky bottom-0 -mx-1 border-t border-border bg-background/95 px-1 py-3 backdrop-blur">
-            <Button onClick={save} disabled={saving} className="min-h-11 w-full bg-[#0A2540] text-[15px] hover:bg-[#0A2540]/90 sm:w-auto sm:px-10">
+            <Button onClick={save} disabled={saving}
+              className="min-h-11 w-full bg-[#0A2540] text-[15px] text-white transition-all duration-200 hover:bg-[#0A2540]/90 hover:shadow-md active:scale-[0.98] sm:w-auto sm:px-10">
               {saving ? "Guardando..." : dirty ? "Guardar menú" : "Menú al día"}
             </Button>
           </div>
