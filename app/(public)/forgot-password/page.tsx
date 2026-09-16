@@ -5,7 +5,7 @@ import { MiseMark } from "@/components/brand/mise-mark";
 import { ForgotPasswordForm } from "@/components/auth/forgot-password-form";
 
 export const metadata: Metadata = {
-  title: "Recuperar contraseña — MISE BY",
+  title: "Recuperar contraseña | MISE BY",
   description: "Solicita un enlace para restablecer tu contraseña de MISE BY.",
 };
 

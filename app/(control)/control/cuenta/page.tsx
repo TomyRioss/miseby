@@ -4,7 +4,7 @@ import { getCurrentUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
 import { ChangePasswordForm } from "@/components/control/account/change-password-form";
 
-export const metadata: Metadata = { title: "Mi cuenta — MISE BY Control Center" };
+export const metadata: Metadata = { title: "Mi cuenta | MISE BY Control Center" };
 
 export default async function AccountPage() {
   const sessionUser = await getCurrentUser();
@@ -22,7 +22,7 @@ export default async function AccountPage() {
         <dl className="space-y-3">
           <div>
             <dt className="text-xs text-muted-foreground">Nombre</dt>
-            <dd className="mt-0.5 text-sm font-medium">{profile?.name || "—"}</dd>
+            <dd className="mt-0.5 text-sm font-medium">{profile?.name || "-"}</dd>
           </div>
           <div>
             <dt className="text-xs text-muted-foreground">Correo</dt>

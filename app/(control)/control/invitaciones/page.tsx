@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { InvitationsList } from "@/components/control/invitations/invitations-list";
 
-export const metadata: Metadata = { title: "Invitaciones — MISE BY Control Center" };
+export const metadata: Metadata = { title: "Invitaciones | MISE BY Control Center" };
 
 export default async function InvitationsPage() {
   const invitations = await prisma.invitation.findMany({

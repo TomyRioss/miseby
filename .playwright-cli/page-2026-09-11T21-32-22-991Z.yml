@@ -1,0 +1,34 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]: MISE
+        - generic [ref=e6]: BY
+      - generic [ref=e7]:
+        - heading "Tu negocio, tu panel, tu digital." [level=2] [ref=e8]
+        - paragraph [ref=e9]: Gestiona tu negocio o el Control Center de la plataforma.
+      - paragraph [ref=e10]: miseby.com
+    - generic [ref=e11]:
+      - link "Volver" [ref=e12] [cursor=pointer]:
+        - /url: /
+      - heading "Iniciar sesión" [level=1] [ref=e15]
+      - paragraph [ref=e16]: Accede a tu cuenta MISE BY.
+      - generic [ref=e17]:
+        - generic [ref=e18]:
+          - group [ref=e19]:
+            - generic [ref=e20]: Correo
+            - textbox "Correo" [ref=e21]
+          - group [ref=e22]:
+            - generic [ref=e23]:
+              - generic [ref=e24]: Contraseña
+              - link "¿Olvidaste tu contraseña?" [ref=e25] [cursor=pointer]:
+                - /url: /forgot-password
+            - generic [ref=e26]:
+              - textbox "Contraseña" [ref=e27]
+              - button "Mostrar contraseña" [ref=e28]
+        - button "Ingresar" [ref=e32]
+      - paragraph [ref=e33]:
+        - text: ¿No tienes cuenta?
+        - link "Registrar mi negocio" [ref=e34] [cursor=pointer]:
+          - /url: /register
+  - region "Notifications alt+T"

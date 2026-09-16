@@ -1,6 +1,6 @@
 "use client";
 
-import { toast } from "sonner";
+import { useEffect, useState } from "react";
 import { THEME_PRESETS, themeButtonClass, type MiseLinkTheme } from "@/lib/miselink/theme";
 import { OptionGrid, ColorField } from "./design-controls";
 
@@ -45,16 +45,28 @@ export function HeaderDetail({
   page: { username: string; displayName: string | null; bio: string | null; avatarUrl: string | null };
 }) {
   const layouts = ["classic", "hero", "banner", "cutout", "shape"] as const;
+  const layoutLabels: Record<string, string> = {
+    classic: "Clásico",
+    hero: "Destacado",
+    banner: "Portada",
+    cutout: "Recorte",
+    shape: "Forma",
+  };
+  const bannerFade = typeof theme.bannerFade === "number" ? theme.bannerFade : 75;
+  const [fadeUI, setFadeUI] = useState(bannerFade);
+  useEffect(() => {
+    setFadeUI(bannerFade);
+  }, [bannerFade]);
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <Label>Layout</Label>
+        <Label>Diseño</Label>
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
           {layouts.map((id) => (
             <button key={id} type="button" onClick={() => patch({ header: id })} className="flex flex-col gap-1.5">
               <MiniLayout id={id} active={theme.header === id} />
               <span className={`text-center text-xs font-medium capitalize ${theme.header === id ? "text-foreground" : "text-muted-foreground"}`}>
-                {id}
+                {layoutLabels[id] ?? id}
               </span>
             </button>
           ))}
@@ -62,7 +74,7 @@ export function HeaderDetail({
       </div>
       <div className="flex items-center justify-between gap-4">
         <div>
-          <Label>Profile image</Label>
+          <Label>Foto de perfil</Label>
           <p className="text-xs text-muted-foreground">Se edita en Links → Perfil</p>
         </div>
         <span className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl bg-muted text-xs text-muted-foreground">
@@ -75,39 +87,47 @@ export function HeaderDetail({
         </span>
       </div>
       <div className="flex flex-col gap-2">
-        <Label>Title</Label>
+        <Label>Título</Label>
         <div className="rounded-xl border border-border bg-background px-3 py-2.5 text-sm">@{page.username}</div>
       </div>
       <div className="flex flex-col gap-2">
-        <Label>Bio</Label>
+        <Label>Biografía</Label>
         <div className="min-h-[72px] rounded-xl border border-border bg-background px-3 py-2.5 text-sm">
-          {page.bio || page.displayName || "—"}
-        </div>
-      </div>
-      <div className="flex flex-col gap-2">
-        <Label>Title style</Label>
-        <div className="grid grid-cols-2 gap-2">
-          <span className="rounded-xl border border-foreground bg-background px-3 py-3 text-center">
-            <span className="block text-base font-bold">Aa</span>
-            <span className="block text-xs text-muted-foreground">Text</span>
-          </span>
-          <button
-            type="button"
-            onClick={() => toast.info("Logo disponible próximamente")}
-            className="rounded-xl border border-border bg-background px-3 py-3 text-center opacity-70 hover:opacity-100"
-          >
-            <span className="block text-base font-bold">▦</span>
-            <span className="block text-xs text-muted-foreground">Logo</span>
-          </button>
+          {page.bio || page.displayName || "-"}
         </div>
       </div>
       <div className="flex items-center justify-between gap-4">
         <div>
-          <Label>Title color</Label>
+          <Label>Color del título</Label>
           <p className="text-xs text-muted-foreground">Igual que el texto de la página</p>
         </div>
         <ColorField label="Título" value={theme.colors.text} onChange={(text) => patch({ colors: { ...theme.colors, text } })} />
       </div>
+      {theme.bannerVisible && theme.bannerImage ? (
+        <div className="flex flex-col gap-2 rounded-xl border border-border bg-background px-3 py-2.5">
+          <div className="flex items-center justify-between gap-2">
+            <Label>Fundido del banner</Label>
+            <span className="text-xs tabular-nums text-muted-foreground">{fadeUI}%</span>
+          </div>
+          <input
+            type="range"
+            min={0}
+            max={100}
+            step={5}
+            value={fadeUI}
+            onChange={(e) => {
+              const v = Number(e.target.value);
+              setFadeUI(v);
+              patch({ bannerFade: v });
+            }}
+            className="w-full accent-foreground"
+            aria-label="Intensidad del fundido del banner"
+          />
+          <p className="text-[11px] leading-relaxed text-muted-foreground">
+            Funde el borde inferior del banner con el fondo. El avatar queda siempre encima.
+          </p>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -116,19 +136,19 @@ export function WallpaperDetail({ theme, patch }: { theme: MiseLinkTheme; patch:
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-2">
-        <Label>Style</Label>
+        <Label>Estilo</Label>
         <OptionGrid
           value={theme.wallpaper}
           onChange={(wallpaper) => patch({ wallpaper })}
           options={[
-            { id: "fill", label: "Fill", hint: "Plano" },
-            { id: "gradient", label: "Gradient", hint: "Degradado" },
-            { id: "soft", label: "Soft", hint: "Suave" },
+            { id: "fill", label: "Relleno", hint: "Plano" },
+            { id: "gradient", label: "Degradado", hint: "Degradado" },
+            { id: "soft", label: "Suave", hint: "Suave" },
           ]}
         />
       </div>
       <div className="flex flex-col gap-2">
-        <Label>Background</Label>
+        <Label>Fondo</Label>
         <ColorField
           label="Fondo"
           value={theme.colors.background}
@@ -155,10 +175,16 @@ export function WallpaperDetail({ theme, patch }: { theme: MiseLinkTheme; patch:
 
 export function ButtonsDetail({ theme, patch }: { theme: MiseLinkTheme; patch: PatchFn }) {
   const styles = ["fill", "outline", "soft", "round"] as const;
+  const styleLabels: Record<string, string> = {
+    fill: "Relleno",
+    outline: "Contorno",
+    soft: "Suave",
+    round: "Redondo",
+  };
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-2">
-        <Label>Shape</Label>
+        <Label>Forma</Label>
         <div className="grid grid-cols-2 gap-2">
           {styles.map((s) => (
             <button
@@ -177,7 +203,7 @@ export function ButtonsDetail({ theme, patch }: { theme: MiseLinkTheme; patch: P
               >
                 Botón
               </span>
-              <span className="mt-2 block text-center text-xs capitalize text-muted-foreground">{s}</span>
+              <span className="mt-2 block text-center text-xs capitalize text-muted-foreground">{styleLabels[s] ?? s}</span>
             </button>
           ))}
         </div>
@@ -197,20 +223,20 @@ export function ButtonsDetail({ theme, patch }: { theme: MiseLinkTheme; patch: P
 export function TextDetail({ theme, patch }: { theme: MiseLinkTheme; patch: PatchFn }) {
   return (
     <div className="flex flex-col gap-4">
-      <Label>Font</Label>
+      <Label>Fuente</Label>
       <OptionGrid
         value={theme.font}
         onChange={(font) => patch({ font })}
         options={[
-          { id: "sans", label: "Link Sans", hint: "Sans" },
+          { id: "sans", label: "Sans", hint: "Sans" },
           { id: "serif", label: "Serif", hint: "Clásica" },
           { id: "mono", label: "Mono", hint: "Mono" },
-          { id: "round", label: "Round", hint: "Redonda" },
+          { id: "round", label: "Redonda", hint: "Redonda" },
         ]}
       />
       <div className="rounded-xl border border-border bg-background p-4">
         <p className={`text-lg font-bold ${theme.font === "serif" ? "font-serif" : theme.font === "mono" ? "font-mono" : "font-sans"}`}>
-          Aa — Así se ve tu título
+          Aa | Así se ve tu título
         </p>
         <p className="mt-1 text-sm text-muted-foreground">Bio y botones heredan esta familia.</p>
       </div>
@@ -225,48 +251,6 @@ export function ColorsDetail({ theme, patch }: { theme: MiseLinkTheme; patch: Pa
       <ColorField label="Texto" value={theme.colors.text} onChange={(text) => patch({ colors: { ...theme.colors, text } })} />
       <ColorField label="Botón" value={theme.colors.button} onChange={(button) => patch({ colors: { ...theme.colors, button } })} />
       <ColorField label="Texto botón" value={theme.colors.buttonText} onChange={(buttonText) => patch({ colors: { ...theme.colors, buttonText } })} />
-    </div>
-  );
-}
-
-export function FooterDetail({
-  theme,
-  patch,
-  onTextDraft,
-  draft,
-}: {
-  theme: MiseLinkTheme;
-  patch: PatchFn;
-  draft: string;
-  onTextDraft: (v: string) => void;
-}) {
-  return (
-    <div className="flex flex-col gap-4">
-      <Label>Visibility</Label>
-      <div className="flex gap-2">
-        {([true, false] as const).map((v) => (
-          <button
-            key={String(v)}
-            type="button"
-            onClick={() => patch({ footerVisible: v })}
-            aria-pressed={theme.footerVisible === v}
-            className={`flex-1 rounded-xl border px-3 py-2 text-sm font-semibold ${theme.footerVisible === v ? "border-foreground bg-foreground text-background" : "border-border hover:bg-muted"}`}
-          >
-            {v ? "Visible" : "Oculto"}
-          </button>
-        ))}
-      </div>
-      <div className="flex flex-col gap-2">
-        <Label>Custom text</Label>
-        <input
-          value={draft}
-          onChange={(e) => onTextDraft(e.target.value)}
-          onBlur={(e) => patch({ footerText: e.target.value.slice(0, 120) })}
-          placeholder="Hecho con MISE BY"
-          maxLength={120}
-          className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-foreground"
-        />
-      </div>
     </div>
   );
 }

@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { CreateOrganizationDialog } from "@/components/control/organizations/create-organization-dialog";
 import { OrganizationsList } from "@/components/control/organizations/organizations-list";
 
-export const metadata: Metadata = { title: "Negocios — MISE BY Control Center" };
+export const metadata: Metadata = { title: "Negocios | MISE BY Control Center" };
 
 export default async function BusinessesPage() {
   const organizations = await prisma.organization.findMany({ orderBy: { createdAt: "desc" } });

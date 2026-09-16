@@ -1,0 +1,35 @@
+- generic [active] [ref=e1]:
+  - alert [ref=e107]: Hamburguesa clásica con papas | Burger Club - Recoleta | PlatoRest
+  - main [ref=e108]:
+    - generic [ref=e109]:
+      - heading "Hamburguesa clásica con papas" [level=1] [ref=e110]
+      - button "Cerrar" [ref=e111]
+    - generic [ref=e114]:
+      - img "Hamburguesa clásica con papas" [ref=e115]
+      - paragraph [ref=e116]: Jugoso medallón de carne casera con cheddar fundido, lechuga fresca y tomate. Servida con papas fritas crocantes para un clásico inigualable.
+      - paragraph [ref=e117]: $8.500
+      - generic [ref=e118]:
+        - paragraph [ref=e120]: Agregos
+        - generic [ref=e121]:
+          - generic [ref=e122]:
+            - generic [ref=e123]:
+              - checkbox "Panceta +$800" [ref=e124]
+              - text: Panceta
+            - generic [ref=e125]: +$800
+          - generic [ref=e126]:
+            - generic [ref=e127]:
+              - checkbox "Huevo frito +$500" [ref=e128]
+              - text: Huevo frito
+            - generic [ref=e129]: +$500
+          - generic [ref=e130]:
+            - generic [ref=e131]:
+              - checkbox "Cheddar extra +$600" [ref=e132]
+              - text: Cheddar extra
+            - generic [ref=e133]: +$600
+      - generic [ref=e134]:
+        - generic [ref=e135]: Unidades
+        - generic [ref=e136]:
+          - button "−" [ref=e137]
+          - generic [ref=e138]: "1"
+          - button "+" [ref=e139]
+    - button "Agregar a mi pedido · $8.500" [ref=e141]

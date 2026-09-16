@@ -60,7 +60,7 @@ export function ProfileTab({ state, onSaved }: { state: State; onSaved?: () => v
       <FieldGroup>
         <Field data-invalid={Boolean(errors.username)}>
           <div className="rounded-xl bg-muted/60 px-3 pb-1.5 pt-2">
-            <span className="block text-xs text-muted-foreground">Title</span>
+            <span className="block text-xs text-muted-foreground">Título</span>
             <Input
               id="username"
               className="h-8 border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
@@ -77,12 +77,12 @@ export function ProfileTab({ state, onSaved }: { state: State; onSaved?: () => v
 
         <Field data-invalid={Boolean(errors.bio)}>
           <div className="rounded-xl border border-foreground/80 px-3 pb-1.5 pt-2">
-            <span className="block text-xs text-muted-foreground">Bio</span>
+            <span className="block text-xs text-muted-foreground">Biografía</span>
             <Textarea
               id="bio"
               rows={4}
               className="min-h-20 border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
-              placeholder="Bio"
+              placeholder="Biografía"
               {...register("bio")}
             />
           </div>

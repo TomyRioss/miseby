@@ -5,7 +5,7 @@ import { MiseMark } from "@/components/brand/mise-mark";
 import { ResetPasswordForm } from "@/components/auth/reset-password-form";
 
 export const metadata: Metadata = {
-  title: "Nueva contraseña — MISE BY",
+  title: "Nueva contraseña | MISE BY",
   description: "Define una nueva contraseña para tu cuenta MISE BY.",
 };
 

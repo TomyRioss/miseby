@@ -4,7 +4,7 @@ import { AcceptInvitationForm } from "@/components/invitations/accept-invitation
 import { getInvitationByToken } from "@/lib/services/invitations";
 
 export const metadata: Metadata = {
-  title: "Aceptar invitación — MISE BY",
+  title: "Aceptar invitación | MISE BY",
   description: "Acepta tu invitación a MISE BY.",
 };
 

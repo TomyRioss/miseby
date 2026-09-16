@@ -6,7 +6,7 @@ import { MiseMark } from "@/components/brand/mise-mark";
 import { Reveal } from "@/components/ui/reveal";
 
 export const metadata: Metadata = {
-  title: "MISE BY — Presencia digital para negocios",
+  title: "MISE BY | Presencia digital para negocios",
   description:
     "MISE BY es una plataforma SaaS de presencia digital para negocios. Powered by Mar Digital Business.",
 };

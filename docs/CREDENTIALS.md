@@ -8,6 +8,8 @@
 | `platform_owner` | `owner@miseby.com` | `Miseby2026!` | `/control` |
 | `business_owner` | `negocio@miseby.com` | `Miseby2026!` | `/dashboard` |
 | `business_member` | `equipo@miseby.com` | `Miseby2026!` | `/dashboard` |
+| `business_owner` | `tomy@gmail.com` | `tomy1234` | `/dashboard` (org **Tomy Demo**, plan **MISE LINK**) |
+| `business_owner` | `tomy@admin.com` | `tomy1234` | `/dashboard` (org **Tomy Restaurant**, plan **MISE RESTAURANT**) |
 
 `business_owner` y `business_member` pertenecen a la organización **Negocio Demo** (`slug: negocio-demo`), con membresía plan **MISE** activa.
 

@@ -11,10 +11,10 @@ export function MiseLinkFooter({ theme }: { theme?: MiseLinkTheme }) {
         href="/"
         className="rounded-full bg-white px-5 py-2.5 text-[15px] font-semibold text-neutral-900 shadow-[0_2px_8px_rgba(0,0,0,0.12)] transition-transform hover:scale-105 active:scale-95"
       >
-        Crear mi MISE BY
+        Crear mi Mise Link
       </Link>
       <p className="px-4 text-center text-[11px] leading-relaxed opacity-80" style={{ color: fg }}>
-        {custom || "Cookie Preferences • Report • Privacy • About this account • Hecho con MISE BY"}
+        {custom || "Hecho con MISE BY"}
       </p>
     </footer>
   );

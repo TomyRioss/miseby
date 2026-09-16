@@ -90,5 +90,9 @@ export const themeSchema = z.object({
   wallpaperGradient: z.object({ from: hexColor, to: hexColor }).optional(),
   footerVisible: z.boolean().optional(),
   footerText: z.string().trim().max(120).optional(),
+  bannerVisible: z.boolean().optional(),
+  bannerImage: z.string().trim().url("URL inválida").max(2000).optional().or(z.literal("")),
+  bannerFade: z.number().min(0).max(100).optional(),
+  restaurant: z.record(z.string(), z.unknown()).optional(),
 });
 export type ThemeInput = z.infer<typeof themeSchema>;

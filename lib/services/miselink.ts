@@ -20,9 +20,11 @@ async function resolveOrgWithMiseLink(userId: string) {
   const data = await getOrganizationForMember(userId);
   if (!data?.organization) throw new Error("No estás asociado a ningún negocio.");
   const hasPlan =
-    data.membership?.plan.code === "mise_link" &&
+    (data.membership?.plan.code === "mise_link" ||
+      data.membership?.plan.code === "mise" ||
+      data.membership?.plan.code === "mise_restaurant") &&
     (data.membership.status === "active" || data.membership.status === "trial");
-  if (!hasPlan) throw new Error("Tu negocio no tiene el plan MISE LINK activo.");
+  if (!hasPlan) throw new Error("Tu negocio no tiene un plan con MISE LINK activo.");
   return data.organization;
 }
 
@@ -132,8 +134,16 @@ export async function isUsernameAvailable(
 export async function updateTheme(userId: string, data: Record<string, unknown>): Promise<void> {
   const page = await resolvePageForUser(userId);
   const current = (page.theme ?? {}) as Record<string, unknown>;
-  const next = { ...(current as object), ...(data as object) };
-  await prisma.miseLinkPage.update({ where: { id: page.id }, data: { theme: next } });
+  const currentColors = (current.colors ?? {}) as Record<string, unknown>;
+  const currentGradient = (current.wallpaperGradient ?? {}) as Record<string, unknown>;
+  const next: Record<string, unknown> = { ...(current as object), ...(data as object) };
+  if (data.colors && typeof data.colors === "object") {
+    next.colors = { ...currentColors, ...(data.colors as object) };
+  }
+  if (data.wallpaperGradient && typeof data.wallpaperGradient === "object") {
+    next.wallpaperGradient = { ...currentGradient, ...(data.wallpaperGradient as object) };
+  }
+  await prisma.miseLinkPage.update({ where: { id: page.id }, data: { theme: next as never } });
 }
 
 export async function updateProfile(userId: string, data: ProfileInput): Promise<void> {

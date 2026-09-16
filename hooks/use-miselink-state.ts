@@ -12,6 +12,7 @@ import {
   createSocialAction,
   deleteSocialAction,
   updateProfileAction,
+  updateThemeAction,
   updateUsernameAction,
   setPublishedAction,
 } from "@/lib/actions/miselink";
@@ -41,6 +42,7 @@ export type EditorPage = {
   avatarUrl: string | null;
   showFollowers: boolean;
   published: boolean;
+  theme?: unknown;
 };
 
 type Initial = {
@@ -173,6 +175,14 @@ export function useMiseLinkState(initial: Initial) {
       return run(
         () => updateProfileAction(input),
         () => toast.success("Perfil actualizado"),
+      );
+    },
+
+    saveTheme: (input: { bannerVisible?: boolean; bannerImage?: string; bannerFade?: number }) => {
+      setPage((p) => ({ ...p, theme: { ...((p.theme ?? {}) as object), ...input } }));
+      return run(
+        () => updateThemeAction(input),
+        () => toast.success("Diseño actualizado"),
       );
     },
 

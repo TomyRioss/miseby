@@ -5,7 +5,7 @@ import { MiseMark } from "@/components/brand/mise-mark";
 import { RegisterForm, RegisterFeatures } from "@/components/auth/register-form";
 
 export const metadata: Metadata = {
-  title: "Crear cuenta — MISE BY",
+  title: "Crear cuenta | MISE BY",
   description: "Registra tu negocio en MISE BY.",
 };
 

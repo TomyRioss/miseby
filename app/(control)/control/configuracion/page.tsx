@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Globe, Building2, Tag } from "lucide-react";
 import { MiseMark } from "@/components/brand/mise-mark";
 
-export const metadata: Metadata = { title: "Configuración — MISE BY Control Center" };
+export const metadata: Metadata = { title: "Configuración | MISE BY Control Center" };
 
 const PLANS = [
   { code: "mise_link", name: "MISE LINK", desc: "Presencia digital básica con perfil y links." },

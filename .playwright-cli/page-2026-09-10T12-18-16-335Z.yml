@@ -1,0 +1,14 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]: MISE
+        - generic [ref=e6]: BY
+      - paragraph [ref=e7]: Presencia digital para negocios
+      - link "Iniciar sesión" [ref=e9] [cursor=pointer]:
+        - /url: /login
+    - paragraph [ref=e10]:
+      - text: Powered by
+      - link "Mar Digital Business" [ref=e11] [cursor=pointer]:
+        - /url: https://mardigital.com.co/business
+  - region "Notifications alt+T"

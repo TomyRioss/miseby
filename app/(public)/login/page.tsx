@@ -5,7 +5,7 @@ import { MiseMark } from "@/components/brand/mise-mark";
 import { LoginForm } from "@/components/auth/login-form";
 
 export const metadata: Metadata = {
-  title: "Iniciar sesión — MISE BY",
+  title: "Iniciar sesión | MISE BY",
   description: "Accede a tu cuenta MISE BY.",
 };
 

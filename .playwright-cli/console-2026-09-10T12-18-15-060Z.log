@@ -1,0 +1,5 @@
+[     757ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[    1012ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[22042661ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ http://gc.kis.v2.scr.kaspersky-labs.com/33602D35-AF34-4678-90C0-9CC8E53EB690/6565F91C-5443-460F-8E9E-370486F0CABD/from?get&nocache=1afcf&tm=2026-09-10T18%3A25%3A35.955Z:0
+[22042664ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ http://gc.kis.v2.scr.kaspersky-labs.com/33602D35-AF34-4678-90C0-9CC8E53EB690/6565F91C-5443-460F-8E9E-370486F0CABD/from?get&nocache=1c058&tm=2026-09-10T18%3A25%3A37.719Z&second=true:0
+[22042676ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776

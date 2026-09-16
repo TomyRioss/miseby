@@ -3,7 +3,7 @@ import { Building2, CheckCircle2, Clock, CreditCard, Mail, Users } from "lucide-
 import { getPlatformDashboardMetrics } from "@/lib/services/dashboard";
 import { MetricCard } from "@/components/control/dashboard/metric-card";
 
-export const metadata: Metadata = { title: "Inicio — MISE BY Control Center" };
+export const metadata: Metadata = { title: "Inicio | MISE BY Control Center" };
 
 export default async function ControlDashboardPage() {
   const metrics = await getPlatformDashboardMetrics();

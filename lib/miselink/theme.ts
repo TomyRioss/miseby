@@ -13,6 +13,9 @@ export type MiseLinkTheme = {
   wallpaperGradient?: { from: string; to: string };
   footerVisible: boolean;
   footerText?: string;
+  bannerVisible?: boolean;
+  bannerImage?: string;
+  bannerFade?: number;
 };
 
 export const THEME_DEFAULT: MiseLinkTheme = {
@@ -25,12 +28,13 @@ export const THEME_DEFAULT: MiseLinkTheme = {
   wallpaperGradient: { from: "#e8eaed", to: "#d7dbe0" },
   footerVisible: true,
   footerText: "",
+  bannerFade: 75,
 };
 
 export type ThemePreset = { id: string; label: string; theme: MiseLinkTheme };
 
 export const THEME_PRESETS: ThemePreset[] = [
-  { id: "air", label: "Air", theme: { ...THEME_DEFAULT, preset: "air" } },
+  { id: "air", label: "Aire", theme: { ...THEME_DEFAULT, preset: "air" } },
   {
     id: "niebla",
     label: "Niebla",
@@ -88,11 +92,17 @@ export function normalizeTheme(raw: unknown): MiseLinkTheme {
         ? t.buttonStyle
         : "fill",
     font: t.font === "serif" || t.font === "mono" || t.font === "round" ? t.font : "sans",
-    colors,
-    wallpaperGradient: gradient,
-    footerVisible: t.footerVisible !== false,
-    footerText: typeof t.footerText === "string" ? t.footerText.slice(0, 120) : "",
-  };
+  colors,
+  wallpaperGradient: gradient,
+  footerVisible: t.footerVisible !== false,
+  footerText: typeof t.footerText === "string" ? t.footerText.slice(0, 120) : "",
+  bannerVisible: t.bannerVisible === true,
+  bannerImage: typeof t.bannerImage === "string" ? t.bannerImage.slice(0, 2000) : "",
+  bannerFade:
+    typeof t.bannerFade === "number" && Number.isFinite(t.bannerFade)
+      ? Math.min(100, Math.max(0, Math.round(t.bannerFade)))
+      : 75,
+};
 }
 
 export function themeBackground(theme: MiseLinkTheme): string {

@@ -5,7 +5,7 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { formatDate } from "@/lib/mise-labels";
 
-export const metadata: Metadata = { title: "Usuarios — MISE BY Control Center" };
+export const metadata: Metadata = { title: "Usuarios | MISE BY Control Center" };
 
 const ROLE_LABELS: Record<string, string> = {
   platform_owner: "Platform Owner",
@@ -45,7 +45,7 @@ export default async function UsersPage() {
             <TableBody>
               {users.map((u) => (
                 <TableRow key={u.id}>
-                  <TableCell className="font-medium">{u.name || "—"}</TableCell>
+                  <TableCell className="font-medium">{u.name || "-"}</TableCell>
                   <TableCell className="text-muted-foreground">{u.email}</TableCell>
                   <TableCell className="text-muted-foreground">{ROLE_LABELS[u.role] || u.role}</TableCell>
                   <TableCell><StatusBadge label={u.status} color={STATUS_COLORS[u.status] || "gray"} /></TableCell>

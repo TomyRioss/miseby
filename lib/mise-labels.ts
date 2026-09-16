@@ -43,7 +43,7 @@ export const PLAN_LABELS: Record<string, string> = {
 };
 
 export function formatDate(date: Date | string | null | undefined) {
-  if (!date) return "—";
+  if (!date) return "-";
   return new Date(date).toLocaleDateString("es-CO", {
     year: "numeric",
     month: "short",

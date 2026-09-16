@@ -81,7 +81,7 @@ export async function requestPasswordReset(email: string) {
   const link = `${domain}/reset-password?token=${token}`;
   await sendMail(
     email,
-    "Recuperar contraseña — MISE BY",
+    "Recuperar contraseña | MISE BY",
     `<p><a href="${link}">Restablecer contraseña</a> (expira en ${RESET_TOKEN_TTL_MINUTES} minutos)</p>`
   );
 }

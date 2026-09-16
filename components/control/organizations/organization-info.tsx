@@ -158,16 +158,16 @@ export function OrganizationInfo({ organization }: { organization: Organization 
         <dl className="grid grid-cols-2 gap-x-8 gap-y-4">
           {[
             ["Nombre comercial", organization.commercialName],
-            ["Nombre legal", organization.legalName || "—"],
-            ["NIT / Tax ID", organization.taxId || "—"],
+            ["Nombre legal", organization.legalName || "-"],
+            ["NIT / Tax ID", organization.taxId || "-"],
             ["Tipo", BUSINESS_TYPE_LABELS[organization.businessType] || organization.businessType],
-            ["País", organization.country || "—"],
-            ["Ciudad", organization.city || "—"],
-            ["Dirección", organization.address || "—"],
-            ["Teléfono", organization.phone || "—"],
-            ["Email", organization.email || "—"],
-            ["Moneda", organization.currency || "—"],
-            ["Zona horaria", organization.timezone || "—"],
+            ["País", organization.country || "-"],
+            ["Ciudad", organization.city || "-"],
+            ["Dirección", organization.address || "-"],
+            ["Teléfono", organization.phone || "-"],
+            ["Email", organization.email || "-"],
+            ["Moneda", organization.currency || "-"],
+            ["Zona horaria", organization.timezone || "-"],
             ["Creado", formatDate(organization.createdAt)],
           ].map(([k, v]) => (
             <div key={k}>

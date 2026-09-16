@@ -27,10 +27,10 @@ async function resolvePage(username: string): Promise<{
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { username } = await params;
   const resolved = await resolvePage(username).catch(() => null);
-  if (!resolved) return { title: "Página no encontrada — Mise Link Oficial" };
+  if (!resolved) return { title: "Página no encontrada | Mise Link Oficial" };
   const { page } = resolved;
   return {
-    title: `@${page.username} — Mise Link Oficial`,
+    title: `@${page.username} | Mise Link Oficial`,
     description: page.bio?.trim() || undefined,
     robots: resolved.preview ? { index: false, follow: false } : undefined,
   };
@@ -47,6 +47,7 @@ export default async function MiseLinkPublicPage({ params }: Params) {
   return (
     <div className="flex h-[100dvh] flex-col items-center overflow-hidden bg-[#e8eaed] sm:bg-[#a3a3a3] sm:px-6 sm:pt-6">
       <MiseLinkPublicView
+        showOptions={false}
         page={{
           username: page.username,
           displayName: page.displayName,

@@ -6,7 +6,7 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { MEMBERSHIP_SOURCE_LABELS, MEMBERSHIP_STATUSES, PLAN_LABELS, formatDate } from "@/lib/mise-labels";
 
-export const metadata: Metadata = { title: "Membresías — MISE BY Control Center" };
+export const metadata: Metadata = { title: "Membresías | MISE BY Control Center" };
 
 export default async function MembershipsPage() {
   const memberships = await prisma.membership.findMany({

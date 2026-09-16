@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { formatDate } from "@/lib/mise-labels";
 
-export const metadata: Metadata = { title: "Auditoría — MISE BY Control Center" };
+export const metadata: Metadata = { title: "Auditoría | MISE BY Control Center" };
 
 const ACTION_LABELS: Record<string, string> = {
   organization_created: "Negocio creado",
@@ -68,14 +68,14 @@ export default async function AuditPage() {
                         {log.organization.commercialName}
                       </Link>
                     ) : (
-                      "—"
+                      "-"
                     )}
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    {log.actorUser ? log.actorUser.name || log.actorUser.email : "—"}
+                    {log.actorUser ? log.actorUser.name || log.actorUser.email : "-"}
                   </TableCell>
                   <TableCell className="font-mono text-xs text-muted-foreground">
-                    {log.entityType || "—"}
+                    {log.entityType || "-"}
                   </TableCell>
                 </TableRow>
               ))}

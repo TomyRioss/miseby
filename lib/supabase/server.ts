@@ -2,8 +2,7 @@ import "server-only";
 import { createClient } from "@supabase/supabase-js";
 
 export function getSupabaseAdmin() {
-  const url =
-    process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL ?? "";
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
   if (!url || !serviceKey) {
     throw new Error(
@@ -11,6 +10,16 @@ export function getSupabaseAdmin() {
     );
   }
   return createClient(url, serviceKey, { auth: { persistSession: false } });
+}
+
+export async function ensureAvatarsBucket(supabase: ReturnType<typeof getSupabaseAdmin>) {
+  const { error } = await supabase.storage.getBucket(AVATARS_BUCKET);
+  if (error && error.message?.toLowerCase().includes("not found")) {
+    const { error: createError } = await supabase.storage.createBucket(AVATARS_BUCKET, {
+      public: true,
+    });
+    if (createError) throw createError;
+  }
 }
 
 export const AVATARS_BUCKET = "avatars";

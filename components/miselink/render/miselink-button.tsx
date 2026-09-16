@@ -7,7 +7,15 @@ import type { RenderItem } from "./types";
 import { themeButtonClass, type MiseLinkTheme } from "@/lib/miselink/theme";
 import { LinkShareDialog } from "./link-share-dialog";
 
-export function MiseLinkButton({ item, theme }: { item: RenderItem; theme?: MiseLinkTheme }) {
+export function MiseLinkButton({
+  item,
+  theme,
+  showOptions = true,
+}: {
+  item: RenderItem;
+  theme?: MiseLinkTheme;
+  showOptions?: boolean;
+}) {
   const [open, setOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   if (!item.url || !item.title) return null;
@@ -64,18 +72,20 @@ export function MiseLinkButton({ item, theme }: { item: RenderItem; theme?: Mise
       >
         {item.title}
       </a>
-      <button
-        type="button"
-        aria-label={`Opciones para ${item.title}`}
-        aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
-        style={{ color: btnFg }}
-        className="absolute right-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full opacity-60 transition-opacity hover:opacity-100"
-      >
-        <FiMoreVertical className="h-5 w-5" />
-      </button>
+      {showOptions ? (
+        <button
+          type="button"
+          aria-label={`Opciones para ${item.title}`}
+          aria-expanded={open}
+          onClick={() => setOpen((v) => !v)}
+          style={{ color: btnFg }}
+          className="absolute right-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full opacity-60 transition-opacity hover:opacity-100"
+        >
+          <FiMoreVertical className="h-5 w-5" />
+        </button>
+      ) : null}
 
-      {open ? (
+      {showOptions && open ? (
         <>
           <button
             aria-hidden
