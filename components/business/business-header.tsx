@@ -4,7 +4,7 @@ import Link from "next/link";
 import { BookOpen, Building2, ChartNoAxesColumn, ChevronDown, CreditCard, LayoutDashboard, Link2, LogOut, Package, QrCode, Settings, Sparkles, Tags, User } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -58,14 +58,14 @@ export function BusinessHeader({ markSuffix, planCode }: { markSuffix?: string; 
 }
 
 export function BusinessSidebar({ userLabel, hasMiseLink = false, planCode }: { userLabel: string; hasMiseLink?: boolean; planCode?: string }) {
+  // hasMiseLink se ignora a propósito: el toggle siempre visible (consistente en todas las páginas).
+  void hasMiseLink;
   const router = useRouter();
   const pathname = usePathname();
   const isRestaurant = planCode === "mise_restaurant";
   const isMiseLinkSection = pathname?.startsWith("/dashboard/miselink") ?? false;
+  // open = manual(persistido) || sección activa. Nunca fuerza cierre.
   const [open, setOpen] = usePersistentOpen("miseby.nav.miselink", isMiseLinkSection);
-  useEffect(() => {
-    if (isMiseLinkSection) setOpen(true);
-  }, [isMiseLinkSection, setOpen]);
   const isLinksActive = pathname === "/dashboard/miselink";
   const isDesignActive = pathname === "/dashboard/miselink/design";
 
@@ -144,10 +144,9 @@ export function BusinessSidebar({ userLabel, hasMiseLink = false, planCode }: { 
           Inicio
         </Link>
         <div>
-          {hasMiseLink ? (
           <button
             type="button"
-            onClick={() => setOpen((v) => !v)}
+            onClick={() => setOpen(!open)}
             aria-expanded={open}
             className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted"
           >
@@ -157,8 +156,7 @@ export function BusinessSidebar({ userLabel, hasMiseLink = false, planCode }: { 
               className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`}
             />
           </button>
-          ) : null}
-          {open && hasMiseLink && (
+          {open && (
             <div className="ml-6 mt-1 space-y-1 border-l border-border pl-2">
               <Link
                 href="/dashboard/miselink"
@@ -190,26 +188,68 @@ export function BusinessSidebar({ userLabel, hasMiseLink = false, planCode }: { 
   );
 }
 
-function usePersistentOpen(key: string, defaultOpen: boolean) {
-  const [open, setOpen] = useState(defaultOpen);
-  // Sync from localStorage on mount (SSR-safe: server and client render the same initial DOM)
-  useEffect(() => {
+// Flag a nivel de módulo: distingue primera hidratación (SSR-safe) de remounts
+// posteriores por navegación cliente (lectura síncrona sin flash).
+let navHydrated = false;
+
+function readStoredOpen(key: string): boolean | null {
+  try {
+    if (typeof window === "undefined") return null;
+    const stored = window.localStorage.getItem(key);
+    if (stored === null) return null;
+    return stored === "1";
+  } catch (e) {
+    console.error("[sidebar persist]", e);
+    return null;
+  }
+}
+
+function usePersistentOpen(key: string, sectionActive: boolean) {
+  // Init lazy: mismo valor en server y primer render cliente (false) → sin mismatch.
+  // En remounts post-hidratación lee localStorage síncrono → sin flash al navegar.
+  const [manual, setManual] = useState<boolean>(() => {
     try {
-      const stored = window.localStorage.getItem(key);
-      if (stored !== null) setOpen(stored === "1");
+      if (typeof window === "undefined") return false;
+      if (!navHydrated) return false;
+      return readStoredOpen(key) ?? false;
     } catch (e) {
       console.error("[sidebar persist]", e);
+      return false;
     }
+  });
+  const [hydrated, setHydrated] = useState(false);
+  // Hidratación: aplica valor persistido una sola vez por montaje.
+  useEffect(() => {
+    const stored = readStoredOpen(key);
+    if (stored !== null) setManual(stored);
+    setHydrated(true);
+    navHydrated = true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  // Persist to localStorage on change
+  }, [key]);
+  // Persistencia: nunca escribe el valor inicial stale (guard hydrated).
   useEffect(() => {
+    if (!hydrated) return;
     try {
-      window.localStorage.setItem(key, open ? "1" : "0");
+      window.localStorage.setItem(key, manual ? "1" : "0");
     } catch (e) {
       console.error("[sidebar persist]", e);
     }
-  }, [key, open]);
+  }, [key, manual, hydrated]);
+  // La sección con ruta activa siempre auto-abre; jamás fuerza cierre de la otra.
+  const open = manual || sectionActive;
+  // Setter sobre estado manual. Los toggles llaman `setX(!x)` con el `open`
+  // derivado: cerrar la sección activa la mantiene abierta (spec) sin
+  // contaminar persistencia; al salir vuelve a su estado manual previo.
+  const setOpen = useCallback(
+    (value: boolean | ((prev: boolean) => boolean)) => {
+      setManual((prevManual) =>
+        typeof value === "function"
+          ? (value as (p: boolean) => boolean)(prevManual)
+          : value
+      );
+    },
+    []
+  );
   return [open, setOpen] as const;
 }
 
@@ -240,13 +280,8 @@ function RestaurantNav({ pathname }: { pathname: string | null }) {
   const isAppearanceActive = pathname?.startsWith("/dashboard/apariencia") ?? false;
   const isMenuSection = isMenuContentActive || isAppearanceActive;
   const [menuOpen, setMenuOpen] = usePersistentOpen("miseby.nav.menu", !!isMenuSection);
-  // La sección con la ruta activa siempre abre; la otra conserva su estado manual.
-  useEffect(() => {
-    if (isMiseLinkSection) setLinkOpen(true);
-  }, [isMiseLinkSection, setLinkOpen]);
-  useEffect(() => {
-    if (isMenuSection) setMenuOpen(true);
-  }, [isMenuSection, setMenuOpen]);
+  // `open = manual || sectionActive` dentro del hook: la sección activa
+  // siempre auto-abre; la otra conserva su estado manual (jamás cierre forzado).
   const renderItem = (item: { href: string; label: string; icon: typeof LayoutDashboard }) => {
     const Icon = item.icon;
     const active =
@@ -269,7 +304,7 @@ function RestaurantNav({ pathname }: { pathname: string | null }) {
       {RESTAURANT_ITEMS_TOP.map(renderItem)}
       <button
         type="button"
-        onClick={() => setLinkOpen((v) => !v)}
+        onClick={() => setLinkOpen(!linkOpen)}
         aria-expanded={linkOpen}
         className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted"
       >
@@ -305,7 +340,7 @@ function RestaurantNav({ pathname }: { pathname: string | null }) {
       )}
       <button
         type="button"
-        onClick={() => setMenuOpen((v) => !v)}
+        onClick={() => setMenuOpen(!menuOpen)}
         aria-expanded={menuOpen}
         className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-muted ${
           isMenuSection ? "bg-muted font-semibold text-foreground" : "font-medium text-muted-foreground"
