@@ -27,10 +27,13 @@ export default async function MiseIaPage() {
       <BusinessHeader planCode={planCode} />
       <div className="flex min-h-0 flex-1">
         <BusinessSidebar userLabel={user.email} hasMiseLink={false} planCode={planCode} />
-        <main className="min-h-0 flex-1 overflow-y-auto p-6 lg:p-10">
-          <h1 className="font-display text-2xl font-semibold">Mise IA</h1>
-          <p className="mb-6 mt-1 text-sm text-muted-foreground">Mesero IA que recomienda solo tus platos reales.</p>
+        <main className="min-h-0 flex-1 overflow-y-auto overflow-x-clip p-4 sm:p-6 lg:p-10">
+          <div className="mx-auto w-full max-w-6xl">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#6D28D9]">Mise IA · Mesero</p>
+          <h1 className="mt-0.5 font-display text-2xl font-semibold tracking-tight">Mise IA</h1>
+          <p className="mb-6 mt-1 max-w-xl text-sm text-muted-foreground">Configurá a tu mesero en 1 minuto y probalo como un cliente, con tus platos reales.</p>
           <IaConfig initial={rest.ia ?? { isActive: false }} menuSummary={menuSummary} />
+          </div>
         </main>
       </div>
     </div>
