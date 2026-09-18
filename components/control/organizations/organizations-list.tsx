@@ -56,7 +56,7 @@ export function OrganizationsList({ organizations }: { organizations: Organizati
                 <Link
                   key={org.id}
                   href={`/control/negocios/${org.id}`}
-                  className={`flex items-center gap-4 px-6 py-4 transition-colors hover:bg-muted/40 ${
+                  className={`cursor-pointer flex items-center gap-4 px-6 py-4 transition-colors hover:bg-muted/40 ${
                     isPending ? "bg-amber-50/60" : ""
                   }`}
                 >

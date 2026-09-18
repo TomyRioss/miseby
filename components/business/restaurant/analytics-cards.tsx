@@ -47,7 +47,7 @@ export function AnalyticsCards({ categories, products, available, linkClicks, me
         {next ? (
           <>
             <p className="mb-4 mt-1 text-[13px] leading-relaxed text-white/70">Te falta <strong className="text-white">{next.label}</strong> para tener la carta vendiendo.</p>
-            <Link href={next.href} className="inline-flex min-h-10 items-center gap-1.5 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-[#0A2540] transition-colors hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">Completarlo<ArrowRight className="h-4 w-4" /></Link>
+            <Link href={next.href} className="cursor-pointer inline-flex min-h-10 items-center gap-1.5 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-[#0A2540] transition-colors hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">Completarlo<ArrowRight className="h-4 w-4" /></Link>
           </>
         ) : (
           <>

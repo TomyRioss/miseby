@@ -37,7 +37,7 @@ export default function ConfigPage() {
               href="https://miseby.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-1 text-sm font-medium text-[#0E88E2] hover:underline"
+              className="cursor-pointer mt-1 text-sm font-medium text-[#0E88E2] hover:underline"
             >
               https://miseby.com
             </a>
@@ -54,7 +54,7 @@ export default function ConfigPage() {
               href="https://mardigital.com.co/business"
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-1 text-sm font-medium text-[#0E88E2] hover:underline"
+              className="cursor-pointer mt-1 text-sm font-medium text-[#0E88E2] hover:underline"
             >
               Mar Digital Business
             </a>

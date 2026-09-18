@@ -65,7 +65,7 @@ export function OrganizationInfo({ organization }: { organization: Organization 
       <div className="mb-5 flex items-center justify-between">
         <h2 className="font-display font-semibold">Información del negocio</h2>
         {!editMode && (
-          <button onClick={() => setEditMode(true)} className="text-sm text-[#0E88E2] hover:underline">
+          <button onClick={() => setEditMode(true)} className="cursor-pointer text-sm text-[#0E88E2] hover:underline">
             Editar
           </button>
         )}

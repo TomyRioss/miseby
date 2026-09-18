@@ -178,7 +178,7 @@ export function MenuManager({
                 <Copy className="h-4 w-4" /> Copiar enlace
               </Button>
               <Button variant="outline" asChild className={`min-h-10 ${btnGhost}`}>
-                <a href={`/menu/${slug}`} target="_blank" rel="noreferrer" aria-label="Abrir menú en nueva pestaña"><ExternalLink className="h-4 w-4" /></a>
+                <a className="cursor-pointer" href={`/menu/${slug}`} target="_blank" rel="noreferrer" aria-label="Abrir menú en nueva pestaña"><ExternalLink className="h-4 w-4" /></a>
               </Button>
             </div>
           </section>
@@ -211,7 +211,7 @@ export function MenuManager({
             <div className="mt-3 flex flex-wrap gap-2">
               {TEMPLATES.map((t) => (
                 <button key={t.name} type="button" onClick={() => handleTemplateClick(t.name)}
-                  className="group flex items-center gap-1.5 rounded-full border border-[#6D28D9]/20 bg-[#6D28D9]/5 px-3.5 py-1.5 text-xs font-medium text-[#6D28D9] transition-all duration-200 hover:border-[#6D28D9]/40 hover:bg-[#6D28D9]/10 hover:shadow-sm active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                  className="cursor-pointer group flex items-center gap-1.5 rounded-full border border-[#6D28D9]/20 bg-[#6D28D9]/5 px-3.5 py-1.5 text-xs font-medium text-[#6D28D9] transition-all duration-200 hover:border-[#6D28D9]/40 hover:bg-[#6D28D9]/10 hover:shadow-sm active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                   <span className="hidden sm:inline">{t.name}<span className="ml-1 text-[11px] font-normal text-[#6D28D9]/60">· {t.desc}</span></span>
                   <span className="sm:hidden">+ {t.name}</span>
                   <ArrowRight className="h-3 w-3 opacity-0 transition-all duration-200 group-hover:translate-x-0.5 group-hover:opacity-100" />

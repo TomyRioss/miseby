@@ -114,7 +114,7 @@ export function LinkCard({
             <button
               type="button"
               onClick={() => setEditing(true)}
-              className="group flex items-center gap-2 text-left"
+              className="cursor-pointer group flex items-center gap-2 text-left"
             >
               <span className="truncate text-sm font-semibold text-foreground">
                 {item.title || "Sin título"}
@@ -139,7 +139,7 @@ export function LinkCard({
             disabled={!item.url}
             aria-label="Compartir enlace"
             title="Compartir enlace"
-            className="text-muted-foreground transition-colors hover:text-foreground disabled:opacity-30"
+            className="cursor-pointer disabled:cursor-not-allowed text-muted-foreground transition-colors hover:text-foreground disabled:opacity-30"
           >
             {copied ? (
               <FaCheck className="h-4 w-4 text-emerald-600" />

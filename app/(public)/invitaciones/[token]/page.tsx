@@ -47,7 +47,7 @@ export default async function InvitationPage({ params }: PageProps<"/invitacione
 
       <p className="mt-8 text-xs text-muted-foreground">
         Powered by{" "}
-        <a href="https://mardigital.com.co/business" className="hover:underline">
+        <a href="https://mardigital.com.co/business" className="cursor-pointer hover:underline">
           Mar Digital Business
         </a>
       </p>

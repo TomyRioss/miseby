@@ -25,7 +25,7 @@ export function EditorHeaderActions({ state }: { state: State }) {
         <button
           type="button"
           onClick={() => setPreviewOpen(true)}
-          className="flex items-center rounded-full border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
+          className="cursor-pointer flex items-center rounded-full border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
         >
           Vista previa
         </button>
@@ -33,7 +33,7 @@ export function EditorHeaderActions({ state }: { state: State }) {
           type="button"
           onClick={() => setSettingsOpen(true)}
           aria-label="Ajustes"
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-border transition-colors hover:bg-muted"
+          className="cursor-pointer flex h-9 w-9 items-center justify-center rounded-full border border-border transition-colors hover:bg-muted"
         >
           <FiSettings className="h-4 w-4" />
         </button>

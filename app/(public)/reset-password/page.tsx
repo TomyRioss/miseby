@@ -26,7 +26,7 @@ export default function ResetPasswordPage() {
             <ResetPasswordForm />
           </Suspense>
 
-          <Link href="/login" className="mt-6 block text-center text-sm text-muted-foreground hover:text-foreground">
+          <Link href="/login" className="cursor-pointer mt-6 block text-center text-sm text-muted-foreground hover:text-foreground">
             Volver a iniciar sesión
           </Link>
         </div>

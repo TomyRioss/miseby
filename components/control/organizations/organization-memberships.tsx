@@ -85,7 +85,7 @@ export function OrganizationMemberships({
         <h2 className="font-display font-semibold">Membresías</h2>
         <button
           onClick={() => setShowForm((p) => !p)}
-          className="flex items-center gap-1.5 text-sm text-[#0E88E2] hover:underline"
+          className="cursor-pointer flex items-center gap-1.5 text-sm text-[#0E88E2] hover:underline"
         >
           <Plus className="h-4 w-4" /> Nueva membresía
         </button>
@@ -178,7 +178,7 @@ export function OrganizationMemberships({
                     {mb.status !== "active" && (
                       <button
                         onClick={() => updateStatus(mb.id, "active")}
-                        className="rounded-lg border border-green-200 bg-green-50 px-2.5 py-1 text-xs text-green-700 transition-colors hover:bg-green-100"
+                        className="cursor-pointer rounded-lg border border-green-200 bg-green-50 px-2.5 py-1 text-xs text-green-700 transition-colors hover:bg-green-100"
                       >
                         Activar
                       </button>
@@ -186,7 +186,7 @@ export function OrganizationMemberships({
                     {mb.status === "active" && (
                       <button
                         onClick={() => updateStatus(mb.id, "suspended")}
-                        className="rounded-lg border border-red-200 bg-red-50 px-2.5 py-1 text-xs text-red-700 transition-colors hover:bg-red-100"
+                        className="cursor-pointer rounded-lg border border-red-200 bg-red-50 px-2.5 py-1 text-xs text-red-700 transition-colors hover:bg-red-100"
                       >
                         Suspender
                       </button>

@@ -19,7 +19,7 @@ export function OptionGrid<T extends string>({
             type="button"
             onClick={() => onChange(o.id)}
             aria-pressed={active}
-            className={`rounded-xl border px-3 py-2.5 text-left transition-colors ${
+            className={`cursor-pointer rounded-xl border px-3 py-2.5 text-left transition-colors ${
               active
                 ? "border-foreground bg-foreground text-background"
                 : "border-border bg-background hover:bg-muted"

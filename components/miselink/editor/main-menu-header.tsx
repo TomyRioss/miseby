@@ -488,7 +488,7 @@ function SocialsEditPopover({ state }: { state: State }) {
         <button
           type="button"
           aria-label="Editar redes sociales"
-          className="flex h-7 w-7 items-center justify-center rounded-full bg-muted text-muted-foreground hover:text-foreground"
+          className="cursor-pointer flex h-7 w-7 items-center justify-center rounded-full bg-muted text-muted-foreground hover:text-foreground"
         >
           <FaPencil className="h-3 w-3" />
         </button>

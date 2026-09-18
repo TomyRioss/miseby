@@ -18,7 +18,7 @@ export function NoMembershipBanner({ orgStatus }: { orgStatus: string }) {
       </p>
       <a
         href="mailto:soporte@miseby.com"
-        className="inline-flex items-center gap-2 rounded-xl bg-amber-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-amber-700"
+        className="cursor-pointer inline-flex items-center gap-2 rounded-xl bg-amber-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-amber-700"
       >
         <Mail className="h-4 w-4" />
         Contactar soporte

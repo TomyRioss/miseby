@@ -64,7 +64,7 @@ export default async function AuditPage() {
                   <TableCell className="font-medium">{ACTION_LABELS[log.action] || log.action}</TableCell>
                   <TableCell className="text-muted-foreground">
                     {log.organization ? (
-                      <Link href={`/control/negocios/${log.organization.id}`} className="hover:text-[#0E88E2]">
+                      <Link href={`/control/negocios/${log.organization.id}`} className="cursor-pointer hover:text-[#0E88E2]">
                         {log.organization.commercialName}
                       </Link>
                     ) : (

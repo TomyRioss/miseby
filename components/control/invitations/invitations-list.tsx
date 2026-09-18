@@ -52,7 +52,7 @@ export function InvitationsList({ invitations }: { invitations: InvitationWithOr
             <div className="min-w-0 flex-1">
               <p className="text-sm font-medium">{inv.email}</p>
               <p className="text-xs text-muted-foreground">
-                <Link href={`/control/negocios/${inv.organization.id}`} className="hover:text-[#0E88E2]">
+                <Link href={`/control/negocios/${inv.organization.id}`} className="cursor-pointer hover:text-[#0E88E2]">
                   {inv.organization.commercialName}
                 </Link>{" "}
                 · {inv.role} · Vence: {formatDate(inv.expiresAt)}
@@ -64,14 +64,14 @@ export function InvitationsList({ invitations }: { invitations: InvitationWithOr
                 <>
                   <button
                     onClick={() => resend(inv.id)}
-                    className="rounded-lg border border-border px-2.5 py-1 text-xs transition-colors hover:bg-muted"
+                    className="cursor-pointer rounded-lg border border-border px-2.5 py-1 text-xs transition-colors hover:bg-muted"
                   >
                     Reenviar
                   </button>
                   <ConfirmButton title="¿Cancelar esta invitación?" onConfirm={() => cancel(inv.id)}>
                     <button
                       type="button"
-                      className="rounded-lg border border-red-200 bg-red-50 px-2.5 py-1 text-xs text-red-700 transition-colors hover:bg-red-100"
+                      className="cursor-pointer rounded-lg border border-red-200 bg-red-50 px-2.5 py-1 text-xs text-red-700 transition-colors hover:bg-red-100"
                     >
                       Cancelar
                     </button>

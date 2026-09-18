@@ -77,7 +77,7 @@ export function OrganizationInvitations({
         <h2 className="font-display font-semibold">Invitaciones</h2>
         <button
           onClick={() => setShowForm((p) => !p)}
-          className="flex items-center gap-1.5 text-sm text-[#0E88E2] hover:underline"
+          className="cursor-pointer flex items-center gap-1.5 text-sm text-[#0E88E2] hover:underline"
         >
           <Plus className="h-4 w-4" /> Invitar usuario
         </button>
@@ -133,14 +133,14 @@ export function OrganizationInvitations({
                     <>
                       <button
                         onClick={() => resend(inv.id)}
-                        className="rounded-lg border border-border px-2.5 py-1 text-xs transition-colors hover:bg-muted"
+                        className="cursor-pointer rounded-lg border border-border px-2.5 py-1 text-xs transition-colors hover:bg-muted"
                       >
                         Reenviar
                       </button>
                       <ConfirmButton title="¿Cancelar esta invitación?" onConfirm={() => cancel(inv.id)}>
                         <button
                           type="button"
-                          className="rounded-lg border border-red-200 bg-red-50 px-2.5 py-1 text-xs text-red-700 transition-colors hover:bg-red-100"
+                          className="cursor-pointer rounded-lg border border-red-200 bg-red-50 px-2.5 py-1 text-xs text-red-700 transition-colors hover:bg-red-100"
                         >
                           Cancelar
                         </button>

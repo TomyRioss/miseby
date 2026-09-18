@@ -211,7 +211,7 @@ export function DesignEditor({
         ) : (
           <div className="flex flex-col gap-5">
             <div className="flex items-center justify-between gap-2">
-              <button type="button" onClick={() => setSection(null)} className="flex items-center gap-2 text-left">
+              <button type="button" onClick={() => setSection(null)} className="cursor-pointer flex items-center gap-2 text-left">
                 <ArrowLeft className="h-4 w-4" />
                 <span className="text-lg font-bold">{TITLES[section]}</span>
               </button>

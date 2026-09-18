@@ -63,7 +63,7 @@ export function HeaderDetail({
         <Label>Diseño</Label>
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
           {layouts.map((id) => (
-            <button key={id} type="button" onClick={() => patch({ header: id })} className="flex flex-col gap-1.5">
+            <button key={id} type="button" onClick={() => patch({ header: id })} className="cursor-pointer flex flex-col gap-1.5">
               <MiniLayout id={id} active={theme.header === id} />
               <span className={`text-center text-xs font-medium capitalize ${theme.header === id ? "text-foreground" : "text-muted-foreground"}`}>
                 {layoutLabels[id] ?? id}
@@ -191,7 +191,7 @@ export function ButtonsDetail({ theme, patch }: { theme: MiseLinkTheme; patch: P
               key={s}
               type="button"
               onClick={() => patch({ buttonStyle: s })}
-              className={`rounded-xl border p-3 ${theme.buttonStyle === s ? "border-foreground ring-2 ring-foreground/15" : "border-border"}`}
+              className={`cursor-pointer rounded-xl border p-3 ${theme.buttonStyle === s ? "border-foreground ring-2 ring-foreground/15" : "border-border"}`}
             >
               <span
                 style={
@@ -265,7 +265,7 @@ export function ThemeDetail({ theme, patch }: { theme: MiseLinkTheme; patch: Pat
           onClick={() => patch({ ...p.theme, preset: p.id })}
           aria-pressed={theme.preset === p.id}
           style={{ background: p.theme.colors.background, color: p.theme.colors.text }}
-          className={`rounded-xl border px-3 py-3 text-left ${theme.preset === p.id ? "border-foreground ring-2 ring-foreground/20" : "border-border"}`}
+          className={`cursor-pointer rounded-xl border px-3 py-3 text-left ${theme.preset === p.id ? "border-foreground ring-2 ring-foreground/20" : "border-border"}`}
         >
           <span className="block text-sm font-bold">{p.label}</span>
           <span

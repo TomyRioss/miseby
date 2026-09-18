@@ -19,7 +19,7 @@ export function MiseLinkSocials({ socials, theme }: { socials: RenderSocial[]; t
             rel="noopener noreferrer nofollow"
             aria-label={meta.label}
             style={{ color: theme?.colors.text ?? "#171717" }}
-            className="flex h-11 w-11 items-center justify-center transition-transform hover:scale-105 active:scale-95"
+            className="cursor-pointer flex h-11 w-11 items-center justify-center transition-transform hover:scale-105 active:scale-95"
           >
             <Icon className="h-7 w-7" />
           </a>

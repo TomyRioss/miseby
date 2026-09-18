@@ -49,7 +49,7 @@ function NavItem({
     <Link
       href={item.href}
       onClick={onClick}
-      className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+      className={`cursor-pointer flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
         active ? "bg-white/20 text-white" : "text-white/70 hover:bg-white/10 hover:text-white"
       }`}
     >
@@ -99,7 +99,7 @@ export function PlatformShell({
           onClick={() => setUserMenuOpen((p) => !p)}
           aria-expanded={userMenuOpen}
           title={userLabel}
-          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+          className="cursor-pointer flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-white/70 transition-colors hover:bg-white/10 hover:text-white"
         >
           <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/20">
             <User className="h-3.5 w-3.5 text-white" />
@@ -135,7 +135,7 @@ export function PlatformShell({
                       setOpen(false);
                     }}
                     aria-current={active ? "page" : undefined}
-                    className={`flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-xs font-semibold tracking-wide transition-colors ${
+                    className={`cursor-pointer flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-xs font-semibold tracking-wide transition-colors ${
                       active
                         ? "bg-muted text-foreground"
                         : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -150,7 +150,7 @@ export function PlatformShell({
             <div className="my-1 h-px bg-border" />
             <button
               onClick={handleLogout}
-              className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-xs font-semibold tracking-wide text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              className="cursor-pointer flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-xs font-semibold tracking-wide text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
               <LogOut className="h-4 w-4 shrink-0" />
               Salir
@@ -174,7 +174,7 @@ export function PlatformShell({
 
       <div className="flex flex-1 flex-col overflow-hidden">
         <header className="flex h-14 items-center gap-4 border-b border-border px-4 lg:hidden">
-          <button onClick={() => setOpen(true)} className="rounded-lg p-2 text-foreground hover:bg-muted">
+          <button onClick={() => setOpen(true)} className="cursor-pointer rounded-lg p-2 text-foreground hover:bg-muted">
             <Menu className="h-5 w-5" />
           </button>
           <MiseMark />

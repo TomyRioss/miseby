@@ -52,7 +52,7 @@ export function MenuCategoryRow({
           <p className="text-xs tabular-nums text-muted-foreground">{products.length} platos</p>
         </div>
         <button type="button" onClick={onAddProduct}
-          className="shrink-0 whitespace-nowrap rounded-full border border-[#0A2540] px-3 py-1.5 text-xs font-semibold text-[#0A2540] hover:bg-[#0A2540]/5 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+          className="cursor-pointer shrink-0 whitespace-nowrap rounded-full border border-[#0A2540] px-3 py-1.5 text-xs font-semibold text-[#0A2540] hover:bg-[#0A2540]/5 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
           + Producto
         </button>
         <DropdownMenu>
@@ -64,7 +64,7 @@ export function MenuCategoryRow({
           </DropdownMenuContent>
         </DropdownMenu>
         <button type="button" onClick={onToggleCollapse} aria-label={collapsed ? "Expandir" : "Colapsar"}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+          className="cursor-pointer flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
           {collapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
         </button>
       </div>
@@ -77,7 +77,7 @@ export function MenuCategoryRow({
               return (
                 <li key={p.id} className="flex items-center gap-2 py-2.5">
                   <button type="button" onClick={() => onEditProduct(p)} aria-label={`Editar ${p.name}`}
-                    className="flex min-w-0 flex-1 items-center gap-3 text-left">
+                    className="cursor-pointer flex min-w-0 flex-1 items-center gap-3 text-left">
                     <span className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted text-sm font-bold text-muted-foreground">
                       {p.imageUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
@@ -103,12 +103,12 @@ export function MenuCategoryRow({
                   <button type="button" onClick={() => onToggleTakeAway(p.id, !(p.takeAway !== false))} disabled={false}
                     title={(p.takeAway !== false) ? "Llevar activado" : "Llevar desactivado"}
                     aria-label={`Llevar ${p.name}`}
-                    className={`flex h-11 w-11 items-center justify-center rounded-lg ${(p.takeAway !== false) ? "text-[#0A2540]" : "text-muted-foreground/50"} focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`}>
+                    className={`cursor-pointer disabled:cursor-not-allowed flex h-11 w-11 items-center justify-center rounded-lg ${(p.takeAway !== false) ? "text-[#0A2540]" : "text-muted-foreground/50"} focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`}>
                     <ShoppingBag className="h-5 w-5" />
                   </button>
                   <button type="button" onClick={() => onToggleActive(p.id, !p.available)}
                     title={p.available ? "Pausar" : "Activar"} aria-label={`${p.available ? "Pausar" : "Activar"} ${p.name}`}
-                    className={`flex h-11 w-11 items-center justify-center rounded-lg ${p.available ? "text-[#0A2540]" : "text-muted-foreground/50"} focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`}>
+                    className={`cursor-pointer flex h-11 w-11 items-center justify-center rounded-lg ${p.available ? "text-[#0A2540]" : "text-muted-foreground/50"} focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`}>
                     {p.available ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
                   </button>
                   <DropdownMenu>
@@ -140,7 +140,7 @@ export function MenuCategoryRow({
           </ul>
           {products.length === 0 && (
             <button type="button" onClick={onAddProduct}
-              className="flex w-full items-center gap-1.5 py-2.5 text-sm font-medium text-[#6D28D9] hover:text-[#6D28D9]/80">
+              className="cursor-pointer flex w-full items-center gap-1.5 py-2.5 text-sm font-medium text-[#6D28D9] hover:text-[#6D28D9]/80">
               <Plus className="h-4 w-4" /> Agregar producto
             </button>
           )}

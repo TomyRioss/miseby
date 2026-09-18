@@ -60,7 +60,7 @@ export function ShareTargetsRow({ url, title }: { url: string; title: string }) 
       <button
         type="button"
         onClick={copy}
-        className="flex w-16 shrink-0 flex-col items-center gap-1.5 text-[11px] text-muted-foreground"
+        className="cursor-pointer flex w-16 shrink-0 flex-col items-center gap-1.5 text-[11px] text-muted-foreground"
       >
         <span className="flex size-12 items-center justify-center rounded-full bg-[#E9E9EE] text-neutral-800">
           {copied ? <FaCheck className="size-5" /> : <FaLink className="size-5" />}
@@ -73,7 +73,7 @@ export function ShareTargetsRow({ url, title }: { url: string; title: string }) 
           href={t.href}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex w-16 shrink-0 flex-col items-center gap-1.5 text-[11px] text-muted-foreground"
+          className="cursor-pointer flex w-16 shrink-0 flex-col items-center gap-1.5 text-[11px] text-muted-foreground"
         >
           <span
             className="flex size-12 items-center justify-center rounded-full"

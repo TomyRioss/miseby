@@ -24,7 +24,7 @@ export default function RegisterPage() {
       </div>
 
       <div className="flex flex-col overflow-y-auto bg-background px-6 py-10 sm:px-14">
-        <Link href="/login" className="mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+        <Link href="/login" className="cursor-pointer mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Iniciar sesión
         </Link>
 
