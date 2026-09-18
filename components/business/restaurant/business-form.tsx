@@ -129,11 +129,11 @@ export function BusinessForm({ initial, extra, canEdit }: Props) {
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <FaInstagram className="h-5 w-5 shrink-0 text-rose-500" aria-hidden />
-              <Input value={form.instagram} onChange={set("instagram")} disabled={!canEdit} placeholder="Link de Instagram" inputMode="url" aria-label="Link de Instagram" maxLength={200} />
+              <Input value={form.instagram} onChange={set("instagram")} disabled={!canEdit} placeholder="https://instagram.com/tu-cuenta" inputMode="url" aria-label="Link de Instagram" maxLength={200} />
             </div>
             <div className="flex items-center gap-3">
               <FaFacebook className="h-5 w-5 shrink-0 text-blue-600" aria-hidden />
-              <Input value={form.facebook} onChange={set("facebook")} disabled={!canEdit} placeholder="Link de Facebook" inputMode="url" aria-label="Link de Facebook" maxLength={200} />
+              <Input value={form.facebook} onChange={set("facebook")} disabled={!canEdit} placeholder="https://facebook.com/tu-pagina" inputMode="url" aria-label="Link de Facebook" maxLength={200} />
             </div>
             <div className="flex items-center gap-3">
               <FaWhatsapp className="h-5 w-5 shrink-0 text-green-600" aria-hidden />
@@ -141,11 +141,11 @@ export function BusinessForm({ initial, extra, canEdit }: Props) {
             </div>
             <div className="flex items-center gap-3">
               <FaTiktok className="h-5 w-5 shrink-0" aria-hidden />
-              <Input value={form.tiktok} onChange={set("tiktok")} disabled={!canEdit} placeholder="Link de TikTok" inputMode="url" aria-label="Link de TikTok" maxLength={200} />
+              <Input value={form.tiktok} onChange={set("tiktok")} disabled={!canEdit} placeholder="https://tiktok.com/@tu-cuenta" inputMode="url" aria-label="Link de TikTok" maxLength={200} />
             </div>
             <div className="flex items-center gap-3">
               <FaXTwitter className="h-5 w-5 shrink-0" aria-hidden />
-              <Input value={form.x} onChange={set("x")} disabled={!canEdit} placeholder="Link de X" inputMode="url" aria-label="Link de X" maxLength={200} />
+              <Input value={form.x} onChange={set("x")} disabled={!canEdit} placeholder="https://x.com/tu-cuenta" inputMode="url" aria-label="Link de X" maxLength={200} />
             </div>
           </div>
         </section>
