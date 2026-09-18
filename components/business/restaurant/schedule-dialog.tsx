@@ -129,7 +129,7 @@ export function ScheduleDialog({ open, onOpenChange, value, disabled, onSave }: 
             type="button"
             aria-label="Cerrar"
             onClick={() => onOpenChange(false)}
-            className="rounded-md p-1 transition-colors hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-white"
+            className="cursor-pointer rounded-md p-1 transition-colors hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-white"
           >
             <X className="h-4 w-4" />
           </button>
@@ -193,7 +193,7 @@ export function ScheduleDialog({ open, onOpenChange, value, disabled, onSave }: 
                             type="button"
                             aria-label={`Quitar turno ${i + 1}`}
                             onClick={() => removeSlot(day, i)}
-                            className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+                            className="cursor-pointer rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
                           >
                             <X className="h-3.5 w-3.5" />
                           </button>
@@ -207,7 +207,7 @@ export function ScheduleDialog({ open, onOpenChange, value, disabled, onSave }: 
                       <button
                         type="button"
                         onClick={() => addSlot(day)}
-                        className="inline-flex items-center gap-1 text-[13px] font-medium text-orange-600 hover:text-orange-700 hover:underline"
+                        className="cursor-pointer inline-flex items-center gap-1 text-[13px] font-medium text-orange-600 hover:text-orange-700 hover:underline"
                       >
                         <Plus className="h-3.5 w-3.5" /> Agregar otro horario
                       </button>

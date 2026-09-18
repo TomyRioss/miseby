@@ -101,7 +101,7 @@ export function ShareDialog({
             <button
               type="button"
               onClick={nativeShare}
-              className="flex w-16 shrink-0 flex-col items-center gap-1.5 text-xs text-muted-foreground"
+              className="cursor-pointer flex w-16 shrink-0 flex-col items-center gap-1.5 text-xs text-muted-foreground"
             >
               <span className="flex size-12 items-center justify-center rounded-full bg-muted text-foreground">
                 <FiShare2 className="size-5" />
@@ -114,7 +114,7 @@ export function ShareDialog({
                 href={p.href(fullUrl)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex w-16 shrink-0 flex-col items-center gap-1.5 text-xs text-muted-foreground"
+                className="cursor-pointer flex w-16 shrink-0 flex-col items-center gap-1.5 text-xs text-muted-foreground"
               >
                 <span className="flex size-12 items-center justify-center rounded-full bg-muted">
                   <p.icon className="size-5" style={{ color: p.color }} />

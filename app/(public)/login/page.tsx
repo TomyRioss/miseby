@@ -28,7 +28,7 @@ export default function LoginPage() {
       <div className="flex flex-col justify-center bg-background px-6 py-14 sm:px-14">
         <Link
           href="/"
-          className="mb-10 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+          className="cursor-pointer mb-10 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" /> Volver
         </Link>
@@ -44,7 +44,7 @@ export default function LoginPage() {
 
         <p className="mt-6 text-sm text-muted-foreground">
           ¿No tienes cuenta?{" "}
-          <Link href="/register" className="font-semibold text-[#0E88E2] hover:underline">
+          <Link href="/register" className="cursor-pointer font-semibold text-[#0E88E2] hover:underline">
             Registrar mi negocio
           </Link>
         </p>

@@ -28,7 +28,7 @@ export default async function HomePage() {
         <div className="mt-12">
           <Link
             href="/login"
-            className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/15 px-8 py-3 text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/25"
+            className="cursor-pointer inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/15 px-8 py-3 text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/25"
           >
             Iniciar sesión
           </Link>
@@ -37,7 +37,7 @@ export default async function HomePage() {
 
       <p className="absolute bottom-8 text-xs text-white/50">
         Powered by{" "}
-        <a href="https://mardigital.com.co/business" className="transition-colors hover:text-white/80">
+        <a href="https://mardigital.com.co/business" className="cursor-pointer transition-colors hover:text-white/80">
           Mar Digital Business
         </a>
       </p>

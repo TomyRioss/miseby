@@ -83,7 +83,7 @@ export function IaConfig({ initial, menuSummary }: { initial: NonNullable<Restau
         <p className="mb-3 mt-1 text-[13px] text-muted-foreground">Si inventa un plato, ajustá el foco arriba.</p>
         <div className="flex flex-wrap gap-1.5">
           {QUICK.map((q) => (
-            <button key={q} type="button" onClick={() => send(q)} className="min-h-8 rounded-full border border-border px-3 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6D28D9]">“{q}”</button>
+            <button key={q} type="button" onClick={() => send(q)} className="cursor-pointer min-h-8 rounded-full border border-border px-3 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6D28D9]">“{q}”</button>
           ))}
         </div>
         <div aria-live="polite" className="mt-3 max-h-80 min-h-48 flex-1 space-y-2 overflow-y-auto rounded-xl bg-muted p-3">

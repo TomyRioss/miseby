@@ -60,13 +60,13 @@ export function PageShareDialog({
           <div className="mt-4 flex gap-3">
             <a
               href="/register"
-              className="flex-1 rounded-full bg-black px-4 py-2.5 text-center text-sm font-semibold text-white"
+              className="cursor-pointer flex-1 rounded-full bg-black px-4 py-2.5 text-center text-sm font-semibold text-white"
             >
               Regístrate gratis
             </a>
             <a
               href="/"
-              className="flex-1 rounded-full border border-border px-4 py-2.5 text-center text-sm font-semibold text-foreground"
+              className="cursor-pointer flex-1 rounded-full border border-border px-4 py-2.5 text-center text-sm font-semibold text-foreground"
             >
               Descubre más
             </a>

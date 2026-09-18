@@ -9,7 +9,7 @@ export function MiseLinkFooter({ theme }: { theme?: MiseLinkTheme }) {
     <footer className="mt-auto flex w-full flex-col items-center gap-4 pt-16">
       <Link
         href="/"
-        className="rounded-full bg-white px-5 py-2.5 text-[15px] font-semibold text-neutral-900 shadow-[0_2px_8px_rgba(0,0,0,0.12)] transition-transform hover:scale-105 active:scale-95"
+        className="cursor-pointer rounded-full bg-white px-5 py-2.5 text-[15px] font-semibold text-neutral-900 shadow-[0_2px_8px_rgba(0,0,0,0.12)] transition-transform hover:scale-105 active:scale-95"
       >
         Crear mi Mise Link
       </Link>

@@ -152,11 +152,11 @@ export function RegisterForm() {
         />
         <label htmlFor="terms" className="text-sm leading-relaxed text-muted-foreground">
           Acepto los{" "}
-          <a href="#" className="text-[#0E88E2] hover:underline">
+          <a href="#" className="cursor-pointer text-[#0E88E2] hover:underline">
             términos de servicio
           </a>{" "}
           y la{" "}
-          <a href="#" className="text-[#0E88E2] hover:underline">
+          <a href="#" className="cursor-pointer text-[#0E88E2] hover:underline">
             política de privacidad
           </a>
         </label>
@@ -178,7 +178,7 @@ export function RegisterForm() {
 
       <p className="text-center text-sm text-muted-foreground">
         ¿Ya tienes cuenta?{" "}
-        <a href="/login" className="font-semibold text-[#0E88E2] hover:underline">
+        <a href="/login" className="cursor-pointer font-semibold text-[#0E88E2] hover:underline">
           Iniciar sesión
         </a>
       </p>

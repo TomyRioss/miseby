@@ -108,9 +108,9 @@ export function ProductsManager({
             <section aria-labelledby="prod-list" className="rounded-2xl border border-border bg-card p-6">
           <h2 id="prod-list" className="mt-1 text-base font-semibold tracking-tight">Tu carta</h2>
           <div className="mt-3 flex flex-wrap gap-1.5" role="tablist" aria-label="Filtrar por sección">
-            <button role="tab" aria-selected={filter === "all"} onClick={() => setFilter("all")} className={`min-h-8 rounded-full border px-3 py-1 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6D28D9] ${filter === "all" ? "border-[#0A2540] bg-[#0A2540] text-white" : "border-border text-muted-foreground hover:bg-muted"}`}>Todos · {items.length}</button>
+            <button role="tab" aria-selected={filter === "all"} onClick={() => setFilter("all")} className={`cursor-pointer min-h-8 rounded-full border px-3 py-1 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6D28D9] ${filter === "all" ? "border-[#0A2540] bg-[#0A2540] text-white" : "border-border text-muted-foreground hover:bg-muted"}`}>Todos · {items.length}</button>
             {categories.map((c) => (
-              <button key={c.id} role="tab" aria-selected={filter === c.id} onClick={() => setFilter(c.id)} className={`min-h-8 rounded-full border px-3 py-1 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6D28D9] ${filter === c.id ? "border-[#0A2540] bg-[#0A2540] text-white" : "border-border text-muted-foreground hover:bg-muted"}`}>{c.name} · {countFor(c.id)}</button>
+              <button key={c.id} role="tab" aria-selected={filter === c.id} onClick={() => setFilter(c.id)} className={`cursor-pointer min-h-8 rounded-full border px-3 py-1 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6D28D9] ${filter === c.id ? "border-[#0A2540] bg-[#0A2540] text-white" : "border-border text-muted-foreground hover:bg-muted"}`}>{c.name} · {countFor(c.id)}</button>
             ))}
           </div>
           <div className="mt-4 space-y-2">
@@ -122,14 +122,14 @@ export function ProductsManager({
             )}
             {visible.map((p) => (
               <article key={p.id} className={`flex items-center gap-3 rounded-xl border border-border px-3 py-2.5 transition-colors hover:bg-muted/40 ${p.available ? "" : "bg-muted/50"}`}>
-                <button onClick={() => toggleAvailable(p.id)} aria-label={p.available ? `Pausar ${p.name}` : `Activar ${p.name}`} title={p.available ? "Visible · tocá para pausar" : "Pausado · tocá para activar"} className={`flex h-2.5 w-2.5 shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6D28D9] ${p.available ? "bg-emerald-500" : "bg-muted-foreground/40"}`} />
+                <button onClick={() => toggleAvailable(p.id)} aria-label={p.available ? `Pausar ${p.name}` : `Activar ${p.name}`} title={p.available ? "Visible · tocá para pausar" : "Pausado · tocá para activar"} className={`cursor-pointer flex h-2.5 w-2.5 shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6D28D9] ${p.available ? "bg-emerald-500" : "bg-muted-foreground/40"}`} />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold">{p.name}</p>
                   <p className="truncate text-xs tabular-nums text-muted-foreground">{catName(p.categoryId)} · {formatPrice(p.price, currency ?? "COP")}{p.available ? "" : " · pausado"}</p>
                 </div>
                 {!p.available && <CirclePause className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />}
-                <button onClick={() => startEdit(p)} aria-label={`Editar ${p.name}`} className="min-h-9 min-w-9 rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"><Pencil className="h-4 w-4" /></button>
-                <button onClick={() => touch(items.filter((x) => x.id !== p.id))} aria-label={`Eliminar ${p.name}`} className="min-h-9 min-w-9 rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
+                <button onClick={() => startEdit(p)} aria-label={`Editar ${p.name}`} className="cursor-pointer min-h-9 min-w-9 rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"><Pencil className="h-4 w-4" /></button>
+                <button onClick={() => touch(items.filter((x) => x.id !== p.id))} aria-label={`Eliminar ${p.name}`} className="cursor-pointer min-h-9 min-w-9 rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
               </article>
             ))}
           </div>

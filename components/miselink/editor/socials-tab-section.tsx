@@ -102,7 +102,7 @@ export function SocialsTabSection({ state }: { state: State }) {
                   type="button"
                   aria-label="Eliminar red social"
                   onClick={() => state.removeSocial(s.id)}
-                  className="text-muted-foreground hover:text-red-600"
+                  className="cursor-pointer text-muted-foreground hover:text-red-600"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>

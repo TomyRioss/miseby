@@ -77,7 +77,7 @@ export function ResetPasswordForm() {
             type="button"
             aria-label="Mostrar"
             onClick={() => setShow((v) => !v)}
-            className="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground"
+            className="cursor-pointer absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground"
             tabIndex={-1}
           >
             {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}

@@ -34,7 +34,7 @@ export function BusinessHeader({ markSuffix, planCode }: { markSuffix?: string; 
       <div className="relative mx-auto flex w-full max-w-7xl items-center justify-center">
         <Link
           href="/dashboard"
-          className="inline-flex items-center justify-center gap-1.5 font-display text-base font-bold tracking-tight text-white sm:text-lg"
+          className="cursor-pointer inline-flex items-center justify-center gap-1.5 font-display text-base font-bold tracking-tight text-white sm:text-lg"
         >
           MISE BY
           {resolvedSuffix ? (
@@ -49,7 +49,7 @@ export function BusinessHeader({ markSuffix, planCode }: { markSuffix?: string; 
         <button
           onClick={handleLogout}
           aria-label="Salir"
-          className="absolute right-0 rounded-full p-2 transition-colors hover:bg-white/10 md:hidden"
+          className="cursor-pointer absolute right-0 rounded-full p-2 transition-colors hover:bg-white/10 md:hidden"
         >
           <LogOut className="h-4 w-4" />
         </button>
@@ -88,7 +88,7 @@ export function BusinessSidebar({ userLabel, hasMiseLink = false, planCode }: { 
               <button
                 aria-haspopup="menu"
                 aria-label={`Cuenta: ${userLabel}`}
-                className="flex w-full items-center gap-2 rounded-xl px-2 py-2 text-left transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
+                className="cursor-pointer flex w-full items-center gap-2 rounded-xl px-2 py-2 text-left transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
               >
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted">
                   <User className="h-5 w-5 shrink-0 text-muted-foreground" />
@@ -159,7 +159,7 @@ export function BusinessSidebar({ userLabel, hasMiseLink = false, planCode }: { 
           <>
         <Link
           href="/dashboard"
-          className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted"
+          className="cursor-pointer flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted"
         >
           <Building2 className="h-4 w-4" />
           Inicio
@@ -169,7 +169,7 @@ export function BusinessSidebar({ userLabel, hasMiseLink = false, planCode }: { 
             type="button"
             onClick={() => setOpen(!open)}
             aria-expanded={open}
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted"
+            className="cursor-pointer flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted"
           >
             <Link2 className="h-4 w-4" />
             <span className="flex-1 text-left">My MiseLink</span>
@@ -181,7 +181,7 @@ export function BusinessSidebar({ userLabel, hasMiseLink = false, planCode }: { 
             <div className="ml-6 mt-1 space-y-1 border-l border-border pl-2">
               <Link
                 href="/dashboard/miselink"
-                className={`block rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted ${
+                className={`cursor-pointer block rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted ${
                   isLinksActive
                     ? "bg-muted font-semibold text-[#6D28D9]"
                     : "font-medium text-muted-foreground"
@@ -191,7 +191,7 @@ export function BusinessSidebar({ userLabel, hasMiseLink = false, planCode }: { 
               </Link>
               <Link
                 href="/dashboard/miselink/design"
-                className={`block rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted ${
+                className={`cursor-pointer block rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted ${
                   isDesignActive
                     ? "bg-muted font-semibold text-[#6D28D9]"
                     : "font-medium text-muted-foreground"
@@ -311,7 +311,7 @@ function RestaurantNav({ pathname }: { pathname: string | null }) {
       <Link
         key={item.href}
         href={item.href}
-        className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-muted ${
+        className={`cursor-pointer flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-muted ${
           active ? "bg-muted font-semibold text-foreground" : "font-medium text-muted-foreground"
         }`}
       >
@@ -327,7 +327,7 @@ function RestaurantNav({ pathname }: { pathname: string | null }) {
         type="button"
         onClick={() => setLinkOpen(!linkOpen)}
         aria-expanded={linkOpen}
-        className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted"
+        className="cursor-pointer flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted"
       >
         <QrCode className="h-4 w-4" />
         <span className="flex-1 text-left">Mise Link & QR</span>
@@ -339,7 +339,7 @@ function RestaurantNav({ pathname }: { pathname: string | null }) {
         <div className="ml-6 mt-1 space-y-1 border-l border-border pl-2">
           <Link
             href="/dashboard/miselink"
-            className={`block rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted ${
+            className={`cursor-pointer block rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted ${
               isLinksActive
                 ? "bg-muted font-semibold text-[#6D28D9]"
                 : "font-medium text-muted-foreground"
@@ -349,7 +349,7 @@ function RestaurantNav({ pathname }: { pathname: string | null }) {
           </Link>
           <Link
             href="/dashboard/miselink/design"
-            className={`block rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted ${
+            className={`cursor-pointer block rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted ${
               isDesignActive
                 ? "bg-muted font-semibold text-[#6D28D9]"
                 : "font-medium text-muted-foreground"
@@ -363,7 +363,7 @@ function RestaurantNav({ pathname }: { pathname: string | null }) {
         type="button"
         onClick={() => setMenuOpen(!menuOpen)}
         aria-expanded={menuOpen}
-        className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-muted ${
+        className={`cursor-pointer flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-muted ${
           isMenuSection ? "bg-muted font-semibold text-foreground" : "font-medium text-muted-foreground"
         }`}
       >
@@ -377,7 +377,7 @@ function RestaurantNav({ pathname }: { pathname: string | null }) {
         <div className="ml-6 mt-1 space-y-1 border-l border-border pl-2">
           <Link
             href="/dashboard/menu"
-            className={`block rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted ${
+            className={`cursor-pointer block rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted ${
               isMenuContentActive
                 ? "bg-muted font-semibold text-[#6D28D9]"
                 : "font-medium text-muted-foreground"
@@ -387,7 +387,7 @@ function RestaurantNav({ pathname }: { pathname: string | null }) {
           </Link>
           <Link
             href="/dashboard/apariencia"
-            className={`block rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted ${
+            className={`cursor-pointer block rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted ${
               isAppearanceActive
                 ? "bg-muted font-semibold text-[#6D28D9]"
                 : "font-medium text-muted-foreground"

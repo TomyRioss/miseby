@@ -76,7 +76,7 @@ export function MenuPreview({ data, currency, slug }: { data: RestaurantData; cu
           <p className="mt-1 font-mono text-xs break-all text-muted-foreground">/menu/{slug}</p>
           <div className="mt-3 flex gap-2">
             <Button variant="outline" onClick={copyLink} className="min-h-10 flex-1"><Copy className="h-4 w-4" />Copiar enlace</Button>
-            <Button variant="outline" asChild className="min-h-10"><a href={`/menu/${slug}`} target="_blank" rel="noreferrer" aria-label="Abrir carta pública"><ExternalLink className="h-4 w-4" /></a></Button>
+            <Button variant="outline" asChild className="min-h-10"><a className="cursor-pointer" href={`/menu/${slug}`} target="_blank" rel="noreferrer" aria-label="Abrir carta pública"><ExternalLink className="h-4 w-4" /></a></Button>
           </div>
           <p className="mt-3 text-xs leading-relaxed text-muted-foreground">QR y link para mesas: el QR sale de este mismo enlace.</p>
           </div>

@@ -68,7 +68,7 @@ export function MiseLinkButton({
             ? { borderColor: btnBg, color: btnFg, background: "transparent" }
             : { background: btnBg, color: btnFg, borderColor: "transparent" }
         }
-        className={`flex min-h-[56px] w-full items-center justify-center border-2 px-12 py-4 text-center text-[15px] font-medium shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-transform hover:scale-[1.01] active:scale-[0.99] ${themeButtonClass(style)}`}
+        className={`cursor-pointer flex min-h-[56px] w-full items-center justify-center border-2 px-12 py-4 text-center text-[15px] font-medium shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-transform hover:scale-[1.01] active:scale-[0.99] ${themeButtonClass(style)}`}
       >
         {item.title}
       </a>
@@ -79,7 +79,7 @@ export function MiseLinkButton({
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
           style={{ color: btnFg }}
-          className="absolute right-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full opacity-60 transition-opacity hover:opacity-100"
+          className="cursor-pointer absolute right-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full opacity-60 transition-opacity hover:opacity-100"
         >
           <FiMoreVertical className="h-5 w-5" />
         </button>
@@ -96,7 +96,7 @@ export function MiseLinkButton({
           <div className="absolute right-2 top-full z-20 mt-1 w-44 overflow-hidden rounded-xl bg-white shadow-lg ring-1 ring-black/5">
             <button
               onClick={copyLink}
-              className="block w-full px-4 py-3 text-left text-sm text-neutral-900 hover:bg-neutral-100"
+              className="cursor-pointer block w-full px-4 py-3 text-left text-sm text-neutral-900 hover:bg-neutral-100"
             >
               Copiar enlace
             </button>
@@ -105,7 +105,7 @@ export function MiseLinkButton({
                 setOpen(false);
                 setShareOpen(true);
               }}
-              className="block w-full px-4 py-3 text-left text-sm text-neutral-900 hover:bg-neutral-100"
+              className="cursor-pointer block w-full px-4 py-3 text-left text-sm text-neutral-900 hover:bg-neutral-100"
             >
               Compartir
             </button>

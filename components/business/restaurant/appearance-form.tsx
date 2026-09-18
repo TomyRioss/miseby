@@ -87,7 +87,7 @@ export function AppearanceForm({
                 {FONTS.map((f) => {
                   const active = form[key] === f.id;
                   return (
-                    <button key={f.id} type="button" onClick={() => setForm((p) => ({ ...p, [key]: f.id }))} aria-pressed={active} className={`rounded-xl border px-3 py-2 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6D28D9] ${active ? "border-[#0A2540] bg-[#0A2540] text-white" : "border-border hover:bg-muted"}`}>
+                    <button key={f.id} type="button" onClick={() => setForm((p) => ({ ...p, [key]: f.id }))} aria-pressed={active} className={`cursor-pointer rounded-xl border px-3 py-2 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6D28D9] ${active ? "border-[#0A2540] bg-[#0A2540] text-white" : "border-border hover:bg-muted"}`}>
                       <span className={`block text-sm font-bold ${f.id === "serif" ? "font-serif" : f.id === "mono" ? "font-mono" : ""}`}>{f.demo}</span>
                       <span className={`mt-0.5 flex items-center gap-1 text-[11px] ${active ? "text-white/70" : "text-muted-foreground"}`}>{active && <Check className="h-3 w-3" />}{f.label}</span>
                     </button>

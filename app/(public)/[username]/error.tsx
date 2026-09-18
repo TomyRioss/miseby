@@ -22,11 +22,11 @@ export default function MiseLinkError({
       <div className="flex gap-3">
         <button
           onClick={reset}
-          className="rounded-xl border border-border px-4 py-2 text-sm hover:bg-muted"
+          className="cursor-pointer rounded-xl border border-border px-4 py-2 text-sm hover:bg-muted"
         >
           Reintentar
         </button>
-        <Link href="/" className="rounded-xl bg-[#075296] px-4 py-2 text-sm font-medium text-white">
+        <Link href="/" className="cursor-pointer rounded-xl bg-[#075296] px-4 py-2 text-sm font-medium text-white">
           Ir al inicio
         </Link>
       </div>

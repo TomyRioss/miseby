@@ -43,7 +43,7 @@ export default async function MembershipsPage() {
                 return (
                   <TableRow key={mb.id}>
                     <TableCell>
-                      <Link href={`/control/negocios/${mb.organization.id}`} className="font-medium hover:text-[#0E88E2]">
+                      <Link href={`/control/negocios/${mb.organization.id}`} className="cursor-pointer font-medium hover:text-[#0E88E2]">
                         {mb.organization.commercialName}
                       </Link>
                     </TableCell>

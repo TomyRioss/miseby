@@ -21,7 +21,7 @@ export function MiseLinkTopbar({
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Compartir página"
-        className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-neutral-900 shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-transform hover:scale-105 active:scale-95"
+        className="cursor-pointer flex h-10 w-10 items-center justify-center rounded-full bg-white text-neutral-900 shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-transform hover:scale-105 active:scale-95"
       >
         <FiShare className="h-4 w-4" />
       </button>
