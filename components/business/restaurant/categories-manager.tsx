@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ArrowDown, ArrowUp, Check, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { saveCategoriesAction } from "@/lib/actions/restaurant";
-import { newId, type RestaurantAppearance, type RestaurantCategory, type RestaurantProduct } from "@/lib/restaurant-theme";
+import { newId, type RestaurantAppearance, type RestaurantCategory, type RestaurantProduct, type WeekSchedule } from "@/lib/restaurant-theme";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +18,7 @@ export function CategoriesManager({
   currency = "COP",
   slug,
   hours,
+  schedule,
 }: {
   initial: RestaurantCategory[];
   appearance: RestaurantAppearance;
@@ -25,6 +26,7 @@ export function CategoriesManager({
   currency?: string | null;
   slug?: string;
   hours?: string;
+  schedule?: WeekSchedule;
 }) {
   const [items, setItems] = useState<RestaurantCategory[]>([...initial].sort((a, b) => a.order - b.order));
   const [name, setName] = useState("");
@@ -91,7 +93,7 @@ export function CategoriesManager({
         </div>
         <div className="mt-4 flex flex-wrap gap-1.5">
           {["Entradas", "Fuertes", "Postres", "Bebidas"].map((s) => (
-            <button key={s} type="button" onClick={() => setName(s)} className="cursor-pointer rounded-full border border-border px-3 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6D28D9]">+ {s}</button>
+            <button key={s} type="button" onClick={() => setName(s)} className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6D28D9]">+ {s}</button>
           ))}
         </div>
         <div className="mt-5 rounded-xl bg-muted p-3 text-xs leading-relaxed text-muted-foreground">
@@ -116,16 +118,16 @@ export function CategoriesManager({
             <div key={c.id} className="flex items-center gap-1.5 rounded-xl border border-border px-2 py-2 transition-colors focus-within:border-[#6D28D9] hover:bg-muted/40">
               <span className="w-6 shrink-0 text-center text-xs font-bold tabular-nums text-muted-foreground">{idx + 1}</span>
               <div className="flex shrink-0 flex-col">
-                <button onClick={() => move(c.id, -1)} disabled={idx === 0} aria-label={`Subir ${c.name}`} className="cursor-pointer disabled:cursor-not-allowed rounded p-1 hover:bg-muted disabled:opacity-30"><ArrowUp className="h-3.5 w-3.5" /></button>
-                <button onClick={() => move(c.id, 1)} disabled={idx === items.length - 1} aria-label={`Bajar ${c.name}`} className="cursor-pointer disabled:cursor-not-allowed rounded p-1 hover:bg-muted disabled:opacity-30"><ArrowDown className="h-3.5 w-3.5" /></button>
+                <button onClick={() => move(c.id, -1)} disabled={idx === 0} aria-label={`Subir ${c.name}`} className="rounded p-1 hover:bg-muted disabled:opacity-30"><ArrowUp className="h-3.5 w-3.5" /></button>
+                <button onClick={() => move(c.id, 1)} disabled={idx === items.length - 1} aria-label={`Bajar ${c.name}`} className="rounded p-1 hover:bg-muted disabled:opacity-30"><ArrowDown className="h-3.5 w-3.5" /></button>
               </div>
               {editingId === c.id ? (
                 <Input value={c.name} maxLength={60} onChange={(e) => touch(items.map((x) => (x.id === c.id ? { ...x, name: e.target.value } : x)))} onBlur={() => setEditingId(null)} onKeyDown={(e) => e.key === "Enter" && setEditingId(null)} autoFocus aria-label="Renombrar categoría" className="min-h-9" />
               ) : (
                 <span className="min-w-0 flex-1 truncate px-1 text-sm font-medium">{c.name}</span>
               )}
-              <button onClick={() => setEditingId(c.id)} aria-label={`Renombrar ${c.name}`} className="cursor-pointer min-h-9 min-w-9 rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"><Pencil className="h-4 w-4" /></button>
-              <button onClick={() => remove(c.id)} aria-label={`Eliminar ${c.name}`} className="cursor-pointer min-h-9 min-w-9 rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
+              <button onClick={() => setEditingId(c.id)} aria-label={`Renombrar ${c.name}`} className="min-h-9 min-w-9 rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"><Pencil className="h-4 w-4" /></button>
+              <button onClick={() => remove(c.id)} aria-label={`Eliminar ${c.name}`} className="min-h-9 min-w-9 rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
             </div>
           ))}
         </div>
@@ -143,6 +145,8 @@ export function CategoriesManager({
           products={products}
           currency={currency}
           hours={hours}
+          restaurantName={appearance.restaurantName}
+          schedule={schedule}
         />
       }
     />

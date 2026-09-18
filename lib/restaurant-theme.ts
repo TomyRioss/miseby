@@ -38,6 +38,8 @@ export type RestaurantAppearance = {
   showPrices: boolean;
   showImages: boolean;
   showDescriptions: boolean;
+  restaurantName: string;
+  logoUrl: string;
 };
 export type RestaurantIa = { isActive: boolean; whatToRecommend?: string; customInstructions?: string };
 export type DayKey = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
@@ -69,6 +71,8 @@ export const RESTAURANT_DEFAULT_APPEARANCE: RestaurantAppearance = {
   showPrices: true,
   showImages: true,
   showDescriptions: true,
+  restaurantName: "",
+  logoUrl: "",
 };
 
 function normalizeVariant(v: unknown, idx: number): RestaurantVariant {
@@ -140,8 +144,14 @@ export function productMinPrice(p: RestaurantProduct): number {
 export function getRestaurantData(theme: unknown): RestaurantData {
   const t = (theme ?? {}) as Record<string, unknown>;
   const r = (t.restaurant ?? {}) as RestaurantData;
+  const rawAppearance = (r.appearance ?? {}) as Record<string, unknown>;
   return {
-    appearance: { ...RESTAURANT_DEFAULT_APPEARANCE, ...(r.appearance ?? {}) },
+    appearance: {
+      ...RESTAURANT_DEFAULT_APPEARANCE,
+      ...rawAppearance,
+      restaurantName: typeof rawAppearance.restaurantName === "string" ? rawAppearance.restaurantName.slice(0, 120) : "",
+      logoUrl: typeof rawAppearance.logoUrl === "string" ? rawAppearance.logoUrl.slice(0, 2000) : "",
+    },
     categories: Array.isArray(r.categories) ? (r.categories as RestaurantCategory[]) : [],
     products: Array.isArray(r.products) ? (r.products as unknown[]).map(normalizeRestaurantProduct) : [],
     ia: { isActive: false, whatToRecommend: "", customInstructions: "", ...(r.ia ?? {}) },

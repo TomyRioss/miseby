@@ -2,7 +2,7 @@
 
 import { toast } from "sonner";
 import { PhonePreviewShell } from "@/components/shared/phone-preview-shell";
-import type { RestaurantAppearance, RestaurantCategory, RestaurantProduct } from "@/lib/restaurant-theme";
+import type { RestaurantAppearance, RestaurantCategory, RestaurantProduct, WeekSchedule } from "@/lib/restaurant-theme";
 import { RestaurantPublicView } from "./restaurant-public-view";
 
 /**
@@ -15,6 +15,8 @@ export function CartaPhonePreview({
   products,
   currency,
   hours,
+  restaurantName,
+  schedule,
 }: {
   slug?: string;
   appearance: RestaurantAppearance;
@@ -22,6 +24,8 @@ export function CartaPhonePreview({
   products?: RestaurantProduct[];
   currency?: string | null;
   hours?: string;
+  restaurantName?: string;
+  schedule?: WeekSchedule;
 }) {
   const label = slug ? `miseby.com/menu/${slug}` : "miseby.com/menu";
 
@@ -49,6 +53,9 @@ export function CartaPhonePreview({
         products={products}
         currency={currency}
         hours={hours}
+        restaurantName={restaurantName}
+        slug={slug}
+        schedule={schedule}
       />
     </PhonePreviewShell>
   );

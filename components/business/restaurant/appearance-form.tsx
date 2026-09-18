@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Check, Palette } from "lucide-react";
 import { toast } from "sonner";
 import { saveAppearanceAction } from "@/lib/actions/restaurant";
-import type { RestaurantAppearance, RestaurantCategory, RestaurantProduct } from "@/lib/restaurant-theme";
+import type { RestaurantAppearance, RestaurantCategory, RestaurantProduct, WeekSchedule } from "@/lib/restaurant-theme";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { MenuEditorLayout } from "./menu-editor-layout";
@@ -31,6 +31,7 @@ export function AppearanceForm({
   currency = "COP",
   slug,
   hours,
+  schedule,
 }: {
   initial: RestaurantAppearance;
   categories?: RestaurantCategory[];
@@ -38,6 +39,7 @@ export function AppearanceForm({
   currency?: string | null;
   slug?: string;
   hours?: string;
+  schedule?: WeekSchedule;
 }) {
   const [form, setForm] = useState(initial);
   const [saving, setSaving] = useState(false);
@@ -79,6 +81,34 @@ export function AppearanceForm({
           ))}
         </div>
 
+        <div className="mt-6 space-y-4">
+          <div>
+            <label htmlFor="ap-rest-name" className="text-sm font-medium">Nombre del restaurante</label>
+            <input
+              id="ap-rest-name"
+              type="text"
+              value={form.restaurantName}
+              onChange={(e) => setForm((f) => ({ ...f, restaurantName: e.target.value.slice(0, 120) }))}
+              placeholder="Ej: La Parrilla de Juan"
+              maxLength={120}
+              className="mt-1.5 h-10 w-full rounded-lg border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6D28D9]"
+            />
+          </div>
+          <div>
+            <label htmlFor="ap-logo-url" className="text-sm font-medium">Logo (URL)</label>
+            <input
+              id="ap-logo-url"
+              type="url"
+              value={form.logoUrl}
+              onChange={(e) => setForm((f) => ({ ...f, logoUrl: e.target.value.slice(0, 2000) }))}
+              placeholder="https://..."
+              maxLength={2000}
+              className="mt-1.5 h-10 w-full rounded-lg border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6D28D9]"
+            />
+            <p className="mt-1 text-[11px] text-muted-foreground">Imagen cuadrada recomendada. Se muestra en el header de la carta.</p>
+          </div>
+        </div>
+
         <div className="mt-6 grid gap-5 sm:grid-cols-2">
           {([["titleFont", "Títulos"], ["bodyFont", "Textos"]] as const).map(([key, label]) => (
             <fieldset key={key}>
@@ -87,7 +117,7 @@ export function AppearanceForm({
                 {FONTS.map((f) => {
                   const active = form[key] === f.id;
                   return (
-                    <button key={f.id} type="button" onClick={() => setForm((p) => ({ ...p, [key]: f.id }))} aria-pressed={active} className={`cursor-pointer rounded-xl border px-3 py-2 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6D28D9] ${active ? "border-[#0A2540] bg-[#0A2540] text-white" : "border-border hover:bg-muted"}`}>
+                    <button key={f.id} type="button" onClick={() => setForm((p) => ({ ...p, [key]: f.id }))} aria-pressed={active} className={`rounded-xl border px-3 py-2 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6D28D9] ${active ? "border-[#0A2540] bg-[#0A2540] text-white" : "border-border hover:bg-muted"}`}>
                       <span className={`block text-sm font-bold ${f.id === "serif" ? "font-serif" : f.id === "mono" ? "font-mono" : ""}`}>{f.demo}</span>
                       <span className={`mt-0.5 flex items-center gap-1 text-[11px] ${active ? "text-white/70" : "text-muted-foreground"}`}>{active && <Check className="h-3 w-3" />}{f.label}</span>
                     </button>
@@ -120,6 +150,8 @@ export function AppearanceForm({
           products={products}
           currency={currency}
           hours={hours}
+          restaurantName={form.restaurantName}
+          schedule={schedule}
         />
       }
     />

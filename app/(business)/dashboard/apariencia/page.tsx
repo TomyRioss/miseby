@@ -40,6 +40,7 @@ export default async function AparienciaPage() {
             currency={currency}
             slug={slug}
             hours={rest.hours}
+            schedule={rest.schedule}
           />
         </main>
       </div>

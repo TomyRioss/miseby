@@ -37,6 +37,7 @@ export default async function MenuPage() {
             slug={data.organization.slug}
             hours={rest.hours}
             menuPublished={rest.menuPublished === true}
+            schedule={rest.schedule}
           />
         </main>
       </div>

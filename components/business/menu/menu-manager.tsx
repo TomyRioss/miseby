@@ -12,7 +12,7 @@ import {
 import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 import { toast } from "sonner";
 import { saveMenuAction, setMenuPublishedAction } from "@/lib/actions/restaurant";
-import { newId, type RestaurantAppearance, type RestaurantCategory, type RestaurantProduct } from "@/lib/restaurant-theme";
+import { newId, type RestaurantAppearance, type RestaurantCategory, type RestaurantProduct, type WeekSchedule } from "@/lib/restaurant-theme";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -36,7 +36,7 @@ const STEPS = [
 ];
 
 export function MenuManager({
-  initialCategories, initialProducts, appearance, currency, slug, hours, menuPublished,
+  initialCategories, initialProducts, appearance, currency, slug, hours, menuPublished, schedule,
 }: {
   initialCategories: RestaurantCategory[];
   initialProducts: RestaurantProduct[];
@@ -45,6 +45,7 @@ export function MenuManager({
   slug: string;
   hours?: string;
   menuPublished: boolean;
+  schedule?: WeekSchedule;
 }) {
   const [cats, setCats] = useState<RestaurantCategory[]>([...initialCategories].sort((a, b) => a.order - b.order));
   const [products, setProducts] = useState<RestaurantProduct[]>(initialProducts);
@@ -283,7 +284,7 @@ export function MenuManager({
           </div>
         </div>
       }
-      preview={<CartaPhonePreview slug={slug} appearance={appearance} categories={cats} products={products} currency={currency ?? null} hours={hours ?? ""} />}
+      preview={<CartaPhonePreview slug={slug} appearance={appearance} categories={cats} products={products} currency={currency ?? null} hours={hours ?? ""} restaurantName={appearance.restaurantName} schedule={schedule} />}
     />
   );
 }
