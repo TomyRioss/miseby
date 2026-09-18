@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, Clock, MapPin, Store } from "lucide-react";
 import { FaFacebook, FaInstagram, FaTiktok, FaWhatsapp } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
@@ -10,13 +10,70 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+  DAY_KEYS,
+  DAY_LABELS,
   defaultSchedule,
   formatScheduleToText,
   parseSchedule,
   scheduleSummary,
+  type DayKey,
   type WeekSchedule,
 } from "@/lib/restaurant-theme";
 import { ScheduleDialog } from "./schedule-dialog";
+
+const WEEKDAY_TO_KEY: Record<string, DayKey> = {
+  Mon: "mon",
+  Tue: "tue",
+  Wed: "wed",
+  Thu: "thu",
+  Fri: "fri",
+  Sat: "sat",
+  Sun: "sun",
+};
+
+function toMinutes(t: string): number | null {
+  const [h, m] = t.split(":").map(Number);
+  if (Number.isNaN(h) || Number.isNaN(m)) return null;
+  return h * 60 + m;
+}
+
+function nowInTimeZone(timeZone: string): { key: DayKey; minutes: number } | null {
+  try {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone,
+      weekday: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).formatToParts(new Date());
+    const get = (type: string) => parts.find((p) => p.type === type)?.value;
+    const key = WEEKDAY_TO_KEY[get("weekday") ?? ""];
+    const minutes = Number(get("hour")) * 60 + Number(get("minute"));
+    if (!key || Number.isNaN(minutes)) return null;
+    return { key, minutes };
+  } catch {
+    return null;
+  }
+}
+
+function isOpenNow(schedule: WeekSchedule): boolean {
+  const now = nowInTimeZone(schedule.timezone);
+  if (!now) return false;
+  const prev = DAY_KEYS[(DAY_KEYS.indexOf(now.key) + 6) % 7];
+  const check = (key: DayKey, spillOnly: boolean) => {
+    const d = schedule.days[key];
+    if (!d?.enabled) return false;
+    return d.slots.some((slot) => {
+      const open = toMinutes(slot.open);
+      const close = toMinutes(slot.close);
+      if (open === null || close === null) return false;
+      // Rango que cruza medianoche: vale esta noche o la madrugada siguiente.
+      if (close <= open) return spillOnly ? now.minutes < close : now.minutes >= open;
+      return !spillOnly && now.minutes >= open && now.minutes < close;
+    });
+  };
+  return check(now.key, false) || check(prev, true);
+}
 
 type Props = {
   initial: { commercialName: string; phone?: string | null; email?: string | null; address?: string | null; city?: string | null; country?: string | null };
@@ -44,6 +101,14 @@ export function BusinessForm({ initial, extra, canEdit }: Props) {
 
   const scheduleText = useMemo(() => scheduleSummary(schedule), [schedule]);
   const openDays = useMemo(() => Object.values(schedule.days).filter((d) => d.enabled).length, [schedule]);
+  // Solo cliente: evita mismatch de hidratación (server y primer render no calculan hora local).
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+  const openNow = useMemo(() => (mounted ? isOpenNow(schedule) : null), [mounted, schedule]);
+  const todayKey = useMemo(
+    () => (mounted ? (nowInTimeZone(schedule.timezone)?.key ?? null) : null),
+    [mounted, schedule.timezone],
+  );
 
   const completion = useMemo(() => {
     const fields = [form.commercialName, form.phone, form.address, form.city, form.whatsapp, scheduleText];
@@ -152,16 +217,62 @@ export function BusinessForm({ initial, extra, canEdit }: Props) {
       </div>
 
       <section aria-labelledby="negocio-horario" className="rounded-2xl border border-border bg-card p-6">
-        <h2 id="negocio-horario" className="mt-1 text-base font-semibold tracking-tight">Horarios de atención</h2>
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 id="negocio-horario" className="mt-1 flex-1 text-base font-semibold tracking-tight">Horarios de atención</h2>
+          {openDays === 0 ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground">
+              <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground" aria-hidden />
+              Cerrado temporalmente
+            </span>
+          ) : openNow === true ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
+              <span className="h-1.5 w-1.5 rounded-full bg-primary" aria-hidden />
+              Abierto ahora
+            </span>
+          ) : openNow === false ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground">
+              <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground" aria-hidden />
+              Cerrado ahora
+            </span>
+          ) : null}
+        </div>
         <p className="mb-4 mt-1 text-[13px] leading-relaxed text-muted-foreground">
-          {scheduleText} · {openDays} de 7 días abiertos · {schedule.timezone}
+          {openDays} de 7 días abiertos · {schedule.timezone}
         </p>
+        <ul className="mb-4 divide-y divide-border overflow-hidden rounded-xl border border-border">
+          {DAY_KEYS.map((key) => {
+            const d = schedule.days[key];
+            const hours = d?.enabled && d.slots.length > 0
+              ? d.slots.map((s) => `${s.open}–${s.close}`).join(" y ")
+              : null;
+            const isToday = key === todayKey;
+            return (
+              <li
+                key={key}
+                className={`flex items-center justify-between gap-3 px-3 py-2 text-sm ${isToday ? "bg-primary/5 font-semibold text-foreground" : "text-muted-foreground"}`}
+              >
+                <span className="inline-flex items-center gap-2">
+                  {DAY_LABELS[key]}
+                  {isToday ? (
+                    <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary-foreground">
+                      Hoy
+                    </span>
+                  ) : null}
+                </span>
+                {hours ? (
+                  <span className="tabular-nums">{hours}</span>
+                ) : (
+                  <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground/70">Cerrado</span>
+                )}
+              </li>
+            );
+          })}
+        </ul>
         <Button
           type="button"
-          variant="outline"
           onClick={() => setScheduleOpen(true)}
           disabled={!canEdit}
-          className="min-h-10 border-orange-500 font-medium text-orange-600 hover:bg-orange-50 hover:text-orange-700"
+          className="min-h-10 bg-primary font-medium text-primary-foreground hover:bg-primary/90"
         >
           <Clock className="h-4 w-4" /> Configurar mis horarios
         </Button>
