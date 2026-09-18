@@ -25,7 +25,7 @@ export function PhonePreviewShell({
         onClick={onShare}
         disabled={!onShare}
         title={onShare ? shareTitle : undefined}
-        className={`flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2.5 ${onShare ? "transition-colors hover:bg-muted" : "cursor-default"}`}
+        className={`flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2.5 ${onShare ? "cursor-pointer transition-colors hover:bg-muted" : "cursor-default"}`}
       >
         <span className="flex-1 truncate text-center text-sm text-muted-foreground">{urlLabel}</span>
         <FiShare className="h-4 w-4 shrink-0 text-muted-foreground" />

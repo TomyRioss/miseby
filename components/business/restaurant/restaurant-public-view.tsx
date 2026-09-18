@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Clock, Copy, Info, Search, Share, UtensilsCrossed } from "lucide-react";
+import { Clock, Copy, Info, Search, Share, UtensilsCrossed, X } from "lucide-react";
 import { toast } from "sonner";
 import {
   formatPrice,
@@ -11,7 +11,6 @@ import {
   type RestaurantProduct,
   type WeekSchedule,
   type DayKey,
-  DAY_KEYS,
 } from "@/lib/restaurant-theme";
 
 function titleCls(font: RestaurantAppearance["titleFont"]) {
@@ -26,26 +25,37 @@ function bodyCls(font: RestaurantAppearance["bodyFont"]) {
   return "";
 }
 
-const NOW = new Date();
-const CURRENT_HOUR = NOW.getHours();
-const CURRENT_MINUTE = NOW.getMinutes();
-const CURRENT_TIME = `${String(CURRENT_HOUR).padStart(2, "0")}:${String(CURRENT_MINUTE).padStart(2, "0")}`;
-const DAY_INDEX = (NOW.getDay() + 6) % 7; // 0=Mon
 const DAY_MAP: DayKey[] = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 
-function computeScheduleStatus(schedule?: WeekSchedule): { open: boolean; label: string; timeLabel: string } | null {
+/* Calcula abierto/cerrado contra la hora real de render (no módulo) y
+   soporta varios slots por día + slots nocturnos (cierre < apertura). */
+function computeScheduleStatus(
+  schedule?: WeekSchedule,
+  now: Date = new Date(),
+): { open: boolean; label: string; timeLabel: string } | null {
   if (!schedule) return null;
-  const todayKey = DAY_MAP[DAY_INDEX];
+  const dayIndex = (now.getDay() + 6) % 7; // 0=Mon
+  const todayKey = DAY_MAP[dayIndex];
   const today = schedule.days[todayKey];
   if (!today?.enabled || today.slots.length === 0) {
     return { open: false, label: "Cerrado hoy", timeLabel: "" };
   }
-  const slot = today.slots[0];
-  const isOpen = CURRENT_TIME >= slot.open && CURRENT_TIME < slot.close;
-  if (isOpen) {
-    return { open: true, label: "Abierto", timeLabel: `Cierra a las ${slot.close}` };
+  const current = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+  const slots = [...today.slots].sort((a, b) => a.open.localeCompare(b.open));
+  for (const slot of slots) {
+    const overnight = slot.close <= slot.open;
+    const isOpen = overnight
+      ? current >= slot.open || current < slot.close
+      : current >= slot.open && current < slot.close;
+    if (isOpen) {
+      return { open: true, label: "Abierto", timeLabel: `Cierra a las ${slot.close}` };
+    }
   }
-  return { open: false, label: "Cerrado", timeLabel: `Abre a las ${slot.open}` };
+  const next = slots.find((s) => current < s.open);
+  if (next) {
+    return { open: false, label: "Cerrado", timeLabel: `Abre a las ${next.open}` };
+  }
+  return { open: false, label: "Cerrado", timeLabel: "" };
 }
 
 /* ------------------------------------------------------------------ */
@@ -56,12 +66,12 @@ function UtilityBar({ onInfoClick, onShareClick, rewardsAvailable }: { onInfoCli
     <div className="flex items-center justify-between px-4 py-2.5">
       <div className="flex items-center gap-3">
         {onInfoClick && (
-          <button type="button" onClick={onInfoClick} className="min-h-[36px] min-w-[36px] rounded-full p-2 transition-colors hover:bg-black/5 dark:hover:bg-white/10" aria-label="Información">
+          <button type="button" onClick={onInfoClick} className="min-h-[36px] min-w-[36px] cursor-pointer rounded-full p-2 transition-colors hover:bg-black/5 dark:hover:bg-white/10" aria-label="Información">
             <Info className="h-4 w-4 opacity-60" />
           </button>
         )}
         {onShareClick && (
-          <button type="button" onClick={onShareClick} className="min-h-[36px] min-w-[36px] rounded-full p-2 transition-colors hover:bg-black/5 dark:hover:bg-white/10" aria-label="Compartir">
+          <button type="button" onClick={onShareClick} className="min-h-[36px] min-w-[36px] cursor-pointer rounded-full p-2 transition-colors hover:bg-black/5 dark:hover:bg-white/10" aria-label="Compartir">
             <Share className="h-4 w-4 opacity-60" />
           </button>
         )}
@@ -195,7 +205,18 @@ function SearchBar({
           aria-label="Buscar productos"
           className="h-11 w-full rounded-full border border-black/10 bg-white/80 pl-4 pr-11 text-[14px] text-black backdrop-blur-sm placeholder:text-black/30 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-black/10 dark:border-white/15 dark:bg-white/10 dark:text-white dark:placeholder:text-white/30 dark:focus:ring-white/20"
         />
-        <Search className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-black/30 dark:text-white/30" />
+        {value.trim() ? (
+          <button
+            type="button"
+            onClick={() => onChange("")}
+            aria-label="Limpiar búsqueda"
+            className="absolute right-2 top-1/2 flex min-h-[32px] min-w-[32px] -translate-y-1/2 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-black/5 dark:hover:bg-white/10"
+          >
+            <X className="h-4 w-4 opacity-50" />
+          </button>
+        ) : (
+          <Search className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-black/30 dark:text-white/30" />
+        )}
       </div>
     </div>
   );
@@ -228,7 +249,7 @@ function Footer({ slug, primary }: { slug?: string; primary: string }) {
       <button
         type="button"
         onClick={copyLink}
-        className="flex min-h-[40px] shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-[11px] font-bold text-white transition-all hover:opacity-90 hover:shadow-md active:scale-[0.97]"
+        className="flex min-h-[40px] shrink-0 cursor-pointer items-center gap-1.5 rounded-full px-3.5 py-2 text-[11px] font-bold text-white transition-all hover:opacity-90 hover:shadow-md active:scale-[0.97]"
         style={{ background: primary }}
       >
         <Copy className="h-3 w-3" />
@@ -271,15 +292,22 @@ export function RestaurantPublicView({
   const displayRestaurantName = restaurantName || ap.restaurantName || "";
   const displayLogoUrl = ap.logoUrl || "";
   const scheduleStatus = useMemo(() => computeScheduleStatus(schedule), [schedule]);
+  // `hours` es texto libre legacy: se muestra como banda informativa solo si
+  // no hay schedule (nunca pisa el estado real del schedule).
+  const hoursFallback = !scheduleStatus && hours?.trim()
+    ? { open: false, label: hours.trim(), timeLabel: "" }
+    : null;
 
   const cats = [...(categories ?? [])].sort((a, b) => a.order - b.order);
   const available = (products ?? []).filter((p) => p.available);
 
-  // Filtro de búsqueda por nombre
+  // Filtro de búsqueda por nombre + descripción, sin reload (estado local)
   const filtered = useMemo(() => {
     if (!search.trim()) return available;
     const q = search.trim().toLowerCase();
-    return available.filter((p) => p.name.toLowerCase().includes(q));
+    return available.filter(
+      (p) => p.name.toLowerCase().includes(q) || (p.description ?? "").toLowerCase().includes(q),
+    );
   }, [available, search]);
 
   const byCat = (id: string) => filtered.filter((p) => p.categoryId === id);
@@ -314,6 +342,7 @@ export function RestaurantPublicView({
 
       {/* Banda de estado */}
       {scheduleStatus && <StatusBand status={scheduleStatus} primary={ap.primary} />}
+      {!scheduleStatus && hoursFallback && <StatusBand status={hoursFallback} primary={ap.primary} />}
 
       {/* Header local */}
       <LocalHeader
@@ -424,7 +453,7 @@ export function RestaurantPublicView({
             <button
               type="button"
               onClick={() => setSearch("")}
-              className="mt-1 min-h-[40px] rounded-full px-5 py-2 text-[12px] font-bold text-white transition-all hover:opacity-90 active:scale-[0.97]"
+              className="mt-1 min-h-[40px] cursor-pointer rounded-full px-5 py-2 text-[12px] font-bold text-white transition-all hover:opacity-90 active:scale-[0.97]"
               style={{ background: ap.primary }}
             >
               Limpiar búsqueda
