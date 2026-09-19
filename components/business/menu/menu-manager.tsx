@@ -147,10 +147,10 @@ export function MenuManager({
     <MenuEditorLayout
       left={
         <div className="flex flex-col gap-4">
-          {/* Banner del local: portada + logo abajo-izquierda + nombre */}
-          <section aria-label="Vista del local" className="overflow-hidden rounded-2xl border border-border bg-card">
+          {/* Banner del local: portada + logo abajo-izquierda + nombre (sin fondo de tarjeta) */}
+          <section aria-label="Vista del local">
             <div
-              className="relative h-28 sm:h-32"
+              className="relative h-28 rounded-2xl sm:h-32"
               style={{ background: `linear-gradient(135deg, ${appearance.primary} 0%, ${appearance.secondary} 130%)` }}
               aria-hidden="true"
             >
@@ -160,7 +160,7 @@ export function MenuManager({
               />
             </div>
             <div className="flex items-end gap-3 px-5">
-              <div className="-mt-8 shrink-0 overflow-hidden rounded-2xl bg-muted shadow-lg ring-4 ring-card">
+              <div className="-mt-8 shrink-0 overflow-hidden rounded-xl bg-muted shadow-lg ring-4 ring-card">
                 {appearance.logoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={appearance.logoUrl} alt="" className="h-16 w-16 object-cover" />
@@ -213,14 +213,6 @@ export function MenuManager({
               </div>
             )}
           </section>
-
-          {/* Stats bar */}
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-2xl border border-border bg-card px-5 py-4">
-            <p className="text-sm"><strong className="tabular-nums">{products.length}</strong> <span className="text-muted-foreground">{copy.itemPlural}</span></p>
-            <p className="text-sm"><strong className="tabular-nums text-emerald-600">{available.length}</strong> <span className="text-muted-foreground">visibles</span></p>
-            <p className="text-sm"><strong className="tabular-nums">{cats.length}</strong> <span className="text-muted-foreground">secciones</span></p>
-            {dirty && <Badge className="ml-auto animate-pulse bg-[#6D28D9] text-white">Cambios sin guardar</Badge>}
-          </div>
 
           {/* Estado de tu carta */}
           <section className="rounded-2xl border border-border bg-card p-5 sm:p-6">
