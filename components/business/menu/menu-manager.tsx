@@ -289,24 +289,8 @@ export function MenuManager({
             </div>
           </section>
 
-          {/* Empty state / Category list */}
-          {cats.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-[#6D28D9]/30 bg-card px-5 py-8 sm:px-8">
-              <p className="text-center text-sm font-semibold text-[#0A2540]">Armá tu {copy.menuNoun} en 3 pasos</p>
-              <div className="mt-5 flex flex-col gap-4">
-                {copy.steps.map((step) => (
-                  <div key={step.num} className="flex items-start gap-3">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#6D28D9] text-xs font-bold text-white shadow-md">{step.num}</div>
-                    <div className="pt-0.5">
-                      <p className="text-sm font-medium text-[#0A2540]">{step.title}</p>
-                      <p className="mt-0.5 text-[13px] leading-relaxed text-muted-foreground">{step.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <p className="mt-5 text-center text-xs text-muted-foreground">Empezá creando una sección arriba.</p>
-            </div>
-          ) : (
+          {/* Category list (sin empty-state de onboarding: la carta arranca con seed) */}
+          {cats.length > 0 && (
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
               <SortableContext items={cats.map((c) => c.id)} strategy={verticalListSortingStrategy}>
                 <div className="flex flex-col gap-3">
