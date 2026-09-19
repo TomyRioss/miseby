@@ -2,6 +2,7 @@
 // reales o son nombres sensibles de la plataforma.
 export const RESERVED_USERNAMES: ReadonlySet<string> = new Set([
   "login",
+  "menu",
   "register",
   "forgot-password",
   "reset-password",

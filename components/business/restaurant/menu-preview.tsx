@@ -10,13 +10,6 @@ import { Badge } from "@/components/ui/badge";
 import { MenuEditorLayout } from "./menu-editor-layout";
 import { CartaPhonePreview } from "./carta-phone-preview";
 
-/**
- * NOTA (TOM-132): `/menu/${slug}` aún no existe como ruta pública en este
- * repo (solo `app/(public)/[username]` y `app/(business)/dashboard/menu`).
- * Este enlace es forward-compatible: cuando se cree `app/menu/[slug]/page.tsx`
- * debe reutilizar `RestaurantPublicView` + servicios de lectura existentes,
- * sin nueva DB/Prisma/Server Actions/RLS. No se crea aquí por scope prohibido.
- */
 export function MenuPreview({ data, currency, slug }: { data: RestaurantData; currency?: string | null; slug: string }) {
   const [published, setPublished] = useState(data.menuPublished === true);
   const [saving, setSaving] = useState(false);
