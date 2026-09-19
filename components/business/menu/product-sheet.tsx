@@ -5,6 +5,8 @@ import { ImagePlus, Loader2, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { uploadProductImageAction } from "@/lib/actions/restaurant";
 import { newId, type RestaurantCategory, type RestaurantProduct } from "@/lib/restaurant-theme";
+import type { MenuCopy } from "./menu-copy";
+import { MENU_COPY_RESTAURANT } from "./menu-copy";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -44,11 +46,13 @@ export function ProductSheet({
   categories,
   onClose,
   onSave,
+  copy = MENU_COPY_RESTAURANT,
 }: {
   state: SheetState;
   categories: RestaurantCategory[];
   onClose: () => void;
   onSave: (product: RestaurantProduct) => void;
+  copy?: MenuCopy;
 }) {
   const open = state !== null;
   const [name, setName] = useState("");
@@ -101,8 +105,8 @@ export function ProductSheet({
 
   function confirm() {
     const n = name.trim();
-    if (!n) return toast.error("Poné nombre al plato: ej. Bandeja paisa.");
-    if (!categoryId) return toast.error("Elegí la sección del plato.");
+    if (!n) return toast.error(`Poné nombre al ${copy.itemSingular}: ej. ${copy.itemExample}.`);
+    if (!categoryId) return toast.error(`Elegí la sección del ${copy.itemSingular}.`);
     const base = Number(price);
     if (!Number.isFinite(base) || base < 0) return toast.error("Precio inválido.");
     let builtVariants: RestaurantProduct["variants"];
@@ -122,7 +126,7 @@ export function ProductSheet({
       }));
     }
     for (const g of groups) {
-      if (!g.name.trim()) return toast.error("Todo grupo necesita nombre: ej. Término, Adiciones.");
+      if (!g.name.trim()) return toast.error("Todo grupo necesita nombre: ej. Color, Adicionales.");
       if (g.modifiers.length === 0) return toast.error(`"${g.name.trim()}" no tiene opciones.`);
       for (const m of g.modifiers) {
         if (!m.name.trim()) return toast.error("Toda opción necesita nombre.");
@@ -148,18 +152,18 @@ export function ProductSheet({
     <Sheet open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
       <SheetContent side="right" className="flex w-full flex-col sm:max-w-lg">
         <SheetHeader>
-          <SheetTitle>{state?.mode === "edit" ? "Editar plato" : "Nuevo plato"}</SheetTitle>
+          <SheetTitle>{state?.mode === "edit" ? `Editar ${copy.itemSingular}` : `Nuevo ${copy.itemSingular}`}</SheetTitle>
         </SheetHeader>
         <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-1 py-4">
           <div className="flex items-center gap-3">
             <button
               type="button" onClick={() => fileRef.current?.click()} disabled={uploading}
-              aria-label="Subir foto del plato"
+              aria-label={`Subir foto del ${copy.itemSingular}`}
               className="cursor-pointer disabled:cursor-not-allowed flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-muted"
             >
               {imageUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={imageUrl} alt={name || "plato"} className="h-full w-full object-cover" />
+                <img src={imageUrl} alt={name || copy.itemSingular} className="h-full w-full object-cover" />
               ) : uploading ? (
                 <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
               ) : (
@@ -167,7 +171,7 @@ export function ProductSheet({
               )}
             </button>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold">Foto del plato</p>
+              <p className="text-sm font-semibold">Foto del {copy.itemSingular}</p>
               <p className="text-xs text-muted-foreground">JPG, PNG o WebP · máx 5 MB.</p>
               <div className="mt-1.5 flex gap-2">
                 <Button size="sm" variant="outline" disabled={uploading} onClick={() => fileRef.current?.click()}>
@@ -182,7 +186,7 @@ export function ProductSheet({
 
           <div className="space-y-4">
             <div><Label htmlFor="ps-name">Nombre *</Label>
-              <Input id="ps-name" value={name} onChange={(e) => setName(e.target.value)} maxLength={80} placeholder="Bandeja paisa" className="mt-1.5 min-h-10" /></div>
+              <Input id="ps-name" value={name} onChange={(e) => setName(e.target.value)} maxLength={80} placeholder={copy.itemExample} className="mt-1.5 min-h-10" /></div>
             <div className="grid grid-cols-2 gap-3">
               <div><Label htmlFor="ps-cat">Sección *</Label>
                 <select id="ps-cat" value={categoryId} onChange={(e) => setCategoryId(e.target.value)}
@@ -196,14 +200,14 @@ export function ProductSheet({
             <div>
               <div className="flex items-baseline justify-between"><Label htmlFor="ps-desc">Descripción</Label>
                 <span className="text-[11px] tabular-nums text-muted-foreground">{description.length}/240</span></div>
-              <Textarea id="ps-desc" value={description} onChange={(e) => setDescription(e.target.value)} rows={2} maxLength={240} placeholder="Qué trae, en una línea que antoje" className="mt-1.5 resize-none" />
+              <Textarea id="ps-desc" value={description} onChange={(e) => setDescription(e.target.value)} rows={2} maxLength={240} placeholder={copy.descPlaceholder} className="mt-1.5 resize-none" />
             </div>
             <label className="flex cursor-pointer items-center justify-between rounded-xl border border-border px-3 py-2.5">
-              <span className="text-sm font-medium">Visible en carta</span>
+              <span className="text-sm font-medium">Visible en {copy.menuNoun}</span>
               <Switch checked={available} onCheckedChange={setAvailable} />
             </label>
             <label className="flex cursor-pointer items-center justify-between rounded-xl border border-border px-3 py-2.5">
-              <span className="text-sm font-medium">Disponible para llevar</span>
+              <span className="text-sm font-medium">{copy.takeAwayLabel}</span>
               <Switch checked={takeAway} onCheckedChange={setTakeAway} />
             </label>
           </div>
@@ -213,7 +217,7 @@ export function ProductSheet({
           <div>
             <label className="flex cursor-pointer items-center justify-between">
               <span><span className="block text-sm font-semibold">Variantes</span>
-                <span className="block text-xs text-muted-foreground">Tamaños, términos, porciones...</span></span>
+                <span className="block text-xs text-muted-foreground">{copy.variantsHint}</span></span>
               <Switch checked={useVariants} onCheckedChange={(v) => {
                 setUseVariants(v);
                 if (v && variants.length === 0) setVariants([{ key: newId("row"), name: price ? "" : "Único", price, costPrice: "", packagingPrice: "", sku: "", isDefault: true }]);
@@ -245,7 +249,7 @@ export function ProductSheet({
 
           <div>
             <p className="text-sm font-semibold">Grupos de agregados</p>
-            <p className="text-xs text-muted-foreground">Ej: Término de la carne, Adiciones, Salsas.</p>
+            <p className="text-xs text-muted-foreground">{copy.groupsHint}</p>
             <div className="mt-3 space-y-3">
               {groups.map((g) => (
                 <div key={g.key} className="rounded-xl border border-border p-3">
@@ -275,7 +279,7 @@ export function ProductSheet({
         </div>
         <SheetFooter className="gap-2">
           <Button variant="outline" onClick={onClose}>Cancelar</Button>
-          <Button onClick={confirm} className="bg-[#0A2540] hover:bg-[#0A2540]/90">{state?.mode === "edit" ? "Aplicar" : "Agregar plato"}</Button>
+          <Button onClick={confirm} className="bg-[#0A2540] hover:bg-[#0A2540]/90">{state?.mode === "edit" ? "Aplicar" : `Agregar ${copy.itemSingular}`}</Button>
         </SheetFooter>
       </SheetContent>
     </Sheet>

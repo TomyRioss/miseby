@@ -14,6 +14,8 @@ export function MenuCategoryRow({
   category, products, currency, collapsed, moveTargets,
   onToggleCollapse, onRename, onDelete, onAddProduct,
   onEditProduct, onToggleActive, onToggleTakeAway, onDuplicate, onMoveProduct, onDeleteProduct,
+  itemPlural = "platos",
+  takeAwayWord = "Llevar",
 }: {
   category: RestaurantCategory;
   products: RestaurantProduct[];
@@ -30,7 +32,10 @@ export function MenuCategoryRow({
   onDuplicate: (id: string) => void;
   onMoveProduct: (id: string, catId: string) => void;
   onDeleteProduct: (id: string) => void;
+  itemPlural?: string;
+  takeAwayWord?: string;
 }) {
+  const takeAwayLabel = takeAwayWord;
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: category.id });
   const style = { transform: CSS.Transform.toString(transform), transition };
 
@@ -49,7 +54,7 @@ export function MenuCategoryRow({
             aria-label="Nombre de categoría" maxLength={60}
             className="w-full truncate bg-transparent text-[15px] font-semibold outline-none focus:border-b focus:border-[#6D28D9]"
           />
-          <p className="text-xs tabular-nums text-muted-foreground">{products.length} platos</p>
+          <p className="text-xs tabular-nums text-muted-foreground">{products.length} {itemPlural}</p>
         </div>
         <button type="button" onClick={onAddProduct}
           className="cursor-pointer shrink-0 whitespace-nowrap rounded-full border border-[#0A2540] px-3 py-1.5 text-xs font-semibold text-[#0A2540] hover:bg-[#0A2540]/5 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
@@ -101,8 +106,8 @@ export function MenuCategoryRow({
                     {formatPrice(productMinPrice(p), currency ?? "COP")}
                   </p>
                   <button type="button" onClick={() => onToggleTakeAway(p.id, !(p.takeAway !== false))} disabled={false}
-                    title={(p.takeAway !== false) ? "Llevar activado" : "Llevar desactivado"}
-                    aria-label={`Llevar ${p.name}`}
+                    title={p.takeAway !== false ? `${takeAwayLabel} activado` : `${takeAwayLabel} desactivado`}
+                    aria-label={`${takeAwayLabel} ${p.name}`}
                     className={`cursor-pointer disabled:cursor-not-allowed flex h-11 w-11 items-center justify-center rounded-lg ${(p.takeAway !== false) ? "text-[#0A2540]" : "text-muted-foreground/50"} focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`}>
                     <ShoppingBag className="h-5 w-5" />
                   </button>
