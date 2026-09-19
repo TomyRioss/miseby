@@ -17,6 +17,9 @@ export function CartaPhonePreview({
   hours,
   restaurantName,
   schedule,
+  linkBase = "menu",
+  menuNounCap = "Carta",
+  variant = "restaurant",
 }: {
   slug?: string;
   appearance: RestaurantAppearance;
@@ -26,16 +29,19 @@ export function CartaPhonePreview({
   hours?: string;
   restaurantName?: string;
   schedule?: WeekSchedule;
+  linkBase?: string;
+  menuNounCap?: string;
+  variant?: "restaurant" | "catalog";
 }) {
-  const label = slug ? `miseby.com/menu/${slug}` : "miseby.com/menu";
+  const label = slug ? `miseby.com/${linkBase}/${slug}` : `miseby.com/${linkBase}`;
 
   function onShare() {
     try {
-      const url = slug ? `${window.location.origin}/menu/${slug}` : window.location.href;
+      const url = slug ? `${window.location.origin}/${linkBase}/${slug}` : window.location.href;
       navigator.clipboard
         .writeText(url)
         .then(
-          () => toast.success("Enlace de la carta copiado."),
+          () => toast.success(`Enlace de ${menuNounCap.toLowerCase()} copiado.`),
           () => toast.error("No se pudo copiar."),
         )
         .catch((e) => console.error("[carta share]", e));
@@ -45,7 +51,7 @@ export function CartaPhonePreview({
   }
 
   return (
-    <PhonePreviewShell urlLabel={label} onShare={slug ? onShare : undefined} shareTitle="Copiar enlace de la carta">
+    <PhonePreviewShell urlLabel={label} onShare={slug ? onShare : undefined} shareTitle={`Copiar enlace de ${menuNounCap.toLowerCase()}`}>
       <RestaurantPublicView
         preview
         appearance={appearance}
@@ -56,6 +62,8 @@ export function CartaPhonePreview({
         restaurantName={restaurantName}
         slug={slug}
         schedule={schedule}
+        variant={variant}
+        linkBase={linkBase}
       />
     </PhonePreviewShell>
   );

@@ -164,6 +164,19 @@ export function BusinessSidebar({ userLabel, hasMiseLink = false, planCode }: { 
           <Building2 className="h-4 w-4" />
           Inicio
         </Link>
+        {planCode === "mise" && (
+          <Link
+            href="/dashboard/catalogo"
+            className={`cursor-pointer flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-muted ${
+              pathname?.startsWith("/dashboard/catalogo")
+                ? "bg-muted font-semibold text-foreground"
+                : "font-medium text-muted-foreground"
+            }`}
+          >
+            <BookOpen className="h-4 w-4" />
+            Catálogo
+          </Link>
+        )}
         <div>
           <button
             type="button"

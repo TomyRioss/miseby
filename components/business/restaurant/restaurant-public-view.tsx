@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Clock, Copy, Info, Search, Share, UtensilsCrossed, X } from "lucide-react";
+import { Clock, Copy, Info, Package, Search, Share, UtensilsCrossed, X } from "lucide-react";
 import { toast } from "sonner";
 import {
   formatPrice,
@@ -90,7 +90,8 @@ function UtilityBar({ onInfoClick, onShareClick, rewardsAvailable }: { onInfoCli
 /*  Gradiente multicapa + realces radiales para que no se vea plana  */
 /*  en 375px. NO usa naranja PlatoRest.                               */
 /* ------------------------------------------------------------------ */
-function DecorativeBar({ primary, secondary }: { primary: string; secondary: string }) {
+function DecorativeBar({ primary, secondary, catalog = false }: { primary: string; secondary: string; catalog?: boolean }) {
+  const Glyph = catalog ? Package : UtensilsCrossed;
   return (
     <div
       className="relative flex items-center justify-center gap-2 overflow-hidden py-3"
@@ -108,7 +109,7 @@ function DecorativeBar({ primary, secondary }: { primary: string; secondary: str
         }}
       />
       <span className="relative flex h-8 w-8 items-center justify-center rounded-full bg-white/15 ring-1 ring-white/30 backdrop-blur-[1px]">
-        <UtensilsCrossed className="h-4 w-4 text-white" />
+        <Glyph className="h-4 w-4 text-white" />
       </span>
       <span className="relative h-px w-10 rounded-full bg-white/40" />
       <span className="relative h-1 w-1 rounded-full bg-white/60" />
@@ -145,12 +146,14 @@ function LocalHeader({
   primary,
   secondary,
   titleFont,
+  eyebrow = "Carta digital",
 }: {
   restaurantName: string;
   logoUrl: string;
   primary: string;
   secondary: string;
   titleFont: RestaurantAppearance["titleFont"];
+  eyebrow?: string;
 }) {
   return (
     <div className="flex items-center gap-3.5 px-5 py-4">
@@ -173,7 +176,7 @@ function LocalHeader({
           </p>
         )}
         <p className="mt-0.5 truncate text-[11px] font-medium uppercase tracking-[0.14em] opacity-45">
-          Carta digital
+          {eyebrow}
         </p>
       </div>
     </div>
@@ -225,10 +228,10 @@ function SearchBar({
 /* ------------------------------------------------------------------ */
 /*  Footer                                                             */
 /* ------------------------------------------------------------------ */
-function Footer({ slug, primary }: { slug?: string; primary: string }) {
-  const url = slug ? `miseby.com/menu/${slug}` : "miseby.com/menu";
+function Footer({ slug, primary, linkBase = "menu" }: { slug?: string; primary: string; linkBase?: string }) {
+  const url = slug ? `miseby.com/${linkBase}/${slug}` : `miseby.com/${linkBase}`;
   function copyLink() {
-    const full = slug ? `${window.location.origin}/menu/${slug}` : window.location.href;
+    const full = slug ? `${window.location.origin}/${linkBase}/${slug}` : window.location.href;
     navigator.clipboard
       .writeText(full)
       .then(
@@ -264,7 +267,9 @@ function Footer({ slug, primary }: { slug?: string; primary: string }) {
 /* ------------------------------------------------------------------ */
 
 /**
- * Vista mobile pura de la carta al estilo PlatoRest.
+ * Vista mobile pura de la carta/catálogo.
+ * `variant="restaurant"`: copia gastronómica ("Carta digital", platos).
+ * `variant="catalog"`: copia neutra multirubro ("Catálogo", productos).
  * Jerarquía: util-bar → franja decorativa → banda estado → header → search → categorías → footer.
  */
 export function RestaurantPublicView({
@@ -277,6 +282,8 @@ export function RestaurantPublicView({
   restaurantName,
   slug,
   schedule,
+  variant = "restaurant",
+  linkBase,
 }: {
   appearance: RestaurantAppearance;
   categories?: RestaurantCategory[];
@@ -287,7 +294,11 @@ export function RestaurantPublicView({
   restaurantName?: string;
   slug?: string;
   schedule?: WeekSchedule;
+  variant?: "restaurant" | "catalog";
+  linkBase?: string;
 }) {
+  const isCatalog = variant === "catalog";
+  const base = linkBase ?? (isCatalog ? "catalogo" : "menu");
   const [search, setSearch] = useState("");
   const displayRestaurantName = restaurantName || ap.restaurantName || "";
   const displayLogoUrl = ap.logoUrl || "";
@@ -313,7 +324,7 @@ export function RestaurantPublicView({
   const byCat = (id: string) => filtered.filter((p) => p.categoryId === id);
 
   function handleShare() {
-    const url = slug ? `${window.location.origin}/menu/${slug}` : window.location.href;
+    const url = slug ? `${window.location.origin}/${base}/${slug}` : window.location.href;
     navigator.clipboard
       .writeText(url)
       .then(
@@ -338,7 +349,7 @@ export function RestaurantPublicView({
       <UtilityBar onShareClick={handleShare} rewardsAvailable={false} />
 
       {/* Franja decorativa */}
-      <DecorativeBar primary={ap.primary} secondary={ap.secondary} />
+      <DecorativeBar primary={ap.primary} secondary={ap.secondary} catalog={isCatalog} />
 
       {/* Banda de estado */}
       {scheduleStatus && <StatusBand status={scheduleStatus} primary={ap.primary} />}
@@ -351,6 +362,7 @@ export function RestaurantPublicView({
         primary={ap.primary}
         secondary={ap.secondary}
         titleFont={ap.titleFont}
+        eyebrow={isCatalog ? "Catálogo" : "Carta digital"}
       />
 
       {/* Barra de búsqueda sticky */}
@@ -420,16 +432,20 @@ export function RestaurantPublicView({
               className="flex h-16 w-16 items-center justify-center rounded-full text-white shadow-lg ring-1 ring-black/10 dark:ring-white/15"
               style={{ background: `linear-gradient(140deg, ${ap.primary} 0%, ${ap.secondary} 140%)` }}
             >
-              <UtensilsCrossed className="h-7 w-7" />
+              {isCatalog ? <Package className="h-7 w-7" /> : <UtensilsCrossed className="h-7 w-7" />}
             </span>
             <div>
               <p className={`text-[15px] font-extrabold tracking-tight ${titleCls(ap.titleFont)}`} style={{ color: ap.primary }}>
-                Carta en preparación
+                {isCatalog ? "Catálogo en preparación" : "Carta en preparación"}
               </p>
               <p className="mx-auto mt-1.5 max-w-[26ch] text-[12.5px] leading-relaxed opacity-55">
                 {preview
-                  ? "Todavía no hay platos visibles. Agregá platos desde el editor del menú y aparecen acá al instante."
-                  : "Este local aún no publicó platos. Volvé pronto."}
+                  ? isCatalog
+                    ? "Todavía no hay productos visibles. Agregá productos desde el editor del catálogo y aparecen acá al instante."
+                    : "Todavía no hay platos visibles. Agregá platos desde el editor del menú y aparecen acá al instante."
+                  : isCatalog
+                    ? "Este negocio aún no publicó productos. Volvé pronto."
+                    : "Este local aún no publicó platos. Volvé pronto."}
               </p>
             </div>
             <span
@@ -463,7 +479,7 @@ export function RestaurantPublicView({
       </div>
 
       {/* Footer */}
-      <Footer slug={slug} primary={ap.primary} />
+      <Footer slug={slug} primary={ap.primary} linkBase={base} />
     </main>
   );
 }

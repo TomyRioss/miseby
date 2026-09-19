@@ -21,22 +21,12 @@ import { MenuEditorLayout } from "../restaurant/menu-editor-layout";
 import { CartaPhonePreview } from "../restaurant/carta-phone-preview";
 import { MenuCategoryRow } from "./menu-category-row";
 import { ProductSheet, type SheetState } from "./product-sheet";
-
-const TEMPLATES = [
-  { name: "Entradas", desc: "Tapas, picadas" },
-  { name: "Fuertes", desc: "Platos principales" },
-  { name: "Postres", desc: "Dulces y más" },
-  { name: "Bebidas", desc: "Líquidos y cócteles" },
-];
-
-const STEPS = [
-  { num: 1, title: "Creá una sección", desc: "Ej: Entradas, Fuertes, Postres… Organizá tu carta en grupos." },
-  { num: 2, title: "Agregá platos con precios", desc: "Dale nombre, precio y descripción a cada plato de la sección." },
-  { num: 3, title: "Publicá tu carta", desc: "Cuando estén listos, publicala y compartila con tus clientes." },
-];
+import type { MenuCopy } from "./menu-copy";
+import { MENU_COPY_RESTAURANT } from "./menu-copy";
 
 export function MenuManager({
   initialCategories, initialProducts, appearance, currency, slug, hours, menuPublished, schedule,
+  copy = MENU_COPY_RESTAURANT,
 }: {
   initialCategories: RestaurantCategory[];
   initialProducts: RestaurantProduct[];
@@ -46,6 +36,7 @@ export function MenuManager({
   hours?: string;
   menuPublished: boolean;
   schedule?: WeekSchedule;
+  copy?: MenuCopy;
 }) {
   const [cats, setCats] = useState<RestaurantCategory[]>([...initialCategories].sort((a, b) => a.order - b.order));
   const [products, setProducts] = useState<RestaurantProduct[]>(initialProducts);
@@ -82,7 +73,7 @@ export function MenuManager({
 
   function addCategory() {
     const n = newCat.trim();
-    if (!n) return toast.error("Escribí un nombre: ej. Postres.");
+    if (!n) return toast.error(`Escribí un nombre: ej. ${copy.sectionExample}.`);
     if (cats.some((c) => c.name.toLowerCase() === n.toLowerCase())) return toast.error("Esa sección ya existe.");
     if (cats.length >= 100) return toast.error("Máximo 100 secciones.");
     touchCats([...cats, { id: newId("cat"), name: n, order: cats.length }]);
@@ -106,7 +97,7 @@ export function MenuManager({
   function saveSheetProduct(p: RestaurantProduct) {
     touchProducts(products.some((x) => x.id === p.id) ? products.map((x) => (x.id === p.id ? p : x)) : [...products, p]);
     setSheet(null);
-    toast.success("Plato listo. Guardá el menú para publicar.");
+    toast.success(`${copy.itemCap} listo. Guardá el ${copy.menuNoun} para publicar.`);
   }
 
   async function save() {
@@ -116,7 +107,7 @@ export function MenuManager({
       const res = await saveMenuAction({ categories: cats, products });
       if (!res.ok) throw new Error(res.error);
       setDirty(false);
-      toast.success(`Menú al día: ${available.length} platos visibles.`);
+      toast.success(`${copy.menuNounCap} al día: ${available.length} ${copy.itemPlural} visibles.`);
     } catch (e) {
       console.error("[menu]", e);
       toast.error(e instanceof Error ? e.message : "No se pudo guardar. Probá de nuevo.");
@@ -124,13 +115,13 @@ export function MenuManager({
   }
 
   async function togglePublish() {
-    if (!published && !ready) return toast.error("Completá secciones, platos y precios antes de publicar.");
+    if (!published && !ready) return toast.error(`Completá secciones, ${copy.itemPlural} y precios antes de publicar.`);
     setPublishing(true);
     try {
       const res = await setMenuPublishedAction(!published);
       if (!res.ok) throw new Error(res.error);
       setPublished(!published);
-      toast.success(!published ? "Tu carta ya está en línea." : "Carta en pausa.");
+      toast.success(!published ? `Tu ${copy.menuNoun} ya está en línea.` : `${copy.menuNounCap} en pausa.`);
     } catch (e) {
       console.error("[menu publish]", e);
       toast.error(e instanceof Error ? e.message : "No se pudo cambiar. Probá de nuevo.");
@@ -138,13 +129,13 @@ export function MenuManager({
   }
 
   function copyLink() {
-    const url = `${window.location.origin}/menu/${slug}`;
+    const url = `${window.location.origin}/${copy.linkBase}/${slug}`;
     navigator.clipboard.writeText(url).then(() => toast.success("Enlace copiado."), () => toast.error("No se pudo copiar."));
   }
 
   const checks = [
     { ok: cats.length > 0, label: cats.length > 0 ? `${cats.length} secciones` : "Creá 1 sección" },
-    { ok: available.length > 0, label: available.length > 0 ? `${available.length} platos visibles` : "Activá 1 plato" },
+    { ok: available.length > 0, label: available.length > 0 ? `${available.length} ${copy.itemPlural} visibles` : `Activá 1 ${copy.itemSingular}` },
     { ok: available.some((p) => (p.variants?.[0]?.price ?? p.price) > 0), label: "Precios cargados" },
   ];
 
@@ -184,8 +175,8 @@ export function MenuManager({
                 )}
               </div>
               <div className="min-w-0 flex-1 pb-1 pt-2">
-                <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">Restaurante</p>
-                <p className="truncate text-base font-bold tracking-tight">{appearance.restaurantName || "Tu restaurante"}</p>
+                <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">{copy.businessWord}</p>
+                <p className="truncate text-base font-bold tracking-tight">{appearance.restaurantName || copy.businessFallback}</p>
               </div>
             </div>
             {/* Tabs de categorías: debajo del banner, cada tab salta a su sección */}
@@ -225,7 +216,7 @@ export function MenuManager({
 
           {/* Stats bar */}
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-2xl border border-border bg-card px-5 py-4">
-            <p className="text-sm"><strong className="tabular-nums">{products.length}</strong> <span className="text-muted-foreground">platos</span></p>
+            <p className="text-sm"><strong className="tabular-nums">{products.length}</strong> <span className="text-muted-foreground">{copy.itemPlural}</span></p>
             <p className="text-sm"><strong className="tabular-nums text-emerald-600">{available.length}</strong> <span className="text-muted-foreground">visibles</span></p>
             <p className="text-sm"><strong className="tabular-nums">{cats.length}</strong> <span className="text-muted-foreground">secciones</span></p>
             {dirty && <Badge className="ml-auto animate-pulse bg-[#6D28D9] text-white">Cambios sin guardar</Badge>}
@@ -234,7 +225,7 @@ export function MenuManager({
           {/* Estado de tu carta */}
           <section className="rounded-2xl border border-border bg-card p-5 sm:p-6">
             <div className="flex items-center gap-2">
-              <h2 className="text-base font-semibold tracking-tight">Estado de tu carta</h2>
+              <h2 className="text-base font-semibold tracking-tight">Estado de tu {copy.menuNoun}</h2>
               <Badge variant={published ? "default" : "secondary"} className={published ? "bg-emerald-600 text-white" : ""}>
                 {published ? "En línea" : "Borrador"}
               </Badge>
@@ -250,13 +241,13 @@ export function MenuManager({
             <div className="mt-4 flex flex-col gap-2 sm:flex-row">
               <Button onClick={togglePublish} disabled={publishing}
                 className="min-h-10 flex-1 bg-[#0A2540] text-white transition-all duration-200 hover:bg-[#0A2540]/90 hover:shadow-md active:scale-[0.98]">
-                {publishing ? "Cambiando..." : published ? "Pausar carta" : "Publicar carta"}
+                {publishing ? "Cambiando..." : published ? `Pausar ${copy.menuNoun}` : `Publicar ${copy.menuNoun}`}
               </Button>
               <Button variant="outline" onClick={copyLink} className={`min-h-10 ${btnGhost}`}>
                 <Copy className="h-4 w-4" /> Copiar enlace
               </Button>
               <Button variant="outline" asChild className={`min-h-10 ${btnGhost}`}>
-                <a className="cursor-pointer" href={`/menu/${slug}`} target="_blank" rel="noreferrer" aria-label="Abrir menú en nueva pestaña"><ExternalLink className="h-4 w-4" /></a>
+                <a className="cursor-pointer" href={`/${copy.linkBase}/${slug}`} target="_blank" rel="noreferrer" aria-label="Abrir menú en nueva pestaña"><ExternalLink className="h-4 w-4" /></a>
               </Button>
             </div>
           </section>
@@ -277,7 +268,7 @@ export function MenuManager({
             </div>
             <div className="mt-3 flex gap-2">
               <Input ref={newCatRef} value={newCat} onChange={(e) => setNewCat(e.target.value)}
-                placeholder="Ej: Postres, Bebidas, Especiales…" maxLength={60} disabled={cats.length >= 100}
+                placeholder={copy.sectionPlaceholder} maxLength={60} disabled={cats.length >= 100}
                 onFocus={() => setInputFocused(true)} onBlur={() => setInputFocused(false)}
                 onKeyDown={(e) => { if (e.key === "Enter") addCategory(); }}
                 aria-label="Nueva sección" className={inputCls} />
@@ -287,7 +278,7 @@ export function MenuManager({
             </div>
             {/* Template chips */}
             <div className="mt-3 flex flex-wrap gap-2">
-              {TEMPLATES.map((t) => (
+              {copy.templates.map((t) => (
                 <button key={t.name} type="button" onClick={() => handleTemplateClick(t.name)}
                   className="cursor-pointer group flex items-center gap-1.5 rounded-full border border-[#6D28D9]/20 bg-[#6D28D9]/5 px-3.5 py-1.5 text-xs font-medium text-[#6D28D9] transition-all duration-200 hover:border-[#6D28D9]/40 hover:bg-[#6D28D9]/10 hover:shadow-sm active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                   <span className="hidden sm:inline">{t.name}<span className="ml-1 text-[11px] font-normal text-[#6D28D9]/60">· {t.desc}</span></span>
@@ -301,9 +292,9 @@ export function MenuManager({
           {/* Empty state / Category list */}
           {cats.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-[#6D28D9]/30 bg-card px-5 py-8 sm:px-8">
-              <p className="text-center text-sm font-semibold text-[#0A2540]">Armá tu carta en 3 pasos</p>
+              <p className="text-center text-sm font-semibold text-[#0A2540]">Armá tu {copy.menuNoun} en 3 pasos</p>
               <div className="mt-5 flex flex-col gap-4">
-                {STEPS.map((step) => (
+                {copy.steps.map((step) => (
                   <div key={step.num} className="flex items-start gap-3">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#6D28D9] text-xs font-bold text-white shadow-md">{step.num}</div>
                     <div className="pt-0.5">
@@ -322,12 +313,14 @@ export function MenuManager({
                   {cats.map((c) => (
                     <div key={c.id} id={`menu-cat-${c.id}`} className="scroll-mt-24">
                     <MenuCategoryRow category={c} products={byCat(c.id)} currency={currency}
+                      itemPlural={copy.itemPlural}
+                      takeAwayWord={copy.takeAwayWord}
                       collapsed={collapsed.has(c.id)}
                       moveTargets={cats.filter((x) => x.id !== c.id).map((x) => ({ id: x.id, name: x.name }))}
                       onToggleCollapse={() => setCollapsed((p) => { const n = new Set(p); if (n.has(c.id)) n.delete(c.id); else n.add(c.id); return n; })}
                       onRename={(name) => touchCats(cats.map((x) => (x.id === c.id ? { ...x, name: name.trim() } : x)))}
                       onDelete={() => {
-                        if (byCat(c.id).length > 0) return toast.error("Mové o borrá sus platos primero.");
+                        if (byCat(c.id).length > 0) return toast.error(`Mové o borrá sus ${copy.itemPlural} primero.`);
                         touchCats(cats.filter((x) => x.id !== c.id).map((x, idx) => ({ ...x, order: idx })));
                       }}
                       onAddProduct={() => setSheet({ mode: "create", categoryId: c.id })}
@@ -337,7 +330,7 @@ export function MenuManager({
                       onDuplicate={(id) => {
                         const src = products.find((p) => p.id === id);
                         if (!src) return;
-                        if (products.length >= 500) return toast.error("Máximo 500 platos.");
+                        if (products.length >= 500) return toast.error(`Máximo 500 ${copy.itemPlural}.`);
                         touchProducts([...products, {
                           ...src, id: newId("prd"), name: `${src.name} (copia)`,
                           variants: src.variants?.map((v) => ({ ...v, id: newId("var") })),
@@ -358,12 +351,19 @@ export function MenuManager({
           <div className="sticky bottom-0 -mx-1 border-t border-border bg-background/95 px-1 py-3 backdrop-blur">
             <Button onClick={save} disabled={saving}
               className="min-h-11 w-full bg-[#0A2540] text-[15px] text-white transition-all duration-200 hover:bg-[#0A2540]/90 hover:shadow-md active:scale-[0.98] sm:w-auto sm:px-10">
-              {saving ? "Guardando..." : dirty ? "Guardar menú" : "Menú al día"}
+              {saving ? "Guardando..." : dirty ? `Guardar ${copy.menuNoun}` : `${copy.menuNounCap} al día`}
             </Button>
           </div>
+          <ProductSheet
+            state={sheet}
+            categories={cats}
+            copy={copy}
+            onClose={() => setSheet(null)}
+            onSave={saveSheetProduct}
+          />
         </div>
       }
-      preview={<CartaPhonePreview slug={slug} appearance={appearance} categories={cats} products={products} currency={currency ?? null} hours={hours ?? ""} restaurantName={appearance.restaurantName} schedule={schedule} />}
+      preview={<CartaPhonePreview slug={slug} appearance={appearance} categories={cats} products={products} currency={currency ?? null} hours={hours ?? ""} restaurantName={appearance.restaurantName} schedule={schedule} linkBase={copy.linkBase} menuNounCap={copy.menuNounCap} variant={copy.linkBase === "catalogo" ? "catalog" : "restaurant"} />}
     />
   );
 }
