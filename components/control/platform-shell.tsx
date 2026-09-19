@@ -82,7 +82,7 @@ export function PlatformShell({
   const sidebar = (
     <div className="flex h-full flex-col p-4">
       <div className="mb-8 px-2 pt-2">
-        <MiseMark className="text-white" />
+        <MiseMark tone="white" />
         <p className="mt-1 text-[10px] font-medium uppercase tracking-widest text-white/50">
           Control Center
         </p>
