@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState } from "react";
 import {
-  CheckCircle2, ChevronDown, CircleAlert, Copy, ExternalLink,
+  ChevronDown,
   FoldVertical, List, Plus, UnfoldVertical, ArrowRight,
 } from "lucide-react";
 import {
@@ -11,7 +11,7 @@ import {
 } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 import { toast } from "sonner";
-import { saveMenuAction, setMenuPublishedAction } from "@/lib/actions/restaurant";
+import { saveMenuAction } from "@/lib/actions/restaurant";
 import { newId, type RestaurantAppearance, type RestaurantCategory, type RestaurantProduct, type WeekSchedule } from "@/lib/restaurant-theme";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,7 +25,7 @@ import type { MenuCopy } from "./menu-copy";
 import { MENU_COPY_RESTAURANT } from "./menu-copy";
 
 export function MenuManager({
-  initialCategories, initialProducts, appearance, currency, slug, hours, menuPublished, schedule,
+  initialCategories, initialProducts, appearance, currency, slug, hours, schedule,
   copy = MENU_COPY_RESTAURANT,
 }: {
   initialCategories: RestaurantCategory[];
@@ -45,8 +45,6 @@ export function MenuManager({
   const [sheet, setSheet] = useState<SheetState>(null);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
-  const [published, setPublished] = useState(menuPublished);
-  const [publishing, setPublishing] = useState(false);
   const [inputFocused, setInputFocused] = useState(false);
   const [activeTab, setActiveTab] = useState<string | null>(null);
   const newCatRef = useRef<HTMLInputElement>(null);
@@ -56,7 +54,6 @@ export function MenuManager({
   );
 
   const available = useMemo(() => products.filter((p) => p.available), [products]);
-  const ready = cats.length > 0 && available.length > 0 && available.some((p) => (p.variants?.[0]?.price ?? p.price) > 0);
   const byCat = (id: string) => products.filter((p) => p.categoryId === id).sort((a, b) => a.name.localeCompare(b.name));
   const activeCatId = activeTab ?? cats[0]?.id ?? null;
   function scrollToCat(id: string) {
@@ -114,34 +111,8 @@ export function MenuManager({
     } finally { setSaving(false); }
   }
 
-  async function togglePublish() {
-    if (!published && !ready) return toast.error(`Completá secciones, ${copy.itemPlural} y precios antes de publicar.`);
-    setPublishing(true);
-    try {
-      const res = await setMenuPublishedAction(!published);
-      if (!res.ok) throw new Error(res.error);
-      setPublished(!published);
-      toast.success(!published ? `Tu ${copy.menuNoun} ya está en línea.` : `${copy.menuNounCap} en pausa.`);
-    } catch (e) {
-      console.error("[menu publish]", e);
-      toast.error(e instanceof Error ? e.message : "No se pudo cambiar. Probá de nuevo.");
-    } finally { setPublishing(false); }
-  }
-
-  function copyLink() {
-    const url = `${window.location.origin}/${copy.linkBase}/${slug}`;
-    navigator.clipboard.writeText(url).then(() => toast.success("Enlace copiado."), () => toast.error("No se pudo copiar."));
-  }
-
-  const checks = [
-    { ok: cats.length > 0, label: cats.length > 0 ? `${cats.length} secciones` : "Creá 1 sección" },
-    { ok: available.length > 0, label: available.length > 0 ? `${available.length} ${copy.itemPlural} visibles` : `Activá 1 ${copy.itemSingular}` },
-    { ok: available.some((p) => (p.variants?.[0]?.price ?? p.price) > 0), label: "Precios cargados" },
-  ];
-
   const inputCls = `min-h-10 transition-all duration-200${inputFocused ? " border-[#6D28D9] ring-2 ring-[#6D28D9]/20" : ""}`;
   const btnPrimary = "min-h-10 shrink-0 bg-[#0A2540] text-white transition-all duration-200 hover:bg-[#0A2540]/90 hover:shadow-md active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
-  const btnGhost = "transition-all duration-150 hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
 
   return (
     <MenuEditorLayout
@@ -221,36 +192,6 @@ export function MenuManager({
             <p className="text-sm"><strong className="tabular-nums">{cats.length}</strong> <span className="text-muted-foreground">secciones</span></p>
             {dirty && <Badge className="ml-auto animate-pulse bg-[#6D28D9] text-white">Cambios sin guardar</Badge>}
           </div>
-
-          {/* Estado de tu carta */}
-          <section className="rounded-2xl border border-border bg-card p-5 sm:p-6">
-            <div className="flex items-center gap-2">
-              <h2 className="text-base font-semibold tracking-tight">Estado de tu {copy.menuNoun}</h2>
-              <Badge variant={published ? "default" : "secondary"} className={published ? "bg-emerald-600 text-white" : ""}>
-                {published ? "En línea" : "Borrador"}
-              </Badge>
-            </div>
-            <ul className="mt-3 space-y-1.5">
-              {checks.map((c) => (
-                <li key={c.label} className="flex items-center gap-2 text-[13px]">
-                  {c.ok ? <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" /> : <CircleAlert className="h-4 w-4 shrink-0 text-amber-500" />}
-                  <span className={c.ok ? "" : "text-muted-foreground"}>{c.label}</span>
-                </li>
-              ))}
-            </ul>
-            <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-              <Button onClick={togglePublish} disabled={publishing}
-                className="min-h-10 flex-1 bg-[#0A2540] text-white transition-all duration-200 hover:bg-[#0A2540]/90 hover:shadow-md active:scale-[0.98]">
-                {publishing ? "Cambiando..." : published ? `Pausar ${copy.menuNoun}` : `Publicar ${copy.menuNoun}`}
-              </Button>
-              <Button variant="outline" onClick={copyLink} className={`min-h-10 ${btnGhost}`}>
-                <Copy className="h-4 w-4" /> Copiar enlace
-              </Button>
-              <Button variant="outline" asChild className={`min-h-10 ${btnGhost}`}>
-                <a className="cursor-pointer" href={`/${copy.linkBase}/${slug}`} target="_blank" rel="noreferrer" aria-label="Abrir menú en nueva pestaña"><ExternalLink className="h-4 w-4" /></a>
-              </Button>
-            </div>
-          </section>
 
           {/* Secciones */}
           <section id="menu-secciones" className="scroll-mt-24 rounded-2xl border border-border bg-card p-5 sm:p-6">
