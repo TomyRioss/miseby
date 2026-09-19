@@ -3,7 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 import {
   ChevronDown,
-  FoldVertical, List, Plus, UnfoldVertical, ArrowRight,
+  FoldVertical, List, Plus, UnfoldVertical, ArrowRight, ImagePlus,
 } from "lucide-react";
 import {
   DndContext, closestCenter, PointerSensor, TouchSensor,
@@ -141,16 +141,14 @@ export function MenuManager({
           {/* Banner del local: portada + logo abajo-izquierda + nombre (sin fondo de tarjeta) */}
           <section aria-label="Vista del local">
             <div
-              className="relative h-28 rounded-lg sm:h-32"
-              style={{ background: `linear-gradient(135deg, ${appearance.primary} 0%, ${appearance.secondary} 130%)` }}
+              className="relative flex h-28 items-center justify-center rounded-lg sm:h-32"
+              style={{ background: appearance.primary }}
               aria-hidden="true"
             >
-              <div
-                className="pointer-events-none absolute inset-0"
-                style={{ background: "radial-gradient(120% 90% at 50% -30%, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0) 55%)" }}
-              />
+              <ImagePlus className="h-7 w-7 text-white/40" />
             </div>
             <div className="flex items-end gap-3 px-5">
+              {/* Logo superpuesto al banner al 50%: logo h-16 (64px) con -mt-8 (-32px) */}
               <div className="-mt-8 shrink-0 overflow-hidden rounded-md bg-muted shadow-lg ring-4 ring-card">
                 {appearance.logoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -158,7 +156,7 @@ export function MenuManager({
                 ) : (
                   <span
                     className="flex h-16 w-16 items-center justify-center text-2xl font-extrabold text-white"
-                    style={{ background: `linear-gradient(140deg, ${appearance.primary}, ${appearance.secondary})` }}
+                    style={{ background: appearance.secondary }}
                     aria-hidden="true"
                   >
                     {(restName || "M").charAt(0).toUpperCase()}
