@@ -27,8 +27,7 @@ export default async function MenuPage() {
       <div className="flex min-h-0 flex-1">
         <BusinessSidebar userLabel={user.email} hasMiseLink={false} planCode={data.membership?.plan.code} />
         <main className="min-h-0 flex-1 overflow-y-auto p-6 lg:p-10">
-          <h1 className="font-display text-2xl font-semibold">Menú</h1>
-          <p className="mb-6 mt-1 text-sm text-muted-foreground">Secciones, platos con variantes y agregados, todo en un lugar.</p>
+          <p className="mb-6 text-sm text-muted-foreground">Secciones, platos con variantes y agregados, todo en un lugar.</p>
           <MenuManager
             initialCategories={rest.categories ?? []}
             initialProducts={rest.products ?? []}
