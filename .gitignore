@@ -38,6 +38,13 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+# test/QA artifacts (TOM-124: nunca commitear)
+test-results/
+playwright-report/
+.playwright-cli/
+.tmp/
+*.tmp
 next-env.d.ts
 
 # agent runtime (binary/locked files break Tailwind/Turbopack scanning)

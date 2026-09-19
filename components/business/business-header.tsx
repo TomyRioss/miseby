@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { BookOpen, Building2, ChartNoAxesColumn, ChevronDown, CreditCard, LayoutDashboard, Link2, LogOut, Package, QrCode, Settings, Sparkles, Tags, User } from "lucide-react";
+import { BookOpen, Building2, ChartNoAxesColumn, ChevronDown, CreditCard, LayoutDashboard, Link2, LogOut, Package, QrCode, Settings, Sparkles, Tags, User, Users } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -277,6 +277,7 @@ function usePersistentOpen(key: string, sectionActive: boolean) {
 const RESTAURANT_ITEMS_TOP = [
   { href: "/dashboard", label: "Vista general", icon: LayoutDashboard },
   { href: "/dashboard/negocio", label: "Mi negocio", icon: Building2 },
+  { href: "/dashboard/clientes", label: "Clientes", icon: Users },
 ];
 
 const RESTAURANT_ITEMS_BOTTOM = [
