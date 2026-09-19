@@ -141,21 +141,21 @@ export function MenuManager({
           {/* Banner del local: portada + logo abajo-izquierda + nombre (sin fondo de tarjeta) */}
           <section aria-label="Vista del local">
             <div
-              className="relative flex h-28 items-center justify-center rounded-lg sm:h-32"
+              className="relative z-0 flex h-28 items-center justify-center rounded-lg sm:h-32"
               style={{ background: appearance.primary }}
               aria-hidden="true"
             >
               <ImagePlus className="h-7 w-7 text-white/40" />
             </div>
             <div className="flex items-end gap-3 px-5">
-              {/* Logo superpuesto al banner al 50%: logo h-16 (64px) con -mt-8 (-32px) */}
-              <div className="-mt-8 shrink-0 overflow-hidden rounded-md bg-muted shadow-lg ring-4 ring-card">
+              {/* Logo superpuesto al banner al 50%: logo h-24 (96px) con -mt-12 (-48px), por encima del banner */}
+              <div className="relative z-10 -mt-12 shrink-0 overflow-hidden rounded-md bg-muted shadow-lg ring-4 ring-card">
                 {appearance.logoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={appearance.logoUrl} alt="" className="h-16 w-16 object-cover" />
+                  <img src={appearance.logoUrl} alt="" className="h-24 w-24 object-cover" />
                 ) : (
                   <span
-                    className="flex h-16 w-16 items-center justify-center text-2xl font-extrabold text-white"
+                    className="flex h-24 w-24 items-center justify-center text-3xl font-extrabold text-white"
                     style={{ background: appearance.secondary }}
                     aria-hidden="true"
                   >
