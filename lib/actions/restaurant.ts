@@ -72,6 +72,7 @@ export async function saveAppearanceAction(input: unknown): Promise<ActionResult
     await getOrCreateMiseLinkPage(user.id);
     await updateTheme(user.id, { restaurant: { ...current, appearance: parsed.data } } as Record<string, unknown>);
     revalidatePath("/dashboard/apariencia");
+    revalidatePath("/dashboard/menu");
     revalidatePath("/dashboard/catalogo");
     return { ok: true };
   } catch (e) {

@@ -11,7 +11,7 @@ import {
 } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 import { toast } from "sonner";
-import { saveMenuAction } from "@/lib/actions/restaurant";
+import { saveAppearanceAction, saveMenuAction } from "@/lib/actions/restaurant";
 import { newId, type RestaurantAppearance, type RestaurantCategory, type RestaurantProduct, type WeekSchedule } from "@/lib/restaurant-theme";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,6 +46,9 @@ export function MenuManager({
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [inputFocused, setInputFocused] = useState(false);
+  const [restName, setRestName] = useState(appearance.restaurantName ?? "");
+  const [savedName, setSavedName] = useState(appearance.restaurantName ?? "");
+  const [savingName, setSavingName] = useState(false);
   const [activeTab, setActiveTab] = useState<string | null>(null);
   const newCatRef = useRef<HTMLInputElement>(null);
   const sensors = useSensors(
@@ -111,6 +114,23 @@ export function MenuManager({
     } finally { setSaving(false); }
   }
 
+  async function commitName() {
+    const next = restName.trim().slice(0, 120);
+    if (!next || next === savedName) { setRestName(savedName); return; }
+    setSavingName(true);
+    try {
+      const res = await saveAppearanceAction({ ...appearance, restaurantName: next });
+      if (!res.ok) throw new Error(res.error);
+      setSavedName(next);
+      setRestName(next);
+      toast.success("Nombre actualizado.");
+    } catch (e) {
+      console.error("[menu nombre]", e);
+      setRestName(savedName);
+      toast.error(e instanceof Error ? e.message : "No se pudo guardar. Probá de nuevo.");
+    } finally { setSavingName(false); }
+  }
+
   const inputCls = `min-h-10 transition-all duration-200${inputFocused ? " border-[#6D28D9] ring-2 ring-[#6D28D9]/20" : ""}`;
   const btnPrimary = "min-h-10 shrink-0 bg-[#0A2540] text-white transition-all duration-200 hover:bg-[#0A2540]/90 hover:shadow-md active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
 
@@ -121,7 +141,7 @@ export function MenuManager({
           {/* Banner del local: portada + logo abajo-izquierda + nombre (sin fondo de tarjeta) */}
           <section aria-label="Vista del local">
             <div
-              className="relative h-28 rounded-2xl sm:h-32"
+              className="relative h-28 rounded-lg sm:h-32"
               style={{ background: `linear-gradient(135deg, ${appearance.primary} 0%, ${appearance.secondary} 130%)` }}
               aria-hidden="true"
             >
@@ -131,7 +151,7 @@ export function MenuManager({
               />
             </div>
             <div className="flex items-end gap-3 px-5">
-              <div className="-mt-8 shrink-0 overflow-hidden rounded-xl bg-muted shadow-lg ring-4 ring-card">
+              <div className="-mt-8 shrink-0 overflow-hidden rounded-md bg-muted shadow-lg ring-4 ring-card">
                 {appearance.logoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={appearance.logoUrl} alt="" className="h-16 w-16 object-cover" />
@@ -141,13 +161,22 @@ export function MenuManager({
                     style={{ background: `linear-gradient(140deg, ${appearance.primary}, ${appearance.secondary})` }}
                     aria-hidden="true"
                   >
-                    {(appearance.restaurantName || "M").charAt(0).toUpperCase()}
+                    {(restName || "M").charAt(0).toUpperCase()}
                   </span>
                 )}
               </div>
               <div className="min-w-0 flex-1 pb-1 pt-2">
                 <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">{copy.businessWord}</p>
-                <p className="truncate text-base font-bold tracking-tight">{appearance.restaurantName || copy.businessFallback}</p>
+                <input
+                  value={restName}
+                  onChange={(e) => setRestName(e.target.value.slice(0, 120))}
+                  onBlur={commitName}
+                  onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
+                  placeholder={copy.businessFallback}
+                  aria-label="Nombre del restaurante"
+                  disabled={savingName}
+                  className="w-full truncate border-b border-border bg-transparent pb-0.5 text-base font-bold tracking-tight outline-none transition-colors placeholder:font-normal placeholder:text-muted-foreground focus:border-primary"
+                />
               </div>
             </div>
             {/* Tabs de categorías: debajo del banner, cada tab salta a su sección */}
@@ -282,7 +311,7 @@ export function MenuManager({
           />
         </div>
       }
-      preview={<CartaPhonePreview slug={slug} appearance={appearance} categories={cats} products={products} currency={currency ?? null} hours={hours ?? ""} restaurantName={appearance.restaurantName} schedule={schedule} linkBase={copy.linkBase} menuNounCap={copy.menuNounCap} variant={copy.linkBase === "catalogo" ? "catalog" : "restaurant"} />}
+      preview={<CartaPhonePreview slug={slug} appearance={appearance} categories={cats} products={products} currency={currency ?? null} hours={hours ?? ""} restaurantName={restName || appearance.restaurantName} schedule={schedule} linkBase={copy.linkBase} menuNounCap={copy.menuNounCap} variant={copy.linkBase === "catalogo" ? "catalog" : "restaurant"} />}
     />
   );
 }
