@@ -363,7 +363,6 @@ export function MenuManager({
             onClose={() => setSheet(null)}
             onSave={saveSheetProduct}
           />
->>>>>>> TomyRioss/fix-TOM-160-catalogo-mise-multirubro
         </div>
       }
       preview={<CartaPhonePreview slug={slug} appearance={appearance} categories={cats} products={products} currency={currency ?? null} hours={hours ?? ""} restaurantName={appearance.restaurantName} schedule={schedule} linkBase={copy.linkBase} menuNounCap={copy.menuNounCap} variant={copy.linkBase === "catalogo" ? "catalog" : "restaurant"} />}

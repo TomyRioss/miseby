@@ -478,8 +478,9 @@ export function RestaurantPublicView({
         )}
       </div>
 
-      {/* Footer */}
-      <Footer slug={slug} primary={ap.primary} linkBase={base} />
+      {/* Footer: solo en página pública (en preview lo reemplazan
+          los botones Visitar/Compartir de CartaPhonePreview) */}
+      {!preview && <Footer slug={slug} primary={ap.primary} linkBase={base} />}
     </main>
   );
 }
