@@ -1,80 +1,52 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth/session";
-import { getOrganizationForMember } from "@/lib/services/organizations";
-import { getRestaurantData } from "@/lib/restaurant-theme";
-import { RestaurantPublicView } from "@/components/business/restaurant/restaurant-public-view";
+import { getPublicMenuBySlug } from "@/lib/services/public-menu";
+import { PlatoMenuView } from "@/components/menu/plato-menu-view";
 
-type Params = { params: Promise<{ slug: string }> };
-
-async function resolveMenu(slug: string) {
-  const key = decodeURIComponent(slug).trim().toLowerCase();
-  if (!key) return null;
-  const organization = await prisma.organization.findUnique({ where: { slug: key } });
-  if (!organization) return null;
-  const page = await prisma.miseLinkPage.findUnique({
-    where: { organizationId: organization.id },
-  });
-  if (!page) return null;
-  const rest = getRestaurantData(page.theme);
-  const published = rest.menuPublished === true;
-  let preview = false;
-  if (!published) {
-    const user = await getCurrentUser().catch(() => null);
-    if (!user) return null;
-    const own = await getOrganizationForMember(user.id).catch(() => null);
-    if (!own?.organization || own.organization.id !== organization.id) return null;
-    preview = true;
-  }
-  return { organization, rest, preview };
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const data = await getPublicMenuBySlug(slug);
+  const name = data?.rest.appearance?.restaurantName || data?.organization.commercialName || "Menú";
+  return {
+    title: `${name} | Menú`,
+    robots: data?.preview ? { index: false, follow: false } : undefined,
+  };
 }
 
-export async function generateMetadata({ params }: Params): Promise<Metadata> {
+export default async function PublicMenuPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  try {
-    const resolved = await resolveMenu(slug);
-    if (!resolved) return { title: "Carta no encontrada | MISE BY" };
-    const name =
-      resolved.rest.appearance?.restaurantName?.trim() ||
-      resolved.organization.commercialName;
-    return {
-      title: `${name} | Carta digital`,
-      description: `Carta digital de ${name} en MISE BY.`,
-      robots: resolved.preview ? { index: false, follow: false } : undefined,
-    };
-  } catch (e) {
-    console.error("[menu public metadata]", e);
-    return { title: "Carta no encontrada | MISE BY" };
-  }
-}
+  const data = await getPublicMenuBySlug(slug);
+  if (!data) notFound();
+  const { organization: org, rest } = data;
+  const ap = rest.appearance!;
+  const restaurantName = ap.restaurantName || org.commercialName;
 
-export default async function MenuPublicPage({ params }: Params) {
-  const { slug } = await params;
-  let resolved: Awaited<ReturnType<typeof resolveMenu>>;
-  try {
-    resolved = await resolveMenu(slug);
-  } catch (e) {
-    console.error("[menu public]", e);
-    notFound();
-  }
-  if (!resolved) notFound();
-  const { organization, rest, preview } = resolved;
-  const key = decodeURIComponent(slug).trim().toLowerCase();
+  const cats = (rest.categories ?? []).map((c) => ({ "@type": "MenuSection", name: c.name }));
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Restaurant",
+    name: restaurantName,
+    url: `/menu/${org.slug}`,
+    ...(ap.logoUrl ? { logo: ap.logoUrl } : {}),
+    ...(org.address ? { address: { "@type": "PostalAddress", streetAddress: org.address } } : {}),
+    hasMenu: { "@type": "Menu", url: `/menu/${org.slug}`, hasMenuSection: cats },
+  };
 
   return (
-    <div className="flex min-h-[100dvh] flex-col items-center bg-[#e8eaed] sm:px-6 sm:py-6 dark:bg-black">
-      <RestaurantPublicView
-        preview={preview}
-        appearance={rest.appearance!}
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <PlatoMenuView
+        appearance={ap}
         categories={rest.categories ?? []}
         products={rest.products ?? []}
-        currency={organization.currency}
-        hours={rest.hours}
-        restaurantName={rest.appearance?.restaurantName}
-        slug={key}
+        currency={org.currency}
+        restaurantName={restaurantName}
+        logoUrl={ap.logoUrl}
+        whatsapp={rest.whatsapp}
+        slug={org.slug}
         schedule={rest.schedule}
+        hours={rest.hours}
       />
-    </div>
+    </>
   );
 }
