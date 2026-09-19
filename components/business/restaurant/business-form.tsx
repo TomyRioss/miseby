@@ -164,11 +164,11 @@ export function BusinessForm({ initial, extra, canEdit }: Props) {
         </div>
       </div>
 
-      <div className="grid items-start gap-6 lg:grid-cols-2">
-        <section aria-labelledby="negocio-basico" className="rounded-2xl border border-border bg-card p-6">
+      <div className="grid items-stretch gap-6 lg:grid-cols-2">
+        <section aria-labelledby="negocio-basico" className="flex h-full flex-col rounded-2xl border border-border bg-card p-6">
           <h2 id="negocio-basico" className="mt-1 text-base font-semibold tracking-tight">Información básica</h2>
           <p className="mb-5 mt-1 text-[13px] leading-relaxed text-muted-foreground">Nombre, contacto y dónde te encuentran.</p>
-          <div className="space-y-4">
+          <div className="flex flex-1 flex-col justify-between space-y-4">
             <div>
               <Label htmlFor="comercial">Nombre comercial *</Label>
               <Input id="comercial" value={form.commercialName} onChange={set("commercialName")} disabled={!canEdit} maxLength={120} placeholder="Ej: La Brasa de Tomy" className="mt-1.5" />
@@ -188,10 +188,10 @@ export function BusinessForm({ initial, extra, canEdit }: Props) {
           </div>
         </section>
 
-        <section aria-labelledby="negocio-redes" className="rounded-2xl border border-border bg-card p-6">
+        <section aria-labelledby="negocio-redes" className="flex h-full flex-col rounded-2xl border border-border bg-card p-6">
           <h2 id="negocio-redes" className="mt-1 text-base font-semibold tracking-tight">Redes sociales</h2>
           <p className="mb-5 mt-1 text-[13px] leading-relaxed text-muted-foreground">Por dónde te escriben y te siguen.</p>
-          <div className="space-y-3">
+          <div className="flex flex-1 flex-col justify-between space-y-3">
             <div className="flex items-center gap-3">
               <FaInstagram className="h-5 w-5 shrink-0 text-rose-500" aria-hidden />
               <Input value={form.instagram} onChange={set("instagram")} disabled={!canEdit} placeholder="https://instagram.com/tu-cuenta" inputMode="url" aria-label="Link de Instagram" maxLength={200} />
