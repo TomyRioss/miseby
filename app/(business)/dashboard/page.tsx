@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Building2, CreditCard, CheckCircle } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getOrganizationForMember } from "@/lib/services/organizations";
+import { prisma } from "@/lib/prisma";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { InfoRow } from "@/components/business/info-row";
 import { NoMembershipBanner } from "@/components/business/no-membership-banner";
@@ -37,6 +38,21 @@ export default async function BusinessDashboardPage() {
       membership?.plan.code === "mise" ||
       membership?.plan.code === "mise_restaurant") &&
     (membership.status === "active" || membership.status === "trial");
+
+  // TOM-161: username real de MISE LINK (solo lectura, sin crear la página).
+  let miseLinkUsername: string | null = null;
+  if (org) {
+    try {
+      const page = await prisma.miseLinkPage.findUnique({
+        where: { organizationId: org.id },
+        select: { username: true },
+      });
+      miseLinkUsername = page?.username ?? null;
+    } catch {
+      miseLinkUsername = null;
+    }
+  }
+  const miseLinkHandle = miseLinkUsername ?? org?.slug ?? "";
 
   return (
     <div className="flex h-full flex-col overflow-hidden bg-background">
@@ -89,8 +105,30 @@ export default async function BusinessDashboardPage() {
                     <InfoRow label="Nombre" value={org.commercialName} />
                     <InfoRow label="Tipo" value={BUSINESS_TYPE_LABELS[org.businessType] ?? org.businessType} />
                     <InfoRow
-                      label="Slug"
-                      value={<span className="font-mono text-xs">miseby.com/{org.slug}</span>}
+                      label="Mise-Link"
+                      value={
+                        <a
+                          href={`/${miseLinkHandle}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="font-mono text-xs text-[#075296] underline underline-offset-2"
+                        >
+                          miseby.com/{miseLinkHandle}
+                        </a>
+                      }
+                    />
+                    <InfoRow
+                      label="Mise-Restaurant"
+                      value={
+                        <a
+                          href={`/menu/${org.slug}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="font-mono text-xs text-[#075296] underline underline-offset-2"
+                        >
+                          miseby.com/menu/{org.slug}
+                        </a>
+                      }
                     />
                     {org.city && <InfoRow label="Ciudad" value={org.city} />}
                     <InfoRow label="Mi rol" value={role === "business_owner" ? "Administrador" : "Miembro"} />
@@ -154,8 +192,30 @@ export default async function BusinessDashboardPage() {
                   </div>
                   <InfoRow label="Nombre" value={org.commercialName} />
                   <InfoRow
-                    label="Slug"
-                    value={<span className="font-mono text-xs">miseby.com/{org.slug}</span>}
+                    label="Mise-Link"
+                    value={
+                      <a
+                        href={`/${miseLinkHandle}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="font-mono text-xs text-[#075296] underline underline-offset-2"
+                      >
+                        miseby.com/{miseLinkHandle}
+                      </a>
+                    }
+                  />
+                  <InfoRow
+                    label="Mise-Restaurant"
+                    value={
+                      <a
+                        href={`/menu/${org.slug}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="font-mono text-xs text-[#075296] underline underline-offset-2"
+                      >
+                        miseby.com/menu/{org.slug}
+                      </a>
+                    }
                   />
                   {org.city && <InfoRow label="Ciudad" value={org.city} />}
                   <InfoRow
