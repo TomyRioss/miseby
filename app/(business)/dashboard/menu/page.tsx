@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getOrganizationForMember } from "@/lib/services/organizations";
-import { getOrCreateMiseLinkPage } from "@/lib/services/miselink";
+import { getOrCreateMiseLinkPage, updateTheme } from "@/lib/services/miselink";
 import { getRestaurantData } from "@/lib/restaurant-theme";
+import { buildRestaurantSeed } from "@/lib/menu-seed";
 import { BusinessHeader, BusinessSidebar } from "@/components/business/business-header";
 import { MenuManager } from "@/components/business/menu/menu-manager";
 
@@ -17,6 +18,19 @@ export default async function MenuPage() {
     data = await getOrganizationForMember(user.id);
     const page = await getOrCreateMiseLinkPage(user.id);
     rest = getRestaurantData(page.theme);
+    // Cuentas MISE RESTAURANT nuevas: seed Destacados (destacada) + Recomendados + Bebidas,
+    // cada una con un producto semilla (espejo de Platorest). Solo si la carta está vacía.
+    if (
+      data?.membership?.plan.code === "mise_restaurant" &&
+      (rest.categories ?? []).length === 0 &&
+      (rest.products ?? []).length === 0
+    ) {
+      const seed = buildRestaurantSeed();
+      await updateTheme(user.id, {
+        restaurant: { ...rest, categories: seed.categories, products: seed.products },
+      } as Record<string, unknown>);
+      rest = { ...rest, categories: seed.categories, products: seed.products };
+    }
   } catch (e) {
     console.error("[menu page]", e);
   }

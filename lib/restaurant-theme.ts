@@ -1,4 +1,4 @@
-export type RestaurantCategory = { id: string; name: string; order: number };
+export type RestaurantCategory = { id: string; name: string; order: number; featured?: boolean };
 export type RestaurantVariant = {
   id: string;
   name: string;
@@ -127,6 +127,15 @@ export function normalizeRestaurantProduct(p: unknown): RestaurantProduct {
   };
 }
 
+export function normalizeRestaurantCategory(c: unknown, idx: number): RestaurantCategory {
+  const o = (c ?? {}) as Record<string, unknown>;
+  return {
+    id: typeof o.id === "string" && o.id ? o.id : newId(`cat-${idx}`),
+    name: typeof o.name === "string" ? o.name.slice(0, 60) : `Sección ${idx + 1}`,
+    order: typeof o.order === "number" && Number.isFinite(o.order) ? Math.max(0, Math.min(10000, Math.floor(o.order))) : idx,
+    ...(o.featured === true ? { featured: true as const } : {}),
+  };
+}
 /** Precio de referencia: variante default, primera, o base. */
 export function productPrice(p: RestaurantProduct): number {
   const vs = p.variants ?? [];
@@ -152,7 +161,7 @@ export function getRestaurantData(theme: unknown): RestaurantData {
       restaurantName: typeof rawAppearance.restaurantName === "string" ? rawAppearance.restaurantName.slice(0, 120) : "",
       logoUrl: typeof rawAppearance.logoUrl === "string" ? rawAppearance.logoUrl.slice(0, 2000) : "",
     },
-    categories: Array.isArray(r.categories) ? (r.categories as RestaurantCategory[]) : [],
+    categories: Array.isArray(r.categories) ? (r.categories as unknown[]).map(normalizeRestaurantCategory) : [],
     products: Array.isArray(r.products) ? (r.products as unknown[]).map(normalizeRestaurantProduct) : [],
     ia: { isActive: false, whatToRecommend: "", customInstructions: "", ...(r.ia ?? {}) },
     hours: typeof r.hours === "string" ? r.hours : "",

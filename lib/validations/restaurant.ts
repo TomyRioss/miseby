@@ -29,6 +29,7 @@ export const restaurantCategorySchema = z.object({
   id: z.string().min(1).max(64),
   name: z.string().trim().min(1, "Nombre requerido").max(60),
   order: z.number().int().min(0).max(10000),
+  featured: z.boolean().optional(),
 });
 export type RestaurantCategoryInput = z.infer<typeof restaurantCategorySchema>;
 
