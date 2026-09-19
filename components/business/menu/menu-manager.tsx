@@ -354,13 +354,15 @@ export function MenuManager({
             </DndContext>
           )}
 
-          {/* Sticky save */}
-          <div className="sticky bottom-0 -mx-1 border-t border-border bg-background/95 px-1 py-3 backdrop-blur">
-            <Button onClick={save} disabled={saving}
-              className="min-h-11 w-full bg-[#0A2540] text-[15px] text-white transition-all duration-200 hover:bg-[#0A2540]/90 hover:shadow-md active:scale-[0.98] sm:w-auto sm:px-10">
-              {saving ? "Guardando..." : dirty ? "Guardar menú" : "Menú al día"}
-            </Button>
-          </div>
+          {/* Sticky save (solo con secciones: sin ellas el guardado no aplica) */}
+          {cats.length > 0 && (
+            <div className="sticky bottom-0 z-10 -mx-1 border-t border-border bg-background px-1 py-3 shadow-[0_-8px_20px_-8px_rgba(10,37,64,0.25)]">
+              <Button onClick={save} disabled={saving}
+                className="min-h-11 w-full bg-[#0A2540] text-[15px] text-white transition-all duration-200 hover:bg-[#0A2540]/90 hover:shadow-md active:scale-[0.98] sm:w-auto sm:px-10">
+                {saving ? "Guardando..." : dirty ? "Guardar menú" : "Menú al día"}
+              </Button>
+            </div>
+          )}
         </div>
       }
       preview={<CartaPhonePreview slug={slug} appearance={appearance} categories={cats} products={products} currency={currency ?? null} hours={hours ?? ""} restaurantName={appearance.restaurantName} schedule={schedule} />}
