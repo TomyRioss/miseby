@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Suite E2E (TOM-118): specs Playwright, fuera de lint app.
+    "tests/**",
+    "playwright.config.ts",
   ]),
 ]);
 

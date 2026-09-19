@@ -1,5 +1,0 @@
-- generic [active] [ref=f3e1]:
-  - main [ref=f3e2]:
-    - link "Volver" [ref=f3e3] [cursor=pointer]:
-      - /url: /milanesas-tomy
-  - alert [ref=f3e8]
