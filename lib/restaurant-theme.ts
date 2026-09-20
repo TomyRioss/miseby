@@ -59,6 +59,7 @@ export type RestaurantData = {
   x?: string;
   schedule?: WeekSchedule;
   menuPublished?: boolean;
+  updatedAt?: string;
 };
 
 export const RESTAURANT_DEFAULT_APPEARANCE: RestaurantAppearance = {
@@ -163,6 +164,7 @@ export function getRestaurantData(theme: unknown): RestaurantData {
     x: typeof r.x === "string" ? r.x : "",
     schedule: parseSchedule(r.schedule),
     menuPublished: r.menuPublished === true,
+    updatedAt: typeof r.updatedAt === "string" ? r.updatedAt : "",
   };
 }
 

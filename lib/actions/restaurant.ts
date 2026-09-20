@@ -115,20 +115,27 @@ export async function saveProductsAction(input: unknown): Promise<ActionResult> 
   }
 }
 
-export async function saveMenuAction(input: unknown): Promise<ActionResult> {
+export type SaveMenuResult = ActionResult & { updatedAt?: string };
+
+export async function saveMenuAction(input: unknown): Promise<SaveMenuResult> {
   try {
     const parsed = saveMenuSchema.safeParse(input);
     if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Menú inválido" };
     const { user } = await currentOrg();
     const current = await currentRestaurant();
+    const base = parsed.data.baseUpdatedAt;
+    if (base !== undefined && (current.updatedAt ?? "") !== base) {
+      return { ok: false, error: "Otra página guardó cambios mientras editabas. Recargá para ver la versión actualizada y reintentá." };
+    }
+    const now = new Date().toISOString();
     const sorted = [...parsed.data.categories].sort((a, b) => a.order - b.order);
     await getOrCreateMiseLinkPage(user.id);
-    await updateTheme(user.id, { restaurant: { ...current, categories: sorted, products: parsed.data.products } } as Record<string, unknown>);
+    await updateTheme(user.id, { restaurant: { ...current, categories: sorted, products: parsed.data.products, updatedAt: now } } as Record<string, unknown>);
     revalidatePath("/dashboard/menu");
     revalidatePath("/dashboard/catalogo");
     revalidatePath("/dashboard/categorias");
     revalidatePath("/dashboard/productos");
-    return { ok: true };
+    return { ok: true, updatedAt: now };
   } catch (e) {
     return fail(e, "No se pudo guardar el menú.");
   }

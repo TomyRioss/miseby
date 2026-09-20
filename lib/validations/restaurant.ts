@@ -73,6 +73,7 @@ export type RestaurantProductInput = z.infer<typeof restaurantProductSchema>;
 export const saveMenuSchema = z.object({
   categories: restaurantCategorySchema.array().max(100),
   products: restaurantProductSchema.array().max(500),
+  baseUpdatedAt: z.string().max(40).optional(),
 });
 export type SaveMenuInput = z.infer<typeof saveMenuSchema>;
 

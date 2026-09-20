@@ -26,7 +26,7 @@ import { MENU_COPY_RESTAURANT } from "./menu-copy";
 
 export function MenuManager({
   initialCategories, initialProducts, appearance, currency, slug, hours, schedule,
-  copy = MENU_COPY_RESTAURANT,
+  copy = MENU_COPY_RESTAURANT, baseUpdatedAt = "",
 }: {
   initialCategories: RestaurantCategory[];
   initialProducts: RestaurantProduct[];
@@ -37,6 +37,7 @@ export function MenuManager({
   menuPublished: boolean;
   schedule?: WeekSchedule;
   copy?: MenuCopy;
+  baseUpdatedAt?: string;
 }) {
   const [cats, setCats] = useState<RestaurantCategory[]>([...initialCategories].sort((a, b) => a.order - b.order));
   const [products, setProducts] = useState<RestaurantProduct[]>(initialProducts);
@@ -51,6 +52,7 @@ export function MenuManager({
   const [savingName, setSavingName] = useState(false);
   const [activeTab, setActiveTab] = useState<string | null>(null);
   const newCatRef = useRef<HTMLInputElement>(null);
+  const baseUpdatedAtRef = useRef(baseUpdatedAt);
   useEffect(() => {
     if (!dirty) return;
     const onBeforeUnload = (e: BeforeUnloadEvent) => { e.preventDefault(); };
@@ -110,8 +112,9 @@ export function MenuManager({
     if (cats.length === 0) return toast.error("Creá al menos una sección.");
     setSaving(true);
     try {
-      const res = await saveMenuAction({ categories: cats, products });
+      const res = await saveMenuAction({ categories: cats, products, baseUpdatedAt: baseUpdatedAtRef.current });
       if (!res.ok) throw new Error(res.error);
+      if (res.updatedAt !== undefined) baseUpdatedAtRef.current = res.updatedAt;
       setDirty(false);
       toast.success(`${copy.menuNounCap} al día: ${available.length} ${copy.itemPlural} visibles.`);
     } catch (e) {
