@@ -39,10 +39,13 @@ function formatPrice(price: number) {
 
 function TypingDots() {
   return (
-    <div aria-label="El mesero está escribiendo" role="status" className="flex w-fit items-center gap-1 rounded-2xl rounded-bl-md border border-border bg-background px-3.5 py-3">
-      {[0, 1, 2].map((i) => (
-        <span key={i} aria-hidden className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground/60" style={{ animationDelay: `${i * 150}ms` }} />
-      ))}
+    <div aria-label="El mesero está pensando" role="status" className="flex w-fit items-center gap-2 rounded-2xl rounded-bl-md border border-border bg-background px-3.5 py-3">
+      <span className="flex items-center gap-1" aria-hidden>
+        {[0, 1, 2].map((i) => (
+          <span key={i} className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground/60" style={{ animationDelay: `${i * 150}ms` }} />
+        ))}
+      </span>
+      <span className="text-xs text-muted-foreground">Pensando…</span>
     </div>
   );
 }
@@ -124,7 +127,6 @@ export function IaChatPanel({ isActive, menuSummary, focus }: Props) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: value, history }),
-        signal: AbortSignal.timeout(35_000),
       });
       const data: {
         ok?: boolean;
@@ -154,10 +156,7 @@ export function IaChatPanel({ isActive, menuSummary, focus }: Props) {
       ]);
     } catch (e) {
       console.error("[mise-ia chat]", e);
-      const timedOut = e instanceof DOMException && e.name === "TimeoutError";
-      const msgErr = timedOut
-        ? "Tardó demasiado en responder. Probá de nuevo."
-        : "Sin conexión. Revisá tu internet y probá de nuevo.";
+      const msgErr = "Sin conexión. Revisá tu internet y probá de nuevo.";
       setSendError(msgErr);
       toast.error(msgErr);
     } finally {
