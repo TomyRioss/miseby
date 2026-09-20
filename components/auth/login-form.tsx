@@ -52,7 +52,7 @@ export function LoginForm() {
         <span className="h-px flex-1 bg-border" />
       </div>
 
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+    <form onSubmit={handleSubmit(onSubmit)} method="post" noValidate className="space-y-5">
       <FieldGroup>
         <Field data-invalid={Boolean(errors.email)}>
           <FieldLabel htmlFor="email">Correo</FieldLabel>
@@ -71,7 +71,7 @@ export function LoginForm() {
           <div className="flex items-center justify-between">
             <FieldLabel htmlFor="password">Contraseña</FieldLabel>
             <Link href="/forgot-password" className="cursor-pointer text-xs text-[#0E88E2] hover:underline">
-              ¿Olvidaste tu contraseña?
+              ¿Te olvidaste tu contraseña?
             </Link>
           </div>
           <PasswordInput
@@ -86,7 +86,7 @@ export function LoginForm() {
       </FieldGroup>
 
       {serverError ? (
-        <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {serverError}
         </p>
       ) : null}

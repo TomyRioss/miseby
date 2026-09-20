@@ -331,7 +331,7 @@ export function RegisterForm({ initialPlan = "mise" }: { initialPlan?: PlanSlug 
         </Button>
 
         <p className="text-center text-sm text-muted-foreground">
-          ¿Ya tienes cuenta?{" "}
+          ¿Ya tenés cuenta?{" "}
           <Link href="/login" className="cursor-pointer font-semibold text-[#0E88E2] hover:underline">
             Iniciar sesión
           </Link>
