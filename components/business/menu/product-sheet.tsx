@@ -86,6 +86,14 @@ export function ProductSheet({
 
   async function handleFile(file: File | undefined) {
     if (!file) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      toast.error("Solo JPG, PNG o WebP.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Máximo 5 MB.");
+      return;
+    }
     setUploading(true);
     try {
       const fd = new FormData();
@@ -96,7 +104,7 @@ export function ProductSheet({
       toast.success("Foto lista.");
     } catch (e) {
       console.error("[product sheet upload]", e);
-      toast.error("No se pudo subir la foto.");
+      toast.error(e instanceof Error ? e.message : "No se pudo subir la foto.");
     } finally {
       setUploading(false);
     }
