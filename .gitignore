@@ -49,3 +49,5 @@ next-env.d.ts
 
 # agent runtime (binary/locked files break Tailwind/Turbopack scanning)
 .swarm/
+
+.playwright-mcp/
