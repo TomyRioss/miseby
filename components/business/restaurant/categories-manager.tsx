@@ -19,6 +19,7 @@ export function CategoriesManager({
   slug,
   hours,
   schedule,
+  commercialName,
 }: {
   initial: RestaurantCategory[];
   appearance: RestaurantAppearance;
@@ -27,6 +28,7 @@ export function CategoriesManager({
   slug?: string;
   hours?: string;
   schedule?: WeekSchedule;
+  commercialName?: string | null;
 }) {
   const [items, setItems] = useState<RestaurantCategory[]>([...initial].sort((a, b) => a.order - b.order));
   const [name, setName] = useState("");
@@ -145,7 +147,7 @@ export function CategoriesManager({
           products={products}
           currency={currency}
           hours={hours}
-          restaurantName={appearance.restaurantName}
+          restaurantName={appearance.restaurantName || commercialName || ""}
           schedule={schedule}
         />
       }
