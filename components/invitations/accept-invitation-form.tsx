@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Loader2, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PasswordInput } from "@/components/ui/password-input";
+import { orgRoleLabel } from "@/components/business/members/role-labels";
 import { acceptInvitationAction } from "@/lib/actions/invitations";
 
 export function AcceptInvitationForm({
@@ -74,7 +75,7 @@ export function AcceptInvitationForm({
       </h1>
       <p className="mb-6 text-sm text-muted-foreground">
         Fuiste invitado a <strong>{organizationName}</strong> como{" "}
-        {role === "business_owner" ? "Administrador" : "Miembro"}.
+        {orgRoleLabel(role)}.
       </p>
 
       <form onSubmit={submit} className="space-y-4">

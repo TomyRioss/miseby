@@ -11,7 +11,7 @@ export const membershipStatusEnum = z.enum([
   "cancelled",
 ]);
 export const membershipSourceEnum = z.enum(["manual", "trial", "founder", "internal", "stripe"]);
-export const invitationRoleEnum = z.enum(["business_owner", "business_member"]);
+export const invitationRoleEnum = z.enum(["business_owner", "business_admin", "business_member"]);
 
 export const organizationSchema = z.object({
   commercialName: z.string().min(2, "Mínimo 2 caracteres"),
