@@ -1,0 +1,36 @@
+- generic [active] [ref=f11e1]:
+  - generic [ref=f11e3]:
+    - link "Volver" [ref=f11e4] [cursor=pointer]:
+      - /url: /
+    - generic [ref=f11e8]:
+      - generic [ref=f11e9]: MISE
+      - generic [ref=f11e10]: BY
+    - heading "Iniciar sesión" [level=1] [ref=f11e11]
+    - paragraph [ref=f11e12]: Accede a tu cuenta MISE BY.
+    - generic [ref=f11e13]:
+      - generic [ref=f11e14]:
+        - button "Continuar con Google Próximamente" [disabled]:
+          - generic [aria-hidden]: G
+          - text: Continuar con Google
+          - generic: Próximamente
+      - generic [ref=f11e15]: o ingresá con tu email
+      - generic [ref=f11e18]:
+        - generic [ref=f11e19]:
+          - group [ref=f11e20]:
+            - generic [ref=f11e21]: Correo
+            - textbox "Correo" [ref=f11e22]
+          - group [ref=f11e23]:
+            - generic [ref=f11e24]:
+              - generic [ref=f11e25]: Contraseña
+              - link "¿Olvidaste tu contraseña?" [ref=f11e26] [cursor=pointer]:
+                - /url: /forgot-password
+            - generic [ref=f11e27]:
+              - textbox "Contraseña" [ref=f11e28]
+              - button "Mostrar contraseña" [ref=f11e29] [cursor=pointer]
+        - button "Ingresar" [ref=f11e33] [cursor=pointer]
+    - paragraph [ref=f11e34]:
+      - text: ¿No tienes cuenta?
+      - link "Registrar mi negocio" [ref=f11e35] [cursor=pointer]:
+        - /url: /register
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=f11e41] [cursor=pointer]

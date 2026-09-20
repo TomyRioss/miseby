@@ -1,0 +1,116 @@
+- generic [ref=f28e1]:
+  - generic [ref=f28e3]:
+    - link "Iniciar sesión" [ref=f28e4] [cursor=pointer]:
+      - /url: /login
+    - generic [ref=f28e8]:
+      - generic [ref=f28e9]: MISE
+      - generic [ref=f28e10]: BY
+    - heading "Crear cuenta" [level=1] [ref=f28e11]
+    - paragraph [ref=f28e12]: Registra tu negocio. Gratis para comenzar.
+    - generic [ref=f28e13]:
+      - generic [ref=f28e14]:
+        - button "Continuar con Google Próximamente" [disabled]:
+          - generic [aria-hidden]: G
+          - text: Continuar con Google
+          - generic: Próximamente
+      - generic [ref=f28e15]: o registrate con tu email
+      - paragraph [ref=f28e18]: Los campos marcados con * son obligatorios.
+      - generic [ref=f28e19]:
+        - generic [ref=f28e20]:
+          - group [ref=f28e21]:
+            - generic [ref=f28e22]:
+              - text: Nombre completo
+              - generic [aria-hidden] [ref=f28e23]: "*"
+              - generic [ref=f28e24]: (obligatorio)
+            - textbox "Nombre completo (obligatorio)" [active] [ref=f28e25]:
+              - /placeholder: "Ej: María González"
+          - group [ref=f28e26]:
+            - generic [ref=f28e27]:
+              - text: Correo electrónico
+              - generic [aria-hidden] [ref=f28e28]: "*"
+              - generic [ref=f28e29]: (obligatorio)
+            - textbox "Correo electrónico (obligatorio)" [ref=f28e30]:
+              - /placeholder: nombre@mail.com
+          - group [ref=f28e31]:
+            - generic [ref=f28e32]:
+              - text: Contraseña
+              - generic [aria-hidden] [ref=f28e33]: "*"
+              - generic [ref=f28e34]: (obligatorio)
+            - generic [ref=f28e35]:
+              - textbox "Contraseña (obligatorio)" [ref=f28e36]:
+                - /placeholder: Mínimo 8 caracteres, letra + número
+              - button "Mostrar contraseña" [ref=f28e37] [cursor=pointer]
+            - paragraph [ref=f28e41]: Mínimo 8 caracteres, con al menos una letra y un número.
+          - group [ref=f28e42]:
+            - generic [ref=f28e43]:
+              - text: Confirmar contraseña
+              - generic [aria-hidden] [ref=f28e44]: "*"
+              - generic [ref=f28e45]: (obligatorio)
+            - generic [ref=f28e46]:
+              - textbox "Confirmar contraseña (obligatorio)" [ref=f28e47]:
+                - /placeholder: Repetí tu contraseña
+              - button "Mostrar contraseña" [ref=f28e48] [cursor=pointer]
+          - separator [ref=f28e52]
+          - group [ref=f28e53]:
+            - generic [ref=f28e54]:
+              - text: Nombre del negocio
+              - generic [aria-hidden] [ref=f28e55]: "*"
+              - generic [ref=f28e56]: (obligatorio)
+            - textbox "Nombre del negocio (obligatorio)" [ref=f28e57]:
+              - /placeholder: "Ej: Café Central"
+          - group [ref=f28e58]:
+            - generic [ref=f28e59]:
+              - text: País
+              - generic [aria-hidden] [ref=f28e60]: "*"
+              - generic [ref=f28e61]: (obligatorio)
+            - combobox "País (obligatorio)" [ref=f28e62]:
+              - option "Seleccioná tu país" [disabled]
+              - option "Colombia" [selected]
+              - option "México"
+              - option "Argentina"
+              - option "Chile"
+              - option "Perú"
+              - option "Ecuador"
+              - option "Venezuela"
+              - option "Bolivia"
+              - option "Uruguay"
+              - option "Paraguay"
+              - option "Estados Unidos"
+              - option "España"
+              - option "Panamá"
+              - option "Costa Rica"
+              - option "Guatemala"
+              - option "Honduras"
+              - option "El Salvador"
+              - option "Nicaragua"
+              - option "República Dominicana"
+              - option "Puerto Rico"
+          - generic [ref=f28e63]:
+            - paragraph [ref=f28e64]: Elegí tu plan*
+            - radiogroup "Elegí tu plan" [ref=f28e65]:
+              - radio "Mise Link Tu tarjeta digital en un solo link" [ref=f28e66]:
+                - generic [ref=f28e68]: Mise Link
+                - generic [ref=f28e69]: Tu tarjeta digital en un solo link
+              - radio "Mise Tu negocio completo en internet" [checked] [ref=f28e73]:
+                - generic [ref=f28e75]: Mise
+                - generic [ref=f28e76]: Tu negocio completo en internet
+              - radio "Mise Restaurant Tu menú digital con QR para mesas" [ref=f28e80]:
+                - generic [ref=f28e82]: Mise Restaurant
+                - generic [ref=f28e83]: Tu menú digital con QR para mesas
+        - generic [ref=f28e88]:
+          - checkbox "Acepto los términos de servicio y la política de privacidad" [ref=f28e89]
+          - generic [ref=f28e90]:
+            - text: Acepto los
+            - link "términos de servicio" [ref=f28e91] [cursor=pointer]:
+              - /url: /terminos
+            - text: y la
+            - link "política de privacidad" [ref=f28e92] [cursor=pointer]:
+              - /url: /privacidad
+            - text: "*"
+        - button "Crear cuenta" [ref=f28e93] [cursor=pointer]
+        - paragraph [ref=f28e94]:
+          - text: ¿Ya tienes cuenta?
+          - link "Iniciar sesión" [ref=f28e95] [cursor=pointer]:
+            - /url: /login
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=f28e101] [cursor=pointer]
