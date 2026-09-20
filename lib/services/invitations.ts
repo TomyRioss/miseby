@@ -124,7 +124,7 @@ export async function acceptInvitation(token: string, password: string | undefin
         name,
         email: invitation.email,
         passwordHash,
-        role: invitation.role === "business_owner" ? "business_owner" : "business_member",
+        role: invitation.role === "business_member" ? "business_member" : invitation.role,
         status: "active",
       },
     });

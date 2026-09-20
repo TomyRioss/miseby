@@ -21,12 +21,12 @@ export default async function MiseLinkDashboardPage() {
     return null;
   });
 
-  const planCode = await getOrganizationForMember(user.id)
-    .then((d) => d?.membership?.plan.code)
-    .catch((e) => {
-      console.error("[miselink dashboard plan]", e);
-      return undefined;
-    });
+  const membership = await getOrganizationForMember(user.id).catch((e) => {
+    console.error("[miselink dashboard plan]", e);
+    return null;
+  });
+  const planCode = membership?.membership?.plan.code;
+  const orgRole = membership?.role;
 
   const editor = page ? (
     <MiseLinkEditor
@@ -54,7 +54,7 @@ export default async function MiseLinkDashboardPage() {
     <div className="flex h-full flex-col overflow-hidden bg-background">
       <BusinessHeader markSuffix="LINK" />
       <div className="flex min-h-0 flex-1">
-        <BusinessSidebar account={<SidebarAccount />} hasMiseLink={Boolean(page)} planCode={planCode} />
+        <BusinessSidebar account={<SidebarAccount />} hasMiseLink={Boolean(page)} planCode={planCode} orgRole={orgRole} />
         <main className="min-h-0 flex-1 overflow-y-auto">{editor}</main>
       </div>
     </div>
