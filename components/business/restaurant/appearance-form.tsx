@@ -49,6 +49,7 @@ export function AppearanceForm({
     restaurantName: initial.restaurantName || commercialNameFallback || "",
   }));
   const [saving, setSaving] = useState(false);
+  const [previewTick, setPreviewTick] = useState(0);
   const [uploading, setUploading] = useState<"logo" | "banner" | null>(null);
   const [cropSrc, setCropSrc] = useState<string | null>(null);
   const [cropKind, setCropKind] = useState<"logo" | "banner">("logo");
@@ -102,6 +103,7 @@ export function AppearanceForm({
     try {
       const res = await saveAppearanceAction(form);
       if (!res.ok) throw new Error(res.error);
+      setPreviewTick((t) => t + 1);
       toast.success("Apariencia aplicada a tu carta.");
     } catch (e) {
       console.error("[apariencia]", e);
@@ -254,6 +256,7 @@ export function AppearanceForm({
           hours={hours}
           restaurantName={form.restaurantName}
           schedule={schedule}
+          reloadSignal={previewTick}
         />
       }
     />

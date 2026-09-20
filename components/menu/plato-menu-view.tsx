@@ -37,6 +37,18 @@ function hexA(hex: string, alpha: string): string {
   return /^#[0-9a-fA-F]{6}$/.test(hex) ? `${hex}${alpha}` : hex;
 }
 
+function titleCls(font: RestaurantAppearance["titleFont"]) {
+  if (font === "serif") return "font-serif";
+  if (font === "mono") return "font-mono uppercase";
+  return "";
+}
+
+function bodyCls(font: RestaurantAppearance["bodyFont"]) {
+  if (font === "serif") return "font-serif";
+  if (font === "mono") return "font-mono";
+  return "";
+}
+
 export function PlatoMenuView({
   appearance: ap,
   categories = [],
@@ -120,7 +132,7 @@ export function PlatoMenuView({
 
   return (
     <main
-      className="min-h-screen pb-24"
+      className={`min-h-screen pb-24 ${bodyCls(ap.bodyFont)}`}
       style={{ background: bg, color: text, ["--pm-border" as string]: border } as React.CSSProperties}
     >
       {/* Barra utilitaria: WhatsApp + compartir (sin fidelización) */}
@@ -187,7 +199,7 @@ export function PlatoMenuView({
               </div>
             )}
             <div className="min-w-0">
-              <h1 className="text-2xl font-bold leading-tight sm:text-3xl md:text-4xl">{name}</h1>
+              <h1 className={`text-2xl font-bold leading-tight sm:text-3xl md:text-4xl ${titleCls(ap.titleFont)}`}>{name}</h1>
             </div>
           </div>
         </div>
@@ -238,7 +250,7 @@ export function PlatoMenuView({
           if (prods.length === 0) return null;
           return (
             <details key={c.id} id={`cat-${c.id}`} open className="group scroll-mt-16 pt-6 first:pt-4">
-              <summary className="mb-3 flex cursor-pointer list-none items-center justify-between border-b pb-2 text-lg font-bold uppercase tracking-tight" style={{ borderColor: border }}>
+              <summary className={`mb-3 flex cursor-pointer list-none items-center justify-between border-b pb-2 text-lg font-bold uppercase tracking-tight ${titleCls(ap.titleFont)}`} style={{ borderColor: border }}>
                 {c.name}
                 <ChevronDown className="h-5 w-5 shrink-0 opacity-50 transition-transform group-open:rotate-180" />
               </summary>
