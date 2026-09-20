@@ -86,7 +86,7 @@ export async function saveAppearanceAction(input: unknown): Promise<ActionResult
   try {
     const parsed = restaurantAppearanceSchema.safeParse(input);
     if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Diseño inválido" };
-    const { user } = await currentOrg();
+    const { user, org } = await currentOrg();
     const current = await currentRestaurant();
     await getOrCreateMiseLinkPage(user.id);
     const prevAp = current.appearance ?? {};
@@ -94,6 +94,7 @@ export async function saveAppearanceAction(input: unknown): Promise<ActionResult
     revalidatePath("/dashboard/apariencia");
     revalidatePath("/dashboard/menu");
     revalidatePath("/dashboard/catalogo");
+    revalidatePath(`/menu/${org.slug}`, "page");
     return { ok: true };
   } catch (e) {
     return fail(e, "No se pudo guardar la apariencia.");
