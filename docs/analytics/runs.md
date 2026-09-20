@@ -11,3 +11,4 @@ Historial del proyecto (fuente: Linear proyecto Miseby). Una fila por task cerra
 | 2026-09-20 | miseby | TOM-183 | M | n/a | mimo/opencode-go | OK merge 932335d |
 | 2026-09-20 | miseby | TOM-185 apariencia funcional sobre menú (revalidate slug + fuentes + preview reload) | S | n/a | mimo-v2.5/muse-spark | OK merge dev eb83934 |
 | 2026-09-20 | miseby | TOM-186 | S | n/a | spark/mimo | merge a dev 9333a0d |
+| 2026-09-20 | miseby | TOM-184 legales + 404 custom | S | n/a | mimo-v2.5/muse-spark | Done, merge 86ec0ee a dev |

@@ -61,10 +61,12 @@ function NavItem({
 
 export function PlatformShell({
   children,
-  userLabel,
+  userName,
+  userEmail,
 }: {
   children: React.ReactNode;
-  userLabel: string;
+  userName: string;
+  userEmail: string;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -98,13 +100,16 @@ export function PlatformShell({
         <button
           onClick={() => setUserMenuOpen((p) => !p)}
           aria-expanded={userMenuOpen}
-          title={userLabel}
+          title={`${userName} — ${userEmail}`}
           className="cursor-pointer flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-white/70 transition-colors hover:bg-white/10 hover:text-white"
         >
           <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/20">
             <User className="h-3.5 w-3.5 text-white" />
           </div>
-          <span className="flex-1 truncate text-left">{userLabel}</span>
+          <span className="min-w-0 flex-1 text-left">
+            <span className="block truncate font-semibold text-white">{userName}</span>
+            <span className="block break-all text-[11px] leading-snug text-white/60">{userEmail}</span>
+          </span>
           <ChevronDown
             className={`h-3.5 w-3.5 shrink-0 transition-transform ${userMenuOpen ? "rotate-180" : ""}`}
           />
@@ -115,11 +120,14 @@ export function PlatformShell({
             <p className="px-2.5 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
               Cuenta
             </p>
+            <p className="px-2.5 pb-0.5 pt-2 text-xs font-semibold text-foreground">
+              {userName}
+            </p>
             <p
-              title={userLabel}
-              className="max-h-16 overflow-y-auto break-all px-2.5 pb-2 text-xs font-medium leading-relaxed text-foreground"
+              title={userEmail}
+              className="max-h-16 overflow-y-auto break-all px-2.5 pb-2 text-xs leading-relaxed text-muted-foreground"
             >
-              {userLabel}
+              {userEmail}
             </p>
             <div className="my-1 h-px bg-border" />
             <div className="space-y-0.5">

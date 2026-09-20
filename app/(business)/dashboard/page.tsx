@@ -154,7 +154,19 @@ export default async function BusinessDashboardPage() {
                     {membership.startsAt && <InfoRow label="Inicio" value={formatDate(membership.startsAt)} />}
                     {membership.expiresAt && <InfoRow label="Vence" value={formatDate(membership.expiresAt)} />}
                     {membership.trialEndsAt && (
-                      <InfoRow label="Trial hasta" value={formatDate(membership.trialEndsAt)} />
+                      <>
+                        <InfoRow label="Trial hasta" value={formatDate(membership.trialEndsAt)} />
+                        <InfoRow
+                          label="Días restantes"
+                          value={(() => {
+                            const left = Math.max(
+                              0,
+                              Math.ceil((new Date(membership.trialEndsAt).getTime() - Date.now()) / 86400000),
+                            );
+                            return left === 0 ? "Vence hoy" : left === 1 ? "1 día" : `${left} días`;
+                          })()}
+                        />
+                      </>
                     )}
                   </section>
                 </div>
