@@ -52,7 +52,7 @@ export function MenuCategoryRow({
             onBlur={(e) => { if (e.target.value.trim() && e.target.value.trim() !== category.name) onRename(e.target.value); }}
             onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
             aria-label="Nombre de categoría" maxLength={60}
-            className="w-full truncate bg-transparent text-[15px] font-semibold outline-none focus:border-b focus:border-[#6D28D9]"
+            className="w-full truncate bg-transparent text-[15px] font-semibold outline-none focus:border-b focus:border-[#0A2540]"
           />
           <p className="text-xs tabular-nums text-muted-foreground">{products.length} {itemPlural}</p>
         </div>
@@ -145,7 +145,7 @@ export function MenuCategoryRow({
           </ul>
           {products.length === 0 && (
             <button type="button" onClick={onAddProduct}
-              className="cursor-pointer flex w-full items-center gap-1.5 py-2.5 text-sm font-medium text-[#6D28D9] hover:text-[#6D28D9]/80">
+              className="cursor-pointer flex w-full items-center gap-1.5 py-2.5 text-sm font-medium text-[#0A2540] hover:text-[#0A2540]/80">
               <Plus className="h-4 w-4" /> Agregar producto
             </button>
           )}
