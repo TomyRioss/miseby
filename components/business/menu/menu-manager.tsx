@@ -257,7 +257,7 @@ export function MenuManager({
                   onBlur={commitName}
                   onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
                   placeholder={commercialName || copy.businessFallback}
-                  aria-label="Nombre del restaurante"
+                  aria-label={`Nombre del ${copy.businessWord.toLowerCase()}`}
                   disabled={saving || savingName}
                   className="w-full truncate border-b border-border bg-transparent pb-0.5 text-base font-bold tracking-tight outline-none transition-colors placeholder:font-normal placeholder:text-muted-foreground focus:border-primary"
                 />
@@ -273,7 +273,7 @@ export function MenuManager({
                 aspect={cropKind === "logo" ? 1 : 3}
                 round={cropKind === "logo"}
                 title={cropKind === "logo" ? "Recortar logo" : "Recortar portada"}
-                hint={cropKind === "logo" ? "Cuadrado, se ve en el header de la carta." : "Panorámica 1200×400 aprox."}
+                hint={cropKind === "logo" ? "Cuadrado, se ve en el header público." : "Panorámica 1200×400 aprox."}
                 output={cropKind === "logo" ? { width: 512, height: 512 } : { width: 1200, height: 400 }}
                 onDone={onCropDone}
               />
@@ -361,6 +361,8 @@ export function MenuManager({
                   {cats.map((c) => (
                     <div key={c.id} id={`menu-cat-${c.id}`} className="scroll-mt-24">
                     <MenuCategoryRow category={c} products={byCat(c.id)} currency={currency}
+                      itemSingular={copy.itemSingular}
+                      itemCap={copy.itemCap}
                       itemPlural={copy.itemPlural}
                       takeAwayWord={copy.takeAwayWord}
                       collapsed={collapsed.has(c.id)}

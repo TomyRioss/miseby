@@ -17,6 +17,9 @@ export type MenuCopy = {
   linkBase: string;
   variantsHint: string;
   groupsHint: string;
+  variantExample: string;
+  groupExample: string;
+  optionExample: string;
   sectionExample: string;
   sectionPlaceholder: string;
   takeAwayLabel: string;
@@ -38,6 +41,9 @@ export const MENU_COPY_RESTAURANT: MenuCopy = {
   linkBase: "menu",
   variantsHint: "Tamaños, términos, porciones...",
   groupsHint: "Ej: Término de la carne, Adiciones, Salsas.",
+  variantExample: "Ej: Personal / Familiar",
+  groupExample: "Ej: Adiciones",
+  optionExample: "Ej: Queso extra",
   sectionExample: "Postres",
   sectionPlaceholder: "Ej: Postres, Bebidas, Especiales…",
   takeAwayLabel: "Disponible para llevar",
@@ -68,6 +74,9 @@ export const MENU_COPY_CATALOG: MenuCopy = {
   linkBase: "catalogo",
   variantsHint: "Talles, tamaños, versiones...",
   groupsHint: "Ej: Color, Talle, Adicionales.",
+  variantExample: "Ej: Talle M / Pack x3",
+  groupExample: "Ej: Color",
+  optionExample: "Ej: Rojo",
   sectionExample: "Destacados",
   sectionPlaceholder: "Ej: Destacados, Novedades, Promos…",
   takeAwayLabel: "Disponible para entrega/retiro",

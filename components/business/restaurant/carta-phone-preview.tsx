@@ -13,9 +13,9 @@ import { RestaurantPublicView } from "./restaurant-public-view";
  * botones debajo: Recargar, Visitar página y Compartir.
  * Generalizado por linkBase/menuNounCap/variant (restaurant vs catálogo).
  *
- * Variant restaurant: iframe a la página pública real /menu/[slug]
- * (píxel a píxel lo que ve el cliente; muestra lo GUARDADO).
- * Variant catalog: RestaurantPublicView (el que usa /catalogo/[slug]).
+ * Ambas variants usan iframe a la página pública real (/menu/[slug] o
+ * /catalogo/[slug]): píxel a píxel lo que ve el cliente (muestra lo GUARDADO).
+ * Solo sin slug (caso borde) se renderiza la vista local como fallback.
  */
 export function CartaPhonePreview({
   slug,
@@ -51,10 +51,10 @@ export function CartaPhonePreview({
 }) {
   const publicHref = slug ? `/${linkBase}/${slug}` : undefined;
   const noun = menuNounCap.toLowerCase();
-  const isRestaurant = variant === "restaurant";
-  // La página real /menu/[slug]: el preview es un iframe a esa misma URL,
-  // píxel a píxel lo que ve el cliente (muestra lo guardado, no borradores).
-  const showRealMenu = isRestaurant && !!slug;
+  // La página pública real (/menu/[slug] o /catalogo/[slug]): el preview es un
+  // iframe a esa misma URL, píxel a píxel lo que ve el cliente (muestra lo
+  // guardado, no borradores). Sin slug se usa la vista local como fallback.
+  const showRealMenu = !!slug;
   const [frameKey, setFrameKey] = useState(0);
   // El iframe recarga solo tras cada guardado (reloadSignal) o con el botón.
   const iframeKey = `${frameKey}-${reloadSignal ?? 0}`;

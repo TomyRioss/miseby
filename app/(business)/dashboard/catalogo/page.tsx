@@ -41,6 +41,8 @@ export default async function CatalogoPage() {
             hours={rest.hours}
             menuPublished={rest.menuPublished === true}
             schedule={rest.schedule}
+            commercialName={data.organization.commercialName}
+            baseUpdatedAt={rest.updatedAt}
           />
         </main>
       </div>

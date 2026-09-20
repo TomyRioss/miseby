@@ -14,6 +14,8 @@ export function MenuCategoryRow({
   category, products, currency, collapsed, moveTargets,
   onToggleCollapse, onRename, onDelete, onAddProduct,
   onEditProduct, onToggleActive, onToggleTakeAway, onDuplicate, onMoveProduct, onDeleteProduct,
+  itemSingular = "plato",
+  itemCap = "Plato",
   itemPlural = "platos",
   takeAwayWord = "Llevar",
 }: {
@@ -32,6 +34,8 @@ export function MenuCategoryRow({
   onDuplicate: (id: string) => void;
   onMoveProduct: (id: string, catId: string) => void;
   onDeleteProduct: (id: string) => void;
+  itemSingular?: string;
+  itemCap?: string;
   itemPlural?: string;
   takeAwayWord?: string;
 }) {
@@ -58,7 +62,7 @@ export function MenuCategoryRow({
         </div>
         <button type="button" onClick={onAddProduct}
           className="cursor-pointer shrink-0 whitespace-nowrap rounded-full border border-[#0A2540] px-3 py-1.5 text-xs font-semibold text-[#0A2540] hover:bg-[#0A2540]/5 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-          + Producto
+          + {itemCap}
         </button>
         <DropdownMenu>
           <DropdownMenuTrigger aria-label="Opciones de categoría" className="min-h-10 min-w-10 rounded-full p-1.5 text-muted-foreground outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
@@ -146,7 +150,7 @@ export function MenuCategoryRow({
           {products.length === 0 && (
             <button type="button" onClick={onAddProduct}
               className="cursor-pointer flex w-full items-center gap-1.5 py-2.5 text-sm font-medium text-[#0A2540] hover:text-[#0A2540]/80">
-              <Plus className="h-4 w-4" /> Agregar producto
+              <Plus className="h-4 w-4" /> Agregar {itemSingular}
             </button>
           )}
         </>

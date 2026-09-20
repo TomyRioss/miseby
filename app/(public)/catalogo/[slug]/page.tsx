@@ -14,6 +14,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   return {
     title: `${name} | Catálogo`,
     description: `Catálogo de productos de ${name}.`,
+    robots: catalog.preview ? { index: false, follow: false } : undefined,
   };
 }
 

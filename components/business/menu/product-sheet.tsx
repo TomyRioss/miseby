@@ -125,7 +125,7 @@ export function ProductSheet({
       }));
     }
     for (const g of groups) {
-      if (!g.name.trim()) return toast.error("Todo grupo necesita nombre: ej. Color, Adicionales.");
+      if (!g.name.trim()) return toast.error(`Todo grupo necesita nombre: ${copy.groupsHint}`);
       if (g.modifiers.length === 0) return toast.error(`"${g.name.trim()}" no tiene opciones.`);
       for (const m of g.modifiers) {
         if (!m.name.trim()) return toast.error("Toda opción necesita nombre.");
@@ -226,7 +226,7 @@ export function ProductSheet({
                   <div key={v.key} className="rounded-xl border border-border p-3">
                     <div className="flex items-center gap-2">
                       <input type="radio" name="default-variant" checked={i === 0 || v.isDefault} onChange={() => setVariants((p) => p.map((x, j) => ({ ...x, isDefault: j === i })))} aria-label="Variante por defecto" title="Precio principal" />
-                      <Input value={v.name} onChange={(e) => setVariants((p) => p.map((x) => x.key === v.key ? { ...x, name: e.target.value } : x))} placeholder="Ej: Personal / Familiar" maxLength={60} className="min-h-9 min-w-0" />
+                      <Input value={v.name} onChange={(e) => setVariants((p) => p.map((x) => x.key === v.key ? { ...x, name: e.target.value } : x))} placeholder={copy.variantExample} maxLength={60} className="min-h-9 min-w-0" />
                       <Input value={v.price} onChange={(e) => setVariants((p) => p.map((x) => x.key === v.key ? { ...x, price: e.target.value } : x))} placeholder="$" type="number" min={0} aria-label="Precio variante" className="w-24 shrink-0 min-h-9 tabular-nums" />
                       <button type="button" onClick={() => setVariants((p) => p.filter((x) => x.key !== v.key))} aria-label="Quitar variante" className="cursor-pointer rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
                     </div>
@@ -249,7 +249,7 @@ export function ProductSheet({
               {groups.map((g) => (
                 <div key={g.key} className="rounded-xl border border-border p-3">
                   <div className="flex items-center gap-2">
-                    <Input value={g.name} onChange={(e) => setGroups((p) => p.map((x) => x.key === g.key ? { ...x, name: e.target.value } : x))} placeholder="Ej: Adiciones" maxLength={60} className="min-h-9" />
+                    <Input value={g.name} onChange={(e) => setGroups((p) => p.map((x) => x.key === g.key ? { ...x, name: e.target.value } : x))} placeholder={copy.groupExample} maxLength={60} className="min-h-9" />
                     <button type="button" onClick={() => setGroups((p) => p.filter((x) => x.key !== g.key))} aria-label="Quitar grupo" className="cursor-pointer rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
                   </div>
                   <div className="mt-2 flex gap-4 text-xs">
@@ -259,7 +259,7 @@ export function ProductSheet({
                   <div className="mt-2 space-y-1.5">
                     {g.modifiers.map((m) => (
                       <div key={m.key} className="flex items-center gap-2">
-                        <Input value={m.name} onChange={(e) => setGroups((p) => p.map((x) => x.key === g.key ? { ...x, modifiers: x.modifiers.map((mm) => mm.key === m.key ? { ...mm, name: e.target.value } : mm) } : x))} placeholder="Ej: Queso extra" maxLength={60} className="min-h-9 min-w-0" />
+                        <Input value={m.name} onChange={(e) => setGroups((p) => p.map((x) => x.key === g.key ? { ...x, modifiers: x.modifiers.map((mm) => mm.key === m.key ? { ...mm, name: e.target.value } : mm) } : x))} placeholder={copy.optionExample} maxLength={60} className="min-h-9 min-w-0" />
                         <Input value={m.price} onChange={(e) => setGroups((p) => p.map((x) => x.key === g.key ? { ...x, modifiers: x.modifiers.map((mm) => mm.key === m.key ? { ...mm, price: e.target.value } : mm) } : x))} placeholder="$" type="number" min={0} aria-label="Precio opción" className="w-24 shrink-0 min-h-9 tabular-nums" />
                         <button type="button" onClick={() => setGroups((p) => p.map((x) => x.key === g.key ? { ...x, modifiers: x.modifiers.filter((mm) => mm.key !== m.key) } : x))} aria-label="Quitar opción" className="cursor-pointer rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
                       </div>

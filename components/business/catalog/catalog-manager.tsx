@@ -23,6 +23,8 @@ export function CatalogManager({
   hours,
   menuPublished,
   schedule,
+  commercialName,
+  baseUpdatedAt,
 }: {
   initialCategories: RestaurantCategory[];
   initialProducts: RestaurantProduct[];
@@ -32,6 +34,8 @@ export function CatalogManager({
   hours?: string;
   menuPublished: boolean;
   schedule?: WeekSchedule;
+  commercialName?: string;
+  baseUpdatedAt?: string;
 }) {
   return (
     <MenuManager
@@ -43,6 +47,8 @@ export function CatalogManager({
       hours={hours}
       menuPublished={menuPublished}
       schedule={schedule}
+      commercialName={commercialName}
+      baseUpdatedAt={baseUpdatedAt}
       copy={MENU_COPY_CATALOG}
     />
   );
