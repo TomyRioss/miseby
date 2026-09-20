@@ -1,18 +1,40 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { MessageCircle, RotateCcw, Send, TriangleAlert } from "lucide-react";
+import { ExternalLink, MessageCircle, RotateCcw, Send, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { CHAT_LIMIT, QUICK_SUGGESTIONS, fakeReply, type ChatMsg } from "./ia-helpers";
+import { CHAT_LIMIT, QUICK_SUGGESTIONS, type ChatMsg } from "./ia-helpers";
 
 type Props = { isActive: boolean; menuSummary: string; focus: string };
 
+type RecommendedDish = {
+  id: string;
+  name: string;
+  price: number;
+  imageUrl: string | null;
+  url: string;
+  category: string;
+};
+
+type ChatMsgWithDishes = ChatMsg & { dishes?: RecommendedDish[] };
+
+type HistoryItem = { role: "user" | "ia"; text: string };
+
 function time(ts: number) {
   return new Date(ts).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" });
+}
+
+function formatPrice(price: number) {
+  if (!Number.isFinite(price)) return "—";
+  return new Intl.NumberFormat("es-AR", {
+    style: "currency",
+    currency: "ARS",
+    maximumFractionDigits: 0,
+  }).format(price);
 }
 
 function TypingDots() {
@@ -25,21 +47,63 @@ function TypingDots() {
   );
 }
 
+function DishCards({ dishes }: { dishes: RecommendedDish[] }) {
+  if (dishes.length === 0) return null;
+  return (
+    <div className="mt-2 grid max-w-[85%] grid-cols-1 gap-2 sm:grid-cols-2">
+      {dishes.map((d) => (
+        <div key={d.id} className="flex gap-2.5 rounded-xl border border-border bg-background p-2 shadow-sm">
+          {d.imageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={d.imageUrl}
+              alt={d.name}
+              loading="lazy"
+              className="h-14 w-14 shrink-0 rounded-lg object-cover"
+            />
+          ) : (
+            <span
+              aria-hidden
+              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-[#0A2540]/10 text-lg font-semibold text-[#0A2540]"
+            >
+              {(d.name || "?").charAt(0).toUpperCase()}
+            </span>
+          )}
+          <div className="flex min-w-0 flex-1 flex-col">
+            <p className="truncate text-[13px] font-semibold leading-tight">{d.name}</p>
+            {d.category && (
+              <p className="mt-0.5 truncate text-[11px] text-muted-foreground">{d.category}</p>
+            )}
+            <p className="mt-0.5 text-[13px] font-medium tabular-nums">{formatPrice(d.price)}</p>
+            <a
+              href={d.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-1 inline-flex w-fit items-center gap-1 text-[11px] font-semibold text-[#6D28D9] underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6D28D9]"
+            >
+              Ver en carta<ExternalLink className="h-3 w-3" aria-hidden />
+            </a>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function IaChatPanel({ isActive, menuSummary, focus }: Props) {
-  const [chat, setChat] = useState<ChatMsg[]>([]);
+  void menuSummary;
+  void focus;
+  const [chat, setChat] = useState<ChatMsgWithDishes[]>([]);
   const [msg, setMsg] = useState("");
   const [typing, setTyping] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [chat, typing]);
 
-  useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
-
-  function send(text?: string) {
+  async function send(text?: string) {
     const value = (text ?? msg).trim().slice(0, CHAT_LIMIT);
     if (!value || typing) return;
     if (!isActive) {
@@ -48,19 +112,53 @@ export function IaChatPanel({ isActive, menuSummary, focus }: Props) {
       return;
     }
     setSendError(null);
+    const history: HistoryItem[] = [
+      ...chat.map((m) => ({ role: m.role, text: m.text })),
+      { role: "user", text: value },
+    ];
     setChat((c) => [...c, { role: "user", text: value, at: Date.now() }]);
     setMsg("");
     setTyping(true);
-    timer.current = setTimeout(() => {
-      try {
-        setChat((c) => [...c, { role: "ia", text: fakeReply(value, menuSummary, focus), at: Date.now() }]);
-      } catch (e) {
-        console.error("[mise-ia preview]", e);
-        setSendError("No se pudo generar la vista previa. Probá de nuevo.");
-      } finally {
-        setTyping(false);
+    try {
+      const res = await fetch("/api/mise-ia/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: value, history }),
+      });
+      const data: {
+        ok?: boolean;
+        reply?: string;
+        dishes?: RecommendedDish[];
+        error?: string;
+      } | null = await res.json().catch(() => null);
+      if (!res.ok || !data?.ok) {
+        const msgErr =
+          res.status === 401
+            ? "Iniciá sesión para probar el mesero."
+            : res.status === 403
+              ? "El mesero está en pausa. Activalo arriba para probar."
+              : (data?.error ?? "No se pudo enviar. Probá de nuevo.");
+        setSendError(msgErr);
+        toast.error(msgErr);
+        return;
       }
-    }, 900);
+      setChat((c) => [
+        ...c,
+        {
+          role: "ia",
+          text: data.reply ?? "Acá estoy, ¿qué antojo tenés hoy?",
+          dishes: Array.isArray(data.dishes) ? data.dishes : [],
+          at: Date.now(),
+        },
+      ]);
+    } catch (e) {
+      console.error("[mise-ia chat]", e);
+      const msgErr = "Sin conexión. Revisá tu internet y probá de nuevo.";
+      setSendError(msgErr);
+      toast.error(msgErr);
+    } finally {
+      setTyping(false);
+    }
   }
 
   const inputDisabled = !isActive || typing;
@@ -112,6 +210,7 @@ export function IaChatPanel({ isActive, menuSummary, focus }: Props) {
               <p className={`max-w-[85%] break-words rounded-2xl px-3.5 py-2 text-sm leading-relaxed shadow-sm ${m.role === "user" ? "rounded-br-md bg-[#0A2540] text-white" : "rounded-bl-md border border-border bg-background"}`}>
                 {m.text}
               </p>
+              {m.role === "ia" && m.dishes && m.dishes.length > 0 && <DishCards dishes={m.dishes} />}
               <span className="mt-0.5 px-1 text-[10px] tabular-nums text-muted-foreground/70">{time(m.at)}</span>
             </div>
           ))}
