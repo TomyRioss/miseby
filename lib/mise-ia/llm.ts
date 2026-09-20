@@ -64,10 +64,9 @@ export async function getMeseroReply(ctx: MeseroContext): Promise<MeseroResult> 
     return { text: null, reason: "no_key" };
   }
   const menu = buildMenuContext(ctx.products, ctx.categories);
-  if (!menu) {
-    console.error("[mise-ia llm] carta vacía (0 productos disponibles)");
-    return { text: null, reason: "empty_menu" };
-  }
+  const menuBlock = menu
+    ? `CARTA:\n${menu}`
+    : `CARTA: aún en construcción (sin platos cargados). No inventes ningún plato: respondé como mesero igual (saludos, info del local, horarios), con calidez, e invitá a descubrir la carta cuando esté lista.`;
 
   const system = [
     `Sos el mesero de "${ctx.businessName || "nuestro local"}" (Argentina). Respondés breve, cálido, en español rioplatense (2-4 líneas).`,
@@ -75,7 +74,7 @@ export async function getMeseroReply(ctx: MeseroContext): Promise<MeseroResult> 
     ctx.focus.trim() ? `Foco del local: ${ctx.focus.trim()}.` : "",
     ctx.tone.trim() ? `Tono: ${ctx.tone.trim()}.` : "",
     `Horarios: ${ctx.hours || "consultar"}${ctx.whatsapp ? ` · WhatsApp: ${ctx.whatsapp}` : ""}.`,
-    `CARTA:\n${menu}`,
+    menuBlock,
   ]
     .filter(Boolean)
     .join("\n");
