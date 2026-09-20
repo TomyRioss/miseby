@@ -12,6 +12,7 @@ export const registerSchema = z.object({
   password: z.string().min(8, "Mínimo 8 caracteres"),
   businessName: z.string().min(2, "Nombre de negocio muy corto"),
   country: z.string().min(2, "País requerido"),
+  planCode: z.enum(["mise_link", "mise", "mise_restaurant"]).default("mise"),
 });
 export type RegisterInput = z.infer<typeof registerSchema>;
 
