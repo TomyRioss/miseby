@@ -25,11 +25,12 @@ type GroupRow = { key: string; id?: string; name: string; required: boolean; mul
 
 function toVariantRows(p?: RestaurantProduct): VariantRow[] {
   if (!p?.variants || p.variants.length === 0) return [];
+  const anyDefault = p.variants.some((v) => v.isDefault);
   return p.variants.map((v, i) => ({
     key: v.id, id: v.id, name: v.name,
     price: String(v.price), costPrice: v.costPrice != null ? String(v.costPrice) : "",
     packagingPrice: v.packagingPrice != null ? String(v.packagingPrice) : "",
-    sku: v.sku ?? "", isDefault: i === 0 ? true : v.isDefault,
+    sku: v.sku ?? "", isDefault: anyDefault ? v.isDefault === true : i === 0,
   }));
 }
 
@@ -101,7 +102,7 @@ export function ProductSheet({
       const res = await uploadProductImageAction(fd);
       if (!res.ok) { toast.error(res.error); return; }
       setImageUrl(res.url);
-      toast.success("Foto lista.");
+      toast.success("Foto subida.");
     } catch (e) {
       console.error("[product sheet upload]", e);
       toast.error(e instanceof Error ? e.message : "No se pudo subir la foto.");
@@ -111,25 +112,37 @@ export function ProductSheet({
   }
 
   function confirm() {
+    if (uploading) return toast.error("Esperá a que termine de subir la foto.");
     const n = name.trim();
     if (!n) return toast.error(`Poné nombre al ${copy.itemSingular}: ej. ${copy.itemExample}.`);
     if (!categoryId) return toast.error(`Elegí la sección del ${copy.itemSingular}.`);
+    if (price.trim() === "") return toast.error("Poné el precio base: es obligatorio.");
     const base = Number(price);
-    if (!Number.isFinite(base) || base < 0) return toast.error("Precio inválido.");
+    if (!Number.isFinite(base) || base <= 0) return toast.error("El precio base tiene que ser mayor a $0.");
     let builtVariants: RestaurantProduct["variants"];
     if (useVariants) {
       if (variants.length === 0) return toast.error("Agregá al menos una variante.");
+      if (!variants.some((v) => v.isDefault)) return toast.error("Elegí la variante por defecto.");
+      const seenSku = new Set<string>();
       for (const v of variants) {
         if (!v.name.trim()) return toast.error("Toda variante necesita nombre.");
+        if (v.price.trim() === "") return toast.error(`Poné el precio de "${v.name.trim() || "la variante"}".`);
         const vp = Number(v.price);
-        if (!Number.isFinite(vp) || vp < 0) return toast.error(`Precio inválido en "${v.name.trim()}".`);
+        if (!Number.isFinite(vp) || vp <= 0) return toast.error(`El precio de "${v.name.trim()}" tiene que ser mayor a $0.`);
+        if (v.costPrice.trim() !== "" && (!Number.isFinite(Number(v.costPrice)) || Number(v.costPrice) < 0)) return toast.error(`El costo de "${v.name.trim()}" no puede ser negativo.`);
+        if (v.packagingPrice.trim() !== "" && (!Number.isFinite(Number(v.packagingPrice)) || Number(v.packagingPrice) < 0)) return toast.error(`El empaque de "${v.name.trim()}" no puede ser negativo.`);
+        const sku = v.sku.trim().toLowerCase();
+        if (sku) {
+          if (seenSku.has(sku)) return toast.error(`El SKU "${v.sku.trim()}" está duplicado.`);
+          seenSku.add(sku);
+        }
       }
-      builtVariants = variants.map((v, i) => ({
+      builtVariants = variants.map((v) => ({
         id: v.id ?? newId("var"), name: v.name.trim(), price: Number(v.price),
         costPrice: v.costPrice === "" ? null : Number(v.costPrice),
         packagingPrice: v.packagingPrice === "" ? null : Number(v.packagingPrice),
         sku: v.sku.trim() ? v.sku.trim() : null,
-        isDefault: i === 0 ? true : v.isDefault,
+        isDefault: v.isDefault,
       }));
     }
     for (const g of groups) {
@@ -137,7 +150,7 @@ export function ProductSheet({
       if (g.modifiers.length === 0) return toast.error(`"${g.name.trim()}" no tiene opciones.`);
       for (const m of g.modifiers) {
         if (!m.name.trim()) return toast.error("Toda opción necesita nombre.");
-        if (!Number.isFinite(Number(m.price)) || Number(m.price) < 0) return toast.error(`Precio inválido en "${m.name.trim()}".`);
+        if (!Number.isFinite(Number(m.price)) || Number(m.price) < 0) return toast.error(`El precio de "${m.name.trim() || "la opción"}" no puede ser negativo.`);
       }
     }
     const product: RestaurantProduct = {
@@ -225,7 +238,7 @@ export function ProductSheet({
                 <span className="block text-xs text-muted-foreground">{copy.variantsHint}</span></span>
               <Switch checked={useVariants} onCheckedChange={(v) => {
                 setUseVariants(v);
-                if (v && variants.length === 0) setVariants([{ key: newId("row"), name: price ? "" : "Único", price, costPrice: "", packagingPrice: "", sku: "", isDefault: true }]);
+                if (v && variants.length === 0) setVariants([{ key: newId("row"), name: "", price, costPrice: "", packagingPrice: "", sku: "", isDefault: true }]);
               }} />
             </label>
             {useVariants && (
@@ -233,7 +246,7 @@ export function ProductSheet({
                 {variants.map((v, i) => (
                   <div key={v.key} className="rounded-xl border border-border p-3">
                     <div className="flex items-center gap-2">
-                      <input type="radio" name="default-variant" checked={i === 0 || v.isDefault} onChange={() => setVariants((p) => p.map((x, j) => ({ ...x, isDefault: j === i })))} aria-label="Variante por defecto" title="Precio principal" />
+                      <input type="radio" name="default-variant" checked={v.isDefault} onChange={() => setVariants((p) => p.map((x, j) => ({ ...x, isDefault: j === i })))} aria-label="Variante por defecto" title="Precio principal" />
                       <Input value={v.name} onChange={(e) => setVariants((p) => p.map((x) => x.key === v.key ? { ...x, name: e.target.value } : x))} placeholder={copy.variantExample} maxLength={60} className="min-h-9 min-w-0" />
                       <Input value={v.price} onChange={(e) => setVariants((p) => p.map((x) => x.key === v.key ? { ...x, price: e.target.value } : x))} placeholder="$" type="number" min={0} aria-label="Precio variante" className="w-24 shrink-0 min-h-9 tabular-nums" />
                       <button type="button" onClick={() => setVariants((p) => p.filter((x) => x.key !== v.key))} aria-label="Quitar variante" className="cursor-pointer rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
@@ -282,7 +295,7 @@ export function ProductSheet({
         </div>
         <SheetFooter className="gap-2">
           <Button variant="outline" onClick={onClose}>Cancelar</Button>
-          <Button onClick={confirm} className="bg-[#0A2540] hover:bg-[#0A2540]/90">{state?.mode === "edit" ? "Aplicar" : `Agregar ${copy.itemSingular}`}</Button>
+          <Button onClick={confirm} disabled={uploading} className="bg-[#0A2540] hover:bg-[#0A2540]/90">{uploading ? "Subiendo foto..." : state?.mode === "edit" ? "Aplicar" : `Agregar ${copy.itemSingular}`}</Button>
         </SheetFooter>
       </SheetContent>
     </Sheet>

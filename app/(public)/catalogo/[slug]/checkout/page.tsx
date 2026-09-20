@@ -6,7 +6,8 @@ import { CatalogCheckoutView } from "@/components/business/catalog/catalog-check
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const catalog = await getPublicCatalogBySlug(slug).catch(() => null);
-  const name = catalog?.data.appearance?.restaurantName || catalog?.commercialName || "Catálogo";
+  if (!catalog) return { title: "Pedido no encontrado | MISE BY" };
+  const name = catalog.data.appearance?.restaurantName || catalog.commercialName || "Catálogo";
   return {
     title: `Tu pedido | ${name}`,
     robots: catalog?.preview ? { index: false, follow: false } : undefined,

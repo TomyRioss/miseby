@@ -6,7 +6,8 @@ import { PlatoMenuView } from "@/components/menu/plato-menu-view";
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const data = await getPublicMenuBySlug(slug);
-  const name = data?.rest.appearance?.restaurantName || data?.organization.commercialName || "Menú";
+  if (!data) return { title: "Menú no encontrado | MISE BY" };
+  const name = data.rest.appearance?.restaurantName || data.organization.commercialName || "Menú";
   return {
     title: `${name} | Menú`,
     robots: data?.preview ? { index: false, follow: false } : undefined,

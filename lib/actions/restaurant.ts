@@ -229,14 +229,14 @@ export async function uploadProductImageAction(formData: FormData): Promise<{ ok
     const { error } = await supabase.storage.from(AVATARS_BUCKET).upload(path, bytes, { contentType: file.type, upsert: false });
     if (error) {
       console.error("[product image]", error);
-      return { ok: false, error: `No se pudo subir: ${error.message}` };
+      return { ok: false, error: "No se pudo subir la imagen. Probá de nuevo." };
     }
     const { data } = supabase.storage.from(AVATARS_BUCKET).getPublicUrl(path);
     if (!data?.publicUrl) return { ok: false, error: "No se pudo obtener la URL." };
     return { ok: true, url: data.publicUrl };
   } catch (e) {
     console.error("[product image]", e);
-    return { ok: false, error: e instanceof Error ? e.message : "No se pudo subir." };
+    return { ok: false, error: "No se pudo subir la imagen. Probá de nuevo." };
   }
 }
 

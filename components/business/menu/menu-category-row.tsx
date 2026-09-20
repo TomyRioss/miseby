@@ -53,7 +53,11 @@ export function MenuCategoryRow({
         <div className="min-w-0 flex-1">
           <input
             defaultValue={category.name} key={category.id + category.name}
-            onBlur={(e) => { if (e.target.value.trim() && e.target.value.trim() !== category.name) onRename(e.target.value); }}
+            onBlur={(e) => {
+              const next = e.target.value.trim();
+              if (!next) { e.target.value = category.name; return; }
+              if (next !== category.name) onRename(next);
+            }}
             onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
             aria-label="Nombre de categoría" maxLength={60}
             className="w-full truncate bg-transparent text-[15px] font-semibold outline-none focus:border-b focus:border-[#0A2540]"
@@ -109,9 +113,10 @@ export function MenuCategoryRow({
                     {multi ? <span className="mr-1 text-[11px] font-normal text-muted-foreground">desde</span> : null}
                     {formatPrice(productMinPrice(p), currency ?? "COP")}
                   </p>
-                  <button type="button" onClick={() => onToggleTakeAway(p.id, !(p.takeAway !== false))} disabled={false}
+                  <button type="button" onClick={() => onToggleTakeAway(p.id, !(p.takeAway !== false))}
                     title={p.takeAway !== false ? `${takeAwayLabel} activado` : `${takeAwayLabel} desactivado`}
-                    aria-label={`${takeAwayLabel} ${p.name}`}
+                    aria-label={`${takeAwayLabel} ${p.name}: ${p.takeAway !== false ? "activado" : "desactivado"}`}
+                    aria-pressed={p.takeAway !== false}
                     className={`cursor-pointer disabled:cursor-not-allowed flex h-11 w-11 items-center justify-center rounded-lg ${(p.takeAway !== false) ? "text-[#0A2540]" : "text-muted-foreground/50"} focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`}>
                     <ShoppingBag className="h-5 w-5" />
                   </button>

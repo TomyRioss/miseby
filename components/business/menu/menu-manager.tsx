@@ -53,7 +53,6 @@ export function MenuManager({
   const [inputFocused, setInputFocused] = useState(false);
   const [restName, setRestName] = useState(appearance.restaurantName || commercialName || "");
   const [savedName, setSavedName] = useState(appearance.restaurantName || commercialName || "");
-  const [savingName, setSavingName] = useState(false);
   const [media, setMedia] = useState({ logoUrl: appearance.logoUrl ?? "", bannerUrl: appearance.bannerUrl ?? "" });
   const [uploading, setUploading] = useState<"logo" | "banner" | null>(null);
   const [cropSrc, setCropSrc] = useState<string | null>(null);
@@ -144,19 +143,10 @@ export function MenuManager({
   async function commitName() {
     const next = restName.trim().slice(0, 120);
     if (!next || next === savedName) { setRestName(savedName); return; }
-    setSavingName(true);
-    try {
-      const res = await saveAppearanceAction({ ...appearance, ...media, restaurantName: next });
-      if (!res.ok) throw new Error(res.error);
-      setSavedName(next);
-      setRestName(next);
-      setPreviewTick((t) => t + 1);
-      toast.success("Nombre actualizado.");
-    } catch (e) {
-      console.error("[menu nombre]", e);
-      setRestName(savedName);
-      toast.error(e instanceof Error ? e.message : "No se pudo guardar. Probá de nuevo.");
-    } finally { setSavingName(false); }
+    // El nombre se persiste junto con "Guardar menú" (save), no por blur,
+    // para no dejar el estado dirty inconsistente.
+    setRestName(next);
+    setDirty(true);
   }
 
   function touchName(v: string) {
@@ -175,11 +165,21 @@ export function MenuManager({
       return;
     }
     setCropKind(kind);
-    setCropSrc(URL.createObjectURL(file));
+    setCropSrc((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(file);
+    });
+  }
+
+  function closeCrop() {
+    setCropSrc((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
   }
 
   async function onCropDone(file: File) {
-    setCropSrc(null);
+    closeCrop();
     setUploading(cropKind);
     try {
       const fd = new FormData();
@@ -258,7 +258,7 @@ export function MenuManager({
                   onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
                   placeholder={commercialName || copy.businessFallback}
                   aria-label={`Nombre del ${copy.businessWord.toLowerCase()}`}
-                  disabled={saving || savingName}
+                  disabled={saving}
                   className="w-full truncate border-b border-border bg-transparent pb-0.5 text-base font-bold tracking-tight outline-none transition-colors placeholder:font-normal placeholder:text-muted-foreground focus:border-primary"
                 />
               </div>
@@ -268,7 +268,7 @@ export function MenuManager({
             {cropSrc ? (
               <ImageCropDialog
                 open
-                onOpenChange={(v) => { if (!v) setCropSrc(null); }}
+                onOpenChange={(v) => { if (!v) closeCrop(); }}
                 image={cropSrc}
                 aspect={cropKind === "logo" ? 1 : 3}
                 round={cropKind === "logo"}
@@ -371,6 +371,7 @@ export function MenuManager({
                       onRename={(name) => touchCats(cats.map((x) => (x.id === c.id ? { ...x, name: name.trim() } : x)))}
                       onDelete={() => {
                         if (byCat(c.id).length > 0) return toast.error(`Mové o borrá sus ${copy.itemPlural} primero.`);
+                        if (!window.confirm(`¿Borrar la sección "${c.name}"? Esta acción no se puede deshacer.`)) return;
                         touchCats(cats.filter((x) => x.id !== c.id).map((x, idx) => ({ ...x, order: idx })));
                       }}
                       onAddProduct={() => setSheet({ mode: "create", categoryId: c.id })}
@@ -388,7 +389,11 @@ export function MenuManager({
                         }]);
                       }}
                       onMoveProduct={(id, catId) => touchProducts(products.map((p) => (p.id === id ? { ...p, categoryId: catId } : p)))}
-                      onDeleteProduct={(id) => touchProducts(products.filter((p) => p.id !== id))}
+                      onDeleteProduct={(id) => {
+                        const target = products.find((p) => p.id === id);
+                        if (target && !window.confirm(`¿Borrar "${target.name}"? Se pierden sus variantes y grupos. Esta acción no se puede deshacer.`)) return;
+                        touchProducts(products.filter((p) => p.id !== id));
+                      }}
                     />
                     </div>
                   ))}

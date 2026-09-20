@@ -6,7 +6,7 @@ import { LoginForm } from "@/components/auth/login-form";
 
 export const metadata: Metadata = {
   title: "Iniciar sesión | MISE BY",
-  description: "Accede a tu cuenta MISE BY.",
+  description: "Accedé a tu cuenta MISE BY.",
 };
 
 export default function LoginPage() {
@@ -19,7 +19,7 @@ export default function LoginPage() {
             Tu negocio, tu panel, tu digital.
           </h2>
           <p className="mt-5 max-w-sm text-sm text-white/80">
-            Gestiona tu negocio o el Control Center de la plataforma.
+            Gestioná tu negocio o el Control Center de la plataforma.
           </p>
         </div>
         <p className="text-xs text-white/70">miseby.com</p>
@@ -38,12 +38,12 @@ export default function LoginPage() {
         </div>
 
         <h1 className="font-display mt-6 text-2xl font-semibold text-foreground">Iniciar sesión</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Accede a tu cuenta MISE BY.</p>
+        <p className="mt-2 text-sm text-muted-foreground">Accedé a tu cuenta MISE BY.</p>
 
         <LoginForm />
 
         <p className="mt-6 text-sm text-muted-foreground">
-          ¿No tienes cuenta?{" "}
+          ¿No tenés cuenta?{" "}
           <Link href="/register" className="cursor-pointer font-semibold text-[#0E88E2] hover:underline">
             Registrar mi negocio
           </Link>
