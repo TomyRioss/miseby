@@ -211,7 +211,7 @@ export function MenuManager({
       left={
         <div className="flex flex-col gap-4">
           {/* Banner del local: portada + logo abajo-izquierda + nombre (sin fondo de tarjeta) */}
-          <section aria-label="Vista del local">
+          <section aria-label="Vista del local" className="px-2 sm:px-4">
             <button
               type="button"
               onClick={() => bannerInput.current?.click()}

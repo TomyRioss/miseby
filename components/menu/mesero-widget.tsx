@@ -141,10 +141,13 @@ export function MeseroWidget({
               </div>
             ))}
             {typing && (
-              <div role="status" aria-label="El mesero está escribiendo" className="flex w-fit items-center gap-1 rounded-2xl rounded-bl-md border border-border bg-background px-3.5 py-3">
-                {[0, 1, 2].map((i) => (
-                  <span key={i} aria-hidden className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground/60" style={{ animationDelay: `${i * 150}ms` }} />
-                ))}
+              <div role="status" aria-label="El mesero está pensando" className="flex w-fit items-center gap-2 rounded-2xl rounded-bl-md border border-border bg-background px-3.5 py-3">
+                <span className="flex items-center gap-1" aria-hidden>
+                  {[0, 1, 2].map((i) => (
+                    <span key={i} className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground/60" style={{ animationDelay: `${i * 150}ms` }} />
+                  ))}
+                </span>
+                <span className="text-xs text-muted-foreground">Pensando…</span>
               </div>
             )}
             <div ref={bottomRef} />
