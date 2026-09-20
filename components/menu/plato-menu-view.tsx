@@ -194,8 +194,8 @@ export function PlatoMenuView({
       </header>
 
       {/* Nav sticky: buscador + píldoras */}
-      <nav className="sticky top-0 z-10 flex flex-col gap-1.5 border-b px-3 py-1.5" style={{ background: bg, borderColor: border }}>
-        <div className="mx-auto flex w-full max-w-2xl items-center gap-1.5 rounded-lg bg-black/[0.06] px-2.5 py-1.5">
+      <nav className="sticky top-0 z-10 flex flex-col gap-1 border-b px-3 py-1" style={{ background: bg, borderColor: border }}>
+        <div className="mx-auto flex w-full max-w-2xl items-center gap-1.5 rounded-lg bg-black/[0.06] px-2.5 py-1">
           <input
             type="text"
             placeholder="Buscar productos..."
@@ -211,7 +211,7 @@ export function PlatoMenuView({
           <button
             type="button"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="flex h-7 shrink-0 cursor-pointer items-center gap-1.5 rounded-lg border px-2 text-[13px] font-medium transition-colors hover:bg-black/[0.04]"
+            className="flex h-6 shrink-0 cursor-pointer items-center gap-1.5 rounded-lg border px-2 text-xs font-medium transition-colors hover:bg-black/[0.04]"
             style={{ borderColor: border }}
           >
             <MenuIcon className="h-3.5 w-3.5" />

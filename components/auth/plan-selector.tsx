@@ -4,6 +4,8 @@ import { Check } from "lucide-react";
 import { PLANS, type PlanSlug } from "@/lib/landing/plans";
 import { cn } from "@/lib/utils";
 
+export { planSlugToCode, isPlanSlug, PLAN_SLUG_TO_CODE } from "@/lib/landing/plans";
+
 interface PlanSelectorProps {
   value: PlanSlug;
   onChange: (slug: PlanSlug) => void;
@@ -53,16 +55,3 @@ export function PlanSelector({ value, onChange }: PlanSelectorProps) {
   );
 }
 
-export const PLAN_SLUG_TO_CODE = {
-  "mise-link": "mise_link",
-  "mise": "mise",
-  "mise-restaurant": "mise_restaurant",
-} as const;
-
-export function planSlugToCode(slug: PlanSlug): "mise_link" | "mise" | "mise_restaurant" {
-  return PLAN_SLUG_TO_CODE[slug];
-}
-
-export function isPlanSlug(value: string | undefined): value is PlanSlug {
-  return value === "mise-link" || value === "mise" || value === "mise-restaurant";
-}

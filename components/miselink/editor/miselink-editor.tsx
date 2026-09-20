@@ -4,7 +4,6 @@ import { useState } from "react";
 import type { MiseLinkItem, MiseLinkSocial } from "@prisma/client";
 import { useMiseLinkState, type EditorPage } from "@/hooks/use-miselink-state";
 import { MiseLinkPhonePreview } from "@/components/miselink/render/miselink-phone-preview";
-import { Separator } from "@/components/ui/separator";
 import { MainMenuHeader } from "./main-menu-header";
 import { MainMenuList } from "./main-menu-list";
 import { AddItemDialog } from "./add-item-dialog";
@@ -20,14 +19,12 @@ export function MiseLinkEditor({
 
   return (
     <>
-      <div className="mx-auto grid w-full max-w-7xl gap-12 px-6 py-6 sm:px-10 lg:grid-cols-[minmax(0,1fr)_auto_360px] lg:px-12 lg:py-10 xl:px-16">
+      <div className="mx-auto grid w-full max-w-7xl gap-12 px-6 py-6 sm:px-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:px-12 lg:py-10 xl:px-16">
       <div className="flex flex-col gap-6">
         <MainMenuHeader state={state} />
         <AddItemDialog onAdd={state.addLink} />
         <MainMenuList state={state} />
       </div>
-
-      <Separator orientation="vertical" className="hidden lg:block" />
 
       <aside className="hidden lg:block">
         <div className="fixed right-8 top-1/2 h-[calc(100vh-8rem)] max-h-[760px] w-[360px] -translate-y-1/2">

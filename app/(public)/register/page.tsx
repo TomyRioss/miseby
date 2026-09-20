@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { MiseMark } from "@/components/brand/mise-mark";
 import { RegisterForm, RegisterFeatures } from "@/components/auth/register-form";
-import { isPlanSlug } from "@/components/auth/plan-selector";
+import { isPlanSlug } from "@/lib/landing/plans";
 
 export const metadata: Metadata = {
   title: "Crear cuenta | MISE BY",

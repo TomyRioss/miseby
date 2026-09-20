@@ -147,7 +147,7 @@ export function AddItemDialog({
           <FaPlus className="h-4 w-4" /> Agregar
         </Button>
       </DialogTrigger>
-      <DialogContent className="flex h-[640px] max-h-[85vh] flex-col gap-0 overflow-hidden rounded-3xl border-border/60 p-6 shadow-xl sm:max-w-4xl">
+      <DialogContent className="flex h-[640px] max-h-[85vh] flex-col gap-0 overflow-hidden rounded-3xl border-border/60 p-6 shadow-xl sm:max-w-3xl">
         <DialogHeader className="shrink-0 pb-4">
           <DialogTitle className="text-[15px] font-semibold">Agregar</DialogTitle>
         </DialogHeader>

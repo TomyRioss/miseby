@@ -82,3 +82,17 @@ export const PLANS: LandingPlan[] = [
 export function getPlan(slug: string): LandingPlan | undefined {
   return PLANS.find((p) => p.slug === slug);
 }
+
+export const PLAN_SLUG_TO_CODE = {
+  "mise-link": "mise_link",
+  "mise": "mise",
+  "mise-restaurant": "mise_restaurant",
+} as const;
+
+export function planSlugToCode(slug: PlanSlug): "mise_link" | "mise" | "mise_restaurant" {
+  return PLAN_SLUG_TO_CODE[slug];
+}
+
+export function isPlanSlug(value: string | undefined): value is PlanSlug {
+  return value === "mise-link" || value === "mise" || value === "mise-restaurant";
+}

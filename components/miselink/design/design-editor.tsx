@@ -8,7 +8,6 @@ import { THEME_PRESETS, type MiseLinkTheme } from "@/lib/miselink/theme";
 import { DesignRow } from "./design-row";
 import { MiseLinkPhonePreview } from "@/components/miselink/render/miselink-phone-preview";
 import { ShareDialog } from "@/components/miselink/editor/share-dialog";
-import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { HeaderDetail, WallpaperDetail, ButtonsDetail, TextDetail, ColorsDetail, ThemeDetail } from "./design-details";
 
@@ -190,7 +189,7 @@ export function DesignEditor({
   const iconCls = "h-4 w-4";
 
   return (
-    <div className="grid w-full gap-8 lg:grid-cols-[minmax(0,1fr)_auto_360px]">
+    <div className="grid w-full gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
       <div className="flex min-w-0 flex-col gap-3">
         {section === null ? (
           <>
@@ -242,8 +241,6 @@ export function DesignEditor({
           </div>
         )}
       </div>
-
-      <Separator orientation="vertical" className="hidden lg:block" />
 
       <aside className="hidden lg:block">
         <div className="sticky top-6 h-[calc(100vh-8rem)] max-h-[760px] w-[360px]">
