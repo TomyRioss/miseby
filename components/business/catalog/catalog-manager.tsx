@@ -24,7 +24,7 @@ export function CatalogManager({
   menuPublished,
   schedule,
   commercialName,
-  baseUpdatedAt,
+  baseUpdatedAt = "",
 }: {
   initialCategories: RestaurantCategory[];
   initialProducts: RestaurantProduct[];
@@ -34,6 +34,7 @@ export function CatalogManager({
   hours?: string;
   menuPublished: boolean;
   schedule?: WeekSchedule;
+  /** Nombre comercial del local (fallback igual que la página pública). */
   commercialName?: string;
   baseUpdatedAt?: string;
 }) {

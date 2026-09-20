@@ -46,6 +46,7 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
         slug={org.slug}
         schedule={rest.schedule}
         hours={rest.hours}
+        meseroActive={rest.ia?.isActive === true}
       />
     </>
   );

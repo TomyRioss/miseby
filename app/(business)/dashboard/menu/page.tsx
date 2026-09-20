@@ -4,6 +4,7 @@ import { getOrganizationForMember } from "@/lib/services/organizations";
 import { getOrCreateMiseLinkPage } from "@/lib/services/miselink";
 import { getRestaurantData } from "@/lib/restaurant-theme";
 import { BusinessHeader, BusinessSidebar } from "@/components/business/business-header";
+import { SidebarAccount } from "@/components/business/sidebar-account";
 import { MenuManager } from "@/components/business/menu/menu-manager";
 
 export const metadata: Metadata = { title: "Menú | MISE BY" };
@@ -25,7 +26,7 @@ export default async function MenuPage() {
     <div className="flex h-full flex-col overflow-hidden bg-background">
       <BusinessHeader planCode={data.membership?.plan.code} />
       <div className="flex min-h-0 flex-1">
-        <BusinessSidebar userLabel={user.email} hasMiseLink={false} planCode={data.membership?.plan.code} />
+        <BusinessSidebar account={<SidebarAccount />} hasMiseLink={false} planCode={data.membership?.plan.code} />
         <main className="min-h-0 flex-1 overflow-y-auto p-6 lg:p-10">
           <MenuManager
             initialCategories={rest.categories ?? []}

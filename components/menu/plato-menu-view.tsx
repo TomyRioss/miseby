@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ChevronDown, Clock, Menu as MenuIcon, Search } from "lucide-react";
+import { ChevronDown, Clock, Menu as MenuIcon, Search, Share2 } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 import { toast } from "sonner";
 import {
@@ -14,6 +14,7 @@ import {
   type DayKey,
 } from "@/lib/restaurant-theme";
 import { usePedido } from "./use-pedido";
+import { MeseroWidget } from "./mesero-widget";
 
 const DAY_MAP: DayKey[] = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 
@@ -60,6 +61,7 @@ export function PlatoMenuView({
   slug,
   schedule,
   hours,
+  meseroActive = false,
 }: {
   appearance: RestaurantAppearance;
   categories?: RestaurantCategory[];
@@ -71,6 +73,7 @@ export function PlatoMenuView({
   slug: string;
   schedule?: WeekSchedule;
   hours?: string;
+  meseroActive?: boolean;
 }) {
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -135,33 +138,31 @@ export function PlatoMenuView({
       className={`min-h-screen pb-24 ${bodyCls(ap.bodyFont)}`}
       style={{ background: bg, color: text, ["--pm-border" as string]: border } as React.CSSProperties}
     >
-      {/* Barra utilitaria: WhatsApp + compartir (sin fidelización) */}
-      <div className="flex items-center justify-between px-4 py-2.5">
-        <div className="flex items-center gap-1">
-          {whatsapp ? (
-            <a
-              href={`https://wa.me/${whatsapp.replace(/\D+/g, "")}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="WhatsApp"
-              className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-black/[0.06]"
-              style={{ color: sub }}
-            >
-              <FaWhatsapp className="h-5 w-5" />
-            </a>
-          ) : null}
+      {/* Barra utilitaria compacta: compartir + WhatsApp */}
+      <div className="flex items-center justify-between px-4 py-0.5">
+        <div className="flex items-center">
           <button
             type="button"
             onClick={share}
             aria-label="Compartir"
-            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-black/[0.06]"
+            className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-black/[0.06]"
             style={{ color: sub }}
           >
-            <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
-              <path fillRule="evenodd" d="M15.75 4.5a3 3 0 1 1 .825 2.066l-8.421 4.679a3.002 3.002 0 0 1 0 1.51l8.421 4.679a3 3 0 1 1-.729 1.31l-8.421-4.678a3 3 0 1 1 0-4.132l8.421-4.679a3 3 0 0 1-.096-1.755Z" clipRule="evenodd" />
-            </svg>
+            <Share2 className="h-4 w-4" />
           </button>
         </div>
+        {whatsapp ? (
+          <a
+            href={`https://wa.me/${whatsapp.replace(/\D+/g, "")}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex h-7 shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-xs font-bold text-white transition-opacity hover:opacity-90"
+            style={{ background: "#25D366" }}
+          >
+            <FaWhatsapp className="h-3.5 w-3.5" />
+            Hablá con nosotros
+          </a>
+        ) : null}
       </div>
 
       {/* Portada */}
@@ -379,6 +380,7 @@ export function PlatoMenuView({
           Ver pedido, {count} producto{count === 1 ? "" : "s"}
         </a>
       )}
+      {meseroActive && <MeseroWidget slug={slug} restaurantName={name} accent={secondary} />}
     </main>
   );
 }

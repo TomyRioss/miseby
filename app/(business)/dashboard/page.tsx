@@ -7,6 +7,7 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { InfoRow } from "@/components/business/info-row";
 import { NoMembershipBanner } from "@/components/business/no-membership-banner";
 import { BusinessHeader, BusinessSidebar } from "@/components/business/business-header";
+import { SidebarAccount } from "@/components/business/sidebar-account";
 import { BUSINESS_TYPE_LABELS, ORG_STATUSES, MEMBERSHIP_STATUSES, PLAN_LABELS, formatDate } from "@/lib/mise-labels";
 
 export const metadata: Metadata = {
@@ -59,7 +60,7 @@ export default async function BusinessDashboardPage() {
       <BusinessHeader markSuffix={planSuffix} />
 
       <div className="flex min-h-0 flex-1">
-        <BusinessSidebar userLabel={user.email} hasMiseLink={hasMiseLink} planCode={membership?.plan.code} />
+        <BusinessSidebar account={<SidebarAccount />} hasMiseLink={hasMiseLink} planCode={membership?.plan.code} />
 
         <main className="min-h-0 flex-1 overflow-y-auto p-6 lg:p-10">
           {error ? (

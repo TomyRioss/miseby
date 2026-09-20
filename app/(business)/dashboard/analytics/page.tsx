@@ -6,6 +6,7 @@ import { getRestaurantData, productPrice } from "@/lib/restaurant-theme";
 import { prisma } from "@/lib/prisma";
 import { PLAN_LABELS } from "@/lib/mise-labels";
 import { BusinessHeader, BusinessSidebar } from "@/components/business/business-header";
+import { SidebarAccount } from "@/components/business/sidebar-account";
 import { AnalyticsCards } from "@/components/business/restaurant/analytics-cards";
 import type { ChecklistItem } from "@/components/business/restaurant/analytics-checklist";
 
@@ -119,7 +120,7 @@ export default async function AnalyticsPage() {
     <div className="flex h-full flex-col overflow-hidden bg-background">
       <BusinessHeader markSuffix={planName} planCode={planCode} />
       <div className="flex min-h-0 flex-1">
-        <BusinessSidebar userLabel={user.email} hasMiseLink={false} planCode={planCode} />
+        <BusinessSidebar account={<SidebarAccount />} hasMiseLink={false} planCode={planCode} />
         <main className="min-h-0 flex-1 overflow-y-auto p-6 lg:p-10">
           <div className="mx-auto w-full max-w-6xl">
             <h1 className="font-display text-2xl font-semibold">Analytics</h1>

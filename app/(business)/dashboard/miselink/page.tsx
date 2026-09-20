@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/lib/auth/session";
 import { getOrganizationForMember } from "@/lib/services/organizations";
 import { getOrCreateMiseLinkPage } from "@/lib/services/miselink";
 import { BusinessHeader, BusinessSidebar } from "@/components/business/business-header";
+import { SidebarAccount } from "@/components/business/sidebar-account";
 import { MiseLinkEditor } from "@/components/miselink/editor/miselink-editor";
 import { NoPlanState } from "@/components/miselink/editor/no-plan-state";
 
@@ -53,7 +54,7 @@ export default async function MiseLinkDashboardPage() {
     <div className="flex h-full flex-col overflow-hidden bg-background">
       <BusinessHeader markSuffix="LINK" />
       <div className="flex min-h-0 flex-1">
-        <BusinessSidebar userLabel={user.email} hasMiseLink={Boolean(page)} planCode={planCode} />
+        <BusinessSidebar account={<SidebarAccount />} hasMiseLink={Boolean(page)} planCode={planCode} />
         <main className="min-h-0 flex-1 overflow-y-auto">{editor}</main>
       </div>
     </div>

@@ -4,6 +4,7 @@ import { getOrganizationForMember } from "@/lib/services/organizations";
 import { getOrCreateMiseLinkPage } from "@/lib/services/miselink";
 import { getRestaurantData } from "@/lib/restaurant-theme";
 import { BusinessHeader, BusinessSidebar } from "@/components/business/business-header";
+import { SidebarAccount } from "@/components/business/sidebar-account";
 import { IaConfig } from "@/components/business/restaurant/ia-config";
 
 export const metadata: Metadata = { title: "Mise IA | MISE BY" };
@@ -26,7 +27,7 @@ export default async function MiseIaPage() {
     <div className="flex h-full flex-col overflow-hidden bg-background">
       <BusinessHeader planCode={planCode} />
       <div className="flex min-h-0 flex-1">
-        <BusinessSidebar userLabel={user.email} hasMiseLink={false} planCode={planCode} />
+        <BusinessSidebar account={<SidebarAccount />} hasMiseLink={false} planCode={planCode} />
         <main className="min-h-0 flex-1 overflow-y-auto overflow-x-clip p-4 sm:p-6 lg:p-10">
           <div className="mx-auto w-full max-w-6xl">
           <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#6D28D9]">Mise IA · Mesero</p>
