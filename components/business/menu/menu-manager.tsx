@@ -50,6 +50,7 @@ export function MenuManager({
   const [restName, setRestName] = useState(appearance.restaurantName ?? "");
   const [savedName, setSavedName] = useState(appearance.restaurantName ?? "");
   const [activeTab, setActiveTab] = useState<string | null>(null);
+  const [liveSlug, setLiveSlug] = useState(slug);
   const newCatRef = useRef<HTMLInputElement>(null);
   const baseUpdatedAtRef = useRef(baseUpdatedAt);
   useEffect(() => {
@@ -115,6 +116,7 @@ export function MenuManager({
       const res = await saveMenuAction({ categories: cats, products, restaurantName: nextName, baseUpdatedAt: baseUpdatedAtRef.current });
       if (!res.ok) throw new Error(res.error);
       if (res.updatedAt !== undefined) baseUpdatedAtRef.current = res.updatedAt;
+      if (res.slug) setLiveSlug(res.slug);
       setSavedName(nextName);
       setRestName(nextName);
       setDirty(false);
@@ -314,7 +316,7 @@ export function MenuManager({
           />
         </div>
       }
-      preview={<CartaPhonePreview slug={slug} appearance={appearance} categories={cats} products={products} currency={currency ?? null} hours={hours ?? ""} restaurantName={restName || appearance.restaurantName} schedule={schedule} linkBase={copy.linkBase} menuNounCap={copy.menuNounCap} variant={copy.linkBase === "catalogo" ? "catalog" : "restaurant"} />}
+      preview={<CartaPhonePreview slug={liveSlug} appearance={appearance} categories={cats} products={products} currency={currency ?? null} hours={hours ?? ""} restaurantName={restName || appearance.restaurantName} schedule={schedule} linkBase={copy.linkBase} menuNounCap={copy.menuNounCap} variant={copy.linkBase === "catalogo" ? "catalog" : "restaurant"} />}
     />
   );
 }

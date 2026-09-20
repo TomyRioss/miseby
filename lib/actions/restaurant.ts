@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireBusinessUser } from "@/lib/auth/guards";
-import { getOrganizationForMember, updateOrganization } from "@/lib/services/organizations";
+import { getOrganizationForMember, updateOrganization, generateUniqueSlug } from "@/lib/services/organizations";
 import { getOrCreateMiseLinkPage, updateTheme } from "@/lib/services/miselink";
 import {
   businessProfileSchema,
@@ -115,13 +115,13 @@ export async function saveProductsAction(input: unknown): Promise<ActionResult> 
   }
 }
 
-export type SaveMenuResult = ActionResult & { updatedAt?: string };
+export type SaveMenuResult = ActionResult & { updatedAt?: string; slug?: string };
 
 export async function saveMenuAction(input: unknown): Promise<SaveMenuResult> {
   try {
     const parsed = saveMenuSchema.safeParse(input);
     if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Menú inválido" };
-    const { user } = await currentOrg();
+    const { user, org } = await currentOrg();
     const current = await currentRestaurant();
     const base = parsed.data.baseUpdatedAt;
     if (base !== undefined && (current.updatedAt ?? "") !== base) {
@@ -130,17 +130,26 @@ export async function saveMenuAction(input: unknown): Promise<SaveMenuResult> {
     const now = new Date().toISOString();
     const sorted = [...parsed.data.categories].sort((a, b) => a.order - b.order);
     const nextName = parsed.data.restaurantName?.trim().slice(0, 120);
+    const currentName = typeof current.appearance?.restaurantName === "string" ? current.appearance.restaurantName : "";
     const appearance = {
       ...current.appearance,
       ...(nextName !== undefined ? { restaurantName: nextName } : {}),
     };
+    let slug: string | undefined;
+    if (nextName !== undefined && nextName.length > 0 && nextName !== currentName) {
+      const fresh = await generateUniqueSlug(nextName);
+      if (fresh !== org.slug) {
+        await updateOrganization(org.id, { slug: fresh }, user.id);
+        slug = fresh;
+      }
+    }
     await getOrCreateMiseLinkPage(user.id);
     await updateTheme(user.id, { restaurant: { ...current, appearance, categories: sorted, products: parsed.data.products, updatedAt: now } } as Record<string, unknown>);
     revalidatePath("/dashboard/menu");
     revalidatePath("/dashboard/catalogo");
     revalidatePath("/dashboard/categorias");
     revalidatePath("/dashboard/productos");
-    return { ok: true, updatedAt: now };
+    return { ok: true, updatedAt: now, slug };
   } catch (e) {
     return fail(e, "No se pudo guardar el menú.");
   }
