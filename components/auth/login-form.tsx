@@ -13,6 +13,7 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { Field, FieldLabel, FieldError, FieldGroup } from "@/components/ui/field";
 import { loginSchema, type LoginInput } from "@/lib/validations/auth";
 import { loginAction } from "@/lib/actions/auth";
+import { GoogleButton } from "@/components/auth/google-button";
 
 export function LoginForm() {
   const router = useRouter();
@@ -32,7 +33,7 @@ export function LoginForm() {
         toast.error(result.error);
         return;
       }
-      router.push("/");
+      router.push("/onboarding");
       router.refresh();
     } catch (err) {
       console.error(err);
@@ -42,7 +43,16 @@ export function LoginForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="mt-8 max-w-sm space-y-5">
+    <div className="mt-8 max-w-sm space-y-5">
+      <GoogleButton />
+
+      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+        <span className="h-px flex-1 bg-border" />
+        o ingresá con tu email
+        <span className="h-px flex-1 bg-border" />
+      </div>
+
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <FieldGroup>
         <Field data-invalid={Boolean(errors.email)}>
           <FieldLabel htmlFor="email">Correo</FieldLabel>
@@ -90,5 +100,6 @@ export function LoginForm() {
         Ingresar
       </Button>
     </form>
+    </div>
   );
 }
