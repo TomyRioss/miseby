@@ -3,13 +3,21 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { MiseMark } from "@/components/brand/mise-mark";
 import { RegisterForm, RegisterFeatures } from "@/components/auth/register-form";
+import { isPlanSlug } from "@/components/auth/plan-selector";
 
 export const metadata: Metadata = {
   title: "Crear cuenta | MISE BY",
   description: "Registra tu negocio en MISE BY.",
 };
 
-export default function RegisterPage() {
+export default async function RegisterPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ plan?: string }>;
+}) {
+  const { plan } = await searchParams;
+  const initialPlan = isPlanSlug(plan) ? plan : "mise";
+
   return (
     <div className="grid min-h-[100dvh] lg:grid-cols-2">
       <div className="mise-gradient relative hidden flex-col justify-between p-12 text-white lg:flex">
@@ -35,7 +43,7 @@ export default function RegisterPage() {
         <h1 className="font-display text-2xl font-semibold text-foreground">Crear cuenta</h1>
         <p className="mt-2 text-sm text-muted-foreground">Registra tu negocio. Gratis para comenzar.</p>
 
-        <RegisterForm />
+        <RegisterForm initialPlan={initialPlan} />
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Loader2, Check } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,9 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { Field, FieldLabel, FieldError, FieldGroup } from "@/components/ui/field";
 import { registerSchema } from "@/lib/validations/auth";
 import { registerAction, loginAction } from "@/lib/actions/auth";
+import { PlanSelector, planSlugToCode } from "@/components/auth/plan-selector";
+import type { PlanSlug } from "@/lib/landing/plans";
+import { GoogleButton } from "@/components/auth/google-button";
 
 const COUNTRIES = [
   { code: "CO", label: "Colombia" },
@@ -48,13 +52,14 @@ const formSchema = registerSchema
   })
   .refine((data) => data.terms, { message: "Debes aceptar los términos", path: ["terms"] });
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.input<typeof formSchema>;
 
 const inputCls = "rounded-xl border-input bg-card px-4 py-3 focus-visible:border-[#0E88E2] focus-visible:ring-[#1FD0FF]/40";
 
-export function RegisterForm() {
+export function RegisterForm({ initialPlan = "mise" }: { initialPlan?: PlanSlug }) {
   const router = useRouter();
   const [serverError, setServerError] = useState("");
+  const [plan, setPlan] = useState<PlanSlug>(initialPlan);
   const {
     register,
     handleSubmit,
@@ -73,6 +78,7 @@ export function RegisterForm() {
         password: values.password,
         businessName: values.businessName.trim(),
         country: values.country,
+        planCode: planSlugToCode(plan),
       });
       if (!result.ok) {
         setServerError(result.error);
@@ -86,7 +92,7 @@ export function RegisterForm() {
         router.push("/login");
         return;
       }
-      router.push("/dashboard");
+      router.push("/onboarding");
       router.refresh();
     } catch (err) {
       console.error(err);
@@ -96,7 +102,16 @@ export function RegisterForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="mt-8 max-w-sm space-y-5">
+    <div className="mt-8 max-w-sm space-y-5">
+      <GoogleButton />
+
+      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+        <span className="h-px flex-1 bg-border" />
+        o registrate con tu email
+        <span className="h-px flex-1 bg-border" />
+      </div>
+
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <FieldGroup>
         <Field data-invalid={Boolean(errors.name)}>
           <FieldLabel htmlFor="name">Nombre completo</FieldLabel>
@@ -141,6 +156,11 @@ export function RegisterForm() {
           </select>
           {errors.country && <FieldError errors={[{ message: errors.country.message }]} />}
         </Field>
+
+        <div>
+          <p className="mb-2 text-sm font-medium text-foreground">Elegí tu plan</p>
+          <PlanSelector value={plan} onChange={setPlan} />
+        </div>
       </FieldGroup>
 
       <div className="flex items-start gap-3">
@@ -178,11 +198,12 @@ export function RegisterForm() {
 
       <p className="text-center text-sm text-muted-foreground">
         ¿Ya tienes cuenta?{" "}
-        <a href="/login" className="cursor-pointer font-semibold text-[#0E88E2] hover:underline">
+        <Link href="/login" className="cursor-pointer font-semibold text-[#0E88E2] hover:underline">
           Iniciar sesión
-        </a>
+        </Link>
       </p>
     </form>
+    </div>
   );
 }
 

@@ -5,8 +5,22 @@ import { prisma } from "@/lib/prisma";
 import { sendMail } from "@/lib/mail";
 import { generateUniqueSlug } from "@/lib/services/organizations";
 import { logAudit } from "@/lib/services/audit";
+import type { BusinessType, PlanCode } from "@prisma/client";
 
 const RESET_TOKEN_TTL_MINUTES = 60;
+const TRIAL_DAYS = 14;
+
+const PLAN_NAMES: Record<PlanCode, string> = {
+  mise_link: "Mise Link",
+  mise: "Mise",
+  mise_restaurant: "Mise Restaurant",
+};
+
+const BUSINESS_TYPE_BY_PLAN: Record<PlanCode, BusinessType> = {
+  mise_restaurant: "restaurant",
+  mise: "commerce",
+  mise_link: "other",
+};
 
 export async function registerBusinessOwner(input: {
   name: string;
@@ -14,7 +28,9 @@ export async function registerBusinessOwner(input: {
   password: string;
   businessName: string;
   country: string;
+  planCode?: PlanCode;
 }) {
+  const planCode: PlanCode = input.planCode ?? "mise";
   const existing = await prisma.userProfile.findUnique({ where: { email: input.email } });
   if (existing) throw new Error("El email ya está en uso");
 
@@ -22,6 +38,12 @@ export async function registerBusinessOwner(input: {
   const passwordHash = await bcrypt.hash(input.password, 10);
 
   const result = await prisma.$transaction(async (tx) => {
+    const plan = await tx.plan.upsert({
+      where: { code: planCode },
+      update: {},
+      create: { code: planCode, name: PLAN_NAMES[planCode], status: "active" },
+    });
+
     const user = await tx.userProfile.create({
       data: {
         name: input.name,
@@ -35,10 +57,10 @@ export async function registerBusinessOwner(input: {
     const organization = await tx.organization.create({
       data: {
         commercialName: input.businessName,
-        businessType: "other",
+        businessType: BUSINESS_TYPE_BY_PLAN[planCode],
         country: input.country,
         slug,
-        status: "pending",
+        status: "active",
       },
     });
 
@@ -51,7 +73,21 @@ export async function registerBusinessOwner(input: {
       },
     });
 
-    return { user, organization };
+    const now = new Date();
+    const trialEndsAt = new Date(now.getTime() + TRIAL_DAYS * 24 * 60 * 60 * 1000);
+    const membership = await tx.membership.create({
+      data: {
+        organizationId: organization.id,
+        planId: plan.id,
+        status: "trial",
+        source: "trial",
+        startsAt: now,
+        trialEndsAt,
+        expiresAt: trialEndsAt,
+      },
+    });
+
+    return { user, organization, membership, plan };
   });
 
   await logAudit({
@@ -60,7 +96,16 @@ export async function registerBusinessOwner(input: {
     organizationId: result.organization.id,
     entityType: "organization",
     entityId: result.organization.id,
-    metadata: { source: "self_register" },
+    metadata: { source: "self_register", planCode },
+  });
+
+  await logAudit({
+    action: "membership_created",
+    actorUserId: result.user.id,
+    organizationId: result.organization.id,
+    entityType: "membership",
+    entityId: result.membership.id,
+    metadata: { source: "trial", planCode, planId: result.plan.id },
   });
 
   return result;
