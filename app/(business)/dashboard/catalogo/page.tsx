@@ -29,7 +29,7 @@ export default async function CatalogoPage() {
     <div className="flex h-full flex-col overflow-hidden bg-background">
       <BusinessHeader planCode={data.membership?.plan.code} />
       <div className="flex min-h-0 flex-1">
-        <BusinessSidebar account={<SidebarAccount />} hasMiseLink={false} planCode={data.membership?.plan.code} />
+        <BusinessSidebar account={<SidebarAccount />} hasMiseLink={false} planCode={data.membership?.plan.code} orgRole={data.role} />
         <main className="min-h-0 flex-1 overflow-y-auto p-6 lg:p-10">
           <h1 className="font-display text-2xl font-semibold">Catálogo</h1>
           <p className="mb-6 mt-1 text-sm text-muted-foreground">Secciones, productos con variantes y agregados opcionales, todo en un lugar.</p>

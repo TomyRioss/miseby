@@ -13,10 +13,12 @@ export default async function MiseIaPage() {
   const user = await getCurrentUser();
   if (!user) return null;
   let planCode: string | undefined;
+  let orgRole: string | null | undefined;
   let rest = getRestaurantData(null);
   try {
     const data = await getOrganizationForMember(user.id);
     planCode = data?.membership?.plan.code;
+    orgRole = data?.role;
     const page = await getOrCreateMiseLinkPage(user.id);
     rest = getRestaurantData(page.theme);
   } catch (e) {
@@ -27,7 +29,7 @@ export default async function MiseIaPage() {
     <div className="flex h-full flex-col overflow-hidden bg-background">
       <BusinessHeader planCode={planCode} />
       <div className="flex min-h-0 flex-1">
-        <BusinessSidebar account={<SidebarAccount />} hasMiseLink={false} planCode={planCode} />
+        <BusinessSidebar account={<SidebarAccount />} hasMiseLink={false} planCode={planCode} orgRole={orgRole} />
         <main className="min-h-0 flex-1 overflow-y-auto overflow-x-clip p-4 sm:p-6 lg:p-10">
           <div className="mx-auto w-full max-w-6xl">
           <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#6D28D9]">Mise IA · Mesero</p>

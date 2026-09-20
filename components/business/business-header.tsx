@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { BookOpen, Building2, ChartNoAxesColumn, ChevronDown, LayoutDashboard, Link2, LogOut, Package, QrCode, Sparkles, Tags, Users } from "lucide-react";
+import { BookOpen, Building2, ChartNoAxesColumn, ChevronDown, LayoutDashboard, Link2, LogOut, Package, QrCode, Sparkles, Tags, Users, UsersRound } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -49,7 +49,9 @@ export function BusinessHeader({ markSuffix, planCode }: { markSuffix?: string; 
   );
 }
 
-export function BusinessSidebar({ account, hasMiseLink = false, planCode }: { account?: React.ReactNode; hasMiseLink?: boolean; planCode?: string }) {
+export type OrgRole = "business_owner" | "business_admin" | "business_member" | string;
+
+export function BusinessSidebar({ account, hasMiseLink = false, planCode, orgRole }: { account?: React.ReactNode; hasMiseLink?: boolean; planCode?: string; orgRole?: OrgRole | null }) {
   // hasMiseLink se ignora a propósito: el toggle siempre visible (consistente en todas las páginas).
   void hasMiseLink;
   const pathname = usePathname();
@@ -65,9 +67,9 @@ export function BusinessSidebar({ account, hasMiseLink = false, planCode }: { ac
       {account}
       <nav className="mt-2 space-y-1">
         {isRestaurant ? (
-          <RestaurantNav pathname={pathname} />
+          <RestaurantNav pathname={pathname} orgRole={orgRole} />
         ) : planCode === "mise" ? (
-          <MiseNav pathname={pathname} />
+          <MiseNav pathname={pathname} orgRole={orgRole} />
         ) : (
           <MiseFallbackNav
             pathname={pathname}
@@ -238,10 +240,11 @@ const RESTAURANT_ITEMS_BOTTOM = [
   { href: "/dashboard/analytics", label: "Analytics", icon: ChartNoAxesColumn },
 ];
 
-function RestaurantNav({ pathname }: { pathname: string | null }) {
+function RestaurantNav({ pathname, orgRole }: { pathname: string | null; orgRole?: OrgRole | null }) {
   return (
     <GenericBusinessNav
       pathname={pathname}
+      orgRole={orgRole}
       catalogLabel="Menú"
       catalogContentHref="/dashboard/menu"
       isCatalogContentActive={(p) =>
@@ -255,10 +258,11 @@ function RestaurantNav({ pathname }: { pathname: string | null }) {
   );
 }
 
-function MiseNav({ pathname }: { pathname: string | null }) {
+function MiseNav({ pathname, orgRole }: { pathname: string | null; orgRole?: OrgRole | null }) {
   return (
     <GenericBusinessNav
       pathname={pathname}
+      orgRole={orgRole}
       catalogLabel="Catálogo"
       catalogContentHref="/dashboard/catalogo"
       isCatalogContentActive={(p) => p?.startsWith("/dashboard/catalogo") ?? false}
@@ -339,11 +343,13 @@ function NavSubLink({ href, active, children }: { href: string; active: boolean;
 
 function GenericBusinessNav({
   pathname,
+  orgRole,
   catalogLabel,
   catalogContentHref,
   isCatalogContentActive,
 }: {
   pathname: string | null;
+  orgRole?: OrgRole | null;
   catalogLabel: string;
   catalogContentHref: string;
   isCatalogContentActive: (pathname: string | null) => boolean;
@@ -358,9 +364,21 @@ function GenericBusinessNav({
   const [catalogOpen, setCatalogOpen] = usePersistentOpen("miseby.nav.menu", !!isCatalogSection);
   // `open = manual || sectionActive` dentro del hook: la sección activa
   // siempre auto-abre; la otra conserva su estado manual (jamás cierre forzado).
+  // TOM-193: business_member no ve Vista general, Mi negocio, Analytics ni Miembros.
+  // Miembros visible solo para owner + admin.
+  const isMember = orgRole === "business_member";
+  const canSeeMembers = orgRole === "business_owner" || orgRole === "business_admin";
+  const topItems = RESTAURANT_ITEMS_TOP.filter((item) => {
+    if (!isMember) return true;
+    return item.href !== "/dashboard" && item.href !== "/dashboard/negocio";
+  });
+  const bottomItems = RESTAURANT_ITEMS_BOTTOM.filter((item) => {
+    if (!isMember) return true;
+    return item.href !== "/dashboard/analytics";
+  });
   return (
     <div className="space-y-1">
-      {RESTAURANT_ITEMS_TOP.map((item) => (
+      {topItems.map((item) => (
         <NavTopLink key={item.href} item={item} pathname={pathname} />
       ))}
       <NavDropdown
@@ -390,9 +408,12 @@ function GenericBusinessNav({
           Apariencia
         </NavSubLink>
       </NavDropdown>
-      {RESTAURANT_ITEMS_BOTTOM.map((item) => (
+      {bottomItems.map((item) => (
         <NavTopLink key={item.href} item={item} pathname={pathname} />
       ))}
+      {canSeeMembers && (
+        <NavTopLink item={{ href: "/dashboard/miembros", label: "Miembros", icon: UsersRound }} pathname={pathname} />
+      )}
     </div>
   );
 }
