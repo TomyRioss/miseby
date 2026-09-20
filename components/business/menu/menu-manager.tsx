@@ -180,7 +180,7 @@ export function MenuManager({
             {/* Tabs de categorías: debajo del banner, cada tab salta a su sección */}
             {cats.length > 0 && (
               <div className="mt-3 flex items-center gap-1 overflow-x-auto border-t border-border px-3 py-2">
-                <span className="mr-1 inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[#EA580C] px-3 py-2 text-xs font-semibold text-white">
+                <span className="mr-1 inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[#0A2540] px-3 py-2 text-xs font-semibold text-white">
                   <List className="h-3.5 w-3.5" /> Categorías
                 </span>
                 {cats.map((c) => {
@@ -193,7 +193,7 @@ export function MenuManager({
                       aria-current={active ? "true" : undefined}
                       className={`shrink-0 cursor-pointer whitespace-nowrap border-b-2 px-3 py-2 text-[13px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                         active
-                          ? "border-[#EA580C] font-semibold text-[#EA580C]"
+                          ? "border-[#0A2540] font-semibold text-[#0A2540]"
                           : "border-transparent text-muted-foreground hover:text-foreground"
                       }`}
                     >
@@ -291,9 +291,9 @@ export function MenuManager({
             </DndContext>
           )}
 
-          {/* Sticky save (solo con secciones: sin ellas el guardado no aplica) */}
+          {/* Barra guardar estática al final del flujo (no flotante) */}
           {cats.length > 0 && (
-            <div className="sticky bottom-0 z-10 -mx-1 border-t border-border bg-background px-1 py-3 shadow-[0_-8px_20px_-8px_rgba(10,37,64,0.25)]">
+            <div className="rounded-xl border border-border bg-card p-3 sm:p-4">
               <Button onClick={save} disabled={saving}
                 className="min-h-11 w-full bg-[#0A2540] text-[15px] text-white transition-all duration-200 hover:bg-[#0A2540]/90 hover:shadow-md active:scale-[0.98] sm:w-auto sm:px-10">
                 {saving ? "Guardando..." : dirty ? `Guardar ${copy.menuNoun}` : `${copy.menuNounCap} al día`}
