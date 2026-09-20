@@ -18,3 +18,4 @@ Historial del proyecto (fuente: Linear proyecto Miseby). Una fila por task cerra
 | 2026-09-20 | miseby | TOM-191 | S | n/a | spark | OK: sidebar MISE paridad total mergeado a dev |
 | 2026-09-20 | miseby | TOM-193 | M | ~30min | spark(BE+FE)+mimo(QA) | OK: seccion Miembros identica mise/restaurant + rol business_admin per-org (member sin analytics/negocio/miembros/vista-general, admin gestiona solo members, owner todo) mergeado a dev |
 | 2026-09-20 | miseby | TOM-192 | M | n/a | spark+mimo | OK: root-cause upload foto (1MB limit) + dogfood report, mergeado a dev |
+| 2026-09-20 | miseby | TOM-194 | M | n/a | spark | OK: fixes B1-C6 + avatar mergeados a dev |
