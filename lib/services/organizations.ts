@@ -52,6 +52,7 @@ export async function updateOrganization(
   id: string,
   data: Partial<{
     commercialName: string;
+    slug: string;
     legalName: string;
     taxId: string;
     businessType: BusinessType;
