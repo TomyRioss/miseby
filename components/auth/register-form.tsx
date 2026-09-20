@@ -172,13 +172,13 @@ export function RegisterForm({ initialPlan = "mise" }: { initialPlan?: PlanSlug 
         />
         <label htmlFor="terms" className="text-sm leading-relaxed text-muted-foreground">
           Acepto los{" "}
-          <a href="#" className="cursor-pointer text-[#0E88E2] hover:underline">
+          <Link href="/terminos" target="_blank" className="cursor-pointer text-[#0E88E2] hover:underline">
             términos de servicio
-          </a>{" "}
+          </Link>{" "}
           y la{" "}
-          <a href="#" className="cursor-pointer text-[#0E88E2] hover:underline">
+          <Link href="/privacidad" target="_blank" className="cursor-pointer text-[#0E88E2] hover:underline">
             política de privacidad
-          </a>
+          </Link>
         </label>
       </div>
       {errors.terms && <p className="text-xs text-red-600">{errors.terms.message}</p>}
