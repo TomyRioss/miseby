@@ -66,70 +66,99 @@ export function BusinessSidebar({ account, hasMiseLink = false, planCode }: { ac
       <nav className="mt-2 space-y-1">
         {isRestaurant ? (
           <RestaurantNav pathname={pathname} />
+        ) : planCode === "mise" ? (
+          <MiseNav pathname={pathname} />
         ) : (
-          <>
-        <Link
-          href="/dashboard"
-          className="cursor-pointer flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted"
-        >
-          <Building2 className="h-4 w-4" />
-          Inicio
-        </Link>
-        {planCode === "mise" && (
-          <Link
-            href="/dashboard/catalogo"
-            className={`cursor-pointer flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-muted ${
-              pathname?.startsWith("/dashboard/catalogo")
-                ? "bg-muted font-semibold text-foreground"
-                : "font-medium text-muted-foreground"
-            }`}
-          >
-            <BookOpen className="h-4 w-4" />
-            Catálogo
-          </Link>
-        )}
-        <div>
-          <button
-            type="button"
-            onClick={() => setOpen((prev) => !prev)}
-            aria-expanded={open}
-            className="cursor-pointer flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted"
-          >
-            <Link2 className="h-4 w-4" />
-            <span className="flex-1 text-left">My MiseLink</span>
-            <ChevronDown
-              className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`}
-            />
-          </button>
-          {open && (
-            <div className="ml-6 mt-1 space-y-1 border-l border-border pl-2">
-              <Link
-                href="/dashboard/miselink"
-                className={`cursor-pointer block rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted ${
-                  isLinksActive
-                    ? "bg-muted font-semibold text-[#6D28D9]"
-                    : "font-medium text-muted-foreground"
-                }`}
-              >
-                Links
-              </Link>
-              <Link
-                href="/dashboard/miselink/design"
-                className={`cursor-pointer block rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted ${
-                  isDesignActive
-                    ? "bg-muted font-semibold text-[#6D28D9]"
-                    : "font-medium text-muted-foreground"
-                }`}
-              >
-                Diseño
-              </Link>
-            </div>
-          )}
-        </div>
-          </>
+          <MiseFallbackNav
+            pathname={pathname}
+            planCode={planCode}
+            open={open}
+            setOpen={setOpen}
+            isLinksActive={isLinksActive}
+            isDesignActive={isDesignActive}
+          />
         )}
       </nav>
     </aside>
+  );
+}
+
+function MiseFallbackNav({
+  pathname,
+  planCode,
+  open,
+  setOpen,
+  isLinksActive,
+  isDesignActive,
+}: {
+  pathname: string | null;
+  planCode?: string;
+  open: boolean;
+  setOpen: (value: boolean | ((prev: boolean) => boolean)) => void;
+  isLinksActive: boolean;
+  isDesignActive: boolean;
+}) {
+  return (
+    <>
+      <Link
+        href="/dashboard"
+        className="cursor-pointer flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted"
+      >
+        <Building2 className="h-4 w-4" />
+        Inicio
+      </Link>
+      {planCode === "mise" && (
+        <Link
+          href="/dashboard/catalogo"
+          className={`cursor-pointer flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-muted ${
+            pathname?.startsWith("/dashboard/catalogo")
+              ? "bg-muted font-semibold text-foreground"
+              : "font-medium text-muted-foreground"
+          }`}
+        >
+          <BookOpen className="h-4 w-4" />
+          Catálogo
+        </Link>
+      )}
+      <div>
+        <button
+          type="button"
+          onClick={() => setOpen((prev) => !prev)}
+          aria-expanded={open}
+          className="cursor-pointer flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted"
+        >
+          <Link2 className="h-4 w-4" />
+          <span className="flex-1 text-left">My MiseLink</span>
+          <ChevronDown
+            className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`}
+          />
+        </button>
+        {open && (
+          <div className="ml-6 mt-1 space-y-1 border-l border-border pl-2">
+            <Link
+              href="/dashboard/miselink"
+              className={`cursor-pointer block rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted ${
+                isLinksActive
+                  ? "bg-muted font-semibold text-[#6D28D9]"
+                  : "font-medium text-muted-foreground"
+              }`}
+            >
+              Links
+            </Link>
+            <Link
+              href="/dashboard/miselink/design"
+              className={`cursor-pointer block rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted ${
+                isDesignActive
+                  ? "bg-muted font-semibold text-[#6D28D9]"
+                  : "font-medium text-muted-foreground"
+              }`}
+            >
+              Diseño
+            </Link>
+          </div>
+        )}
+      </div>
+    </>
   );
 }
 
@@ -210,119 +239,160 @@ const RESTAURANT_ITEMS_BOTTOM = [
 ];
 
 function RestaurantNav({ pathname }: { pathname: string | null }) {
-  const isMiseLinkSection = pathname?.startsWith("/dashboard/miselink") ?? false;
-  const [linkOpen, setLinkOpen] = usePersistentOpen("miseby.nav.miselink", isMiseLinkSection);
-  const isLinksActive = pathname === "/dashboard/miselink";
-  const isDesignActive = pathname === "/dashboard/miselink/design";
-  const isMenuActive = (href: string) =>
-    href === "/dashboard/menu"
-      ? pathname === href ||
-        pathname?.startsWith("/dashboard/catalogo") ||
-        pathname?.startsWith("/dashboard/categorias") ||
-        pathname?.startsWith("/dashboard/productos") ||
+  return (
+    <GenericBusinessNav
+      pathname={pathname}
+      catalogLabel="Menú"
+      catalogContentHref="/dashboard/menu"
+      isCatalogContentActive={(p) =>
+        p === "/dashboard/menu" ||
+        p?.startsWith("/dashboard/catalogo") ||
+        p?.startsWith("/dashboard/categorias") ||
+        p?.startsWith("/dashboard/productos") ||
         false
-      : (pathname?.startsWith(href) ?? false);
-  const isMenuContentActive = isMenuActive("/dashboard/menu");
-  const isAppearanceActive = pathname?.startsWith("/dashboard/apariencia") ?? false;
-  const isMenuSection = isMenuContentActive || isAppearanceActive;
-  const [menuOpen, setMenuOpen] = usePersistentOpen("miseby.nav.menu", !!isMenuSection);
-  // `open = manual || sectionActive` dentro del hook: la sección activa
-  // siempre auto-abre; la otra conserva su estado manual (jamás cierre forzado).
-  const renderItem = (item: { href: string; label: string; icon: typeof LayoutDashboard }) => {
-    const Icon = item.icon;
-    const active =
-      item.href === "/dashboard" ? pathname === "/dashboard" : pathname?.startsWith(item.href) ?? false;
-    return (
-      <Link
-        key={item.href}
-        href={item.href}
-        className={`cursor-pointer flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-muted ${
+      }
+    />
+  );
+}
+
+function MiseNav({ pathname }: { pathname: string | null }) {
+  return (
+    <GenericBusinessNav
+      pathname={pathname}
+      catalogLabel="Catálogo"
+      catalogContentHref="/dashboard/catalogo"
+      isCatalogContentActive={(p) => p?.startsWith("/dashboard/catalogo") ?? false}
+    />
+  );
+}
+
+type NavItem = { href: string; label: string; icon: typeof LayoutDashboard };
+
+function NavTopLink({ item, pathname }: { item: NavItem; pathname: string | null }) {
+  const Icon = item.icon;
+  const active =
+    item.href === "/dashboard" ? pathname === "/dashboard" : pathname?.startsWith(item.href) ?? false;
+  return (
+    <Link
+      key={item.href}
+      href={item.href}
+      className={`cursor-pointer flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-muted ${
+        active ? "bg-muted font-semibold text-foreground" : "font-medium text-muted-foreground"
+      }`}
+    >
+      <Icon className="h-4 w-4" />
+      {item.label}
+    </Link>
+  );
+}
+
+function NavDropdown({
+  icon: Icon,
+  label,
+  open,
+  onToggle,
+  active,
+  children,
+}: {
+  icon: typeof LayoutDashboard;
+  label: string;
+  open: boolean;
+  onToggle: () => void;
+  active?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <>
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={open}
+        className={`cursor-pointer flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-muted ${
           active ? "bg-muted font-semibold text-foreground" : "font-medium text-muted-foreground"
         }`}
       >
         <Icon className="h-4 w-4" />
-        {item.label}
-      </Link>
-    );
-  };
+        <span className="flex-1 text-left">{label}</span>
+        <ChevronDown
+          className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+      {open && (
+        <div className="ml-6 mt-1 space-y-1 border-l border-border pl-2">{children}</div>
+      )}
+    </>
+  );
+}
+
+function NavSubLink({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
+  return (
+    <Link
+      href={href}
+      className={`cursor-pointer block rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted ${
+        active ? "bg-muted font-semibold text-[#6D28D9]" : "font-medium text-muted-foreground"
+      }`}
+    >
+      {children}
+    </Link>
+  );
+}
+
+function GenericBusinessNav({
+  pathname,
+  catalogLabel,
+  catalogContentHref,
+  isCatalogContentActive,
+}: {
+  pathname: string | null;
+  catalogLabel: string;
+  catalogContentHref: string;
+  isCatalogContentActive: (pathname: string | null) => boolean;
+}) {
+  const isMiseLinkSection = pathname?.startsWith("/dashboard/miselink") ?? false;
+  const [linkOpen, setLinkOpen] = usePersistentOpen("miseby.nav.miselink", isMiseLinkSection);
+  const isLinksActive = pathname === "/dashboard/miselink";
+  const isDesignActive = pathname === "/dashboard/miselink/design";
+  const isCatalogContent = isCatalogContentActive(pathname);
+  const isAppearanceActive = pathname?.startsWith("/dashboard/apariencia") ?? false;
+  const isCatalogSection = isCatalogContent || isAppearanceActive;
+  const [catalogOpen, setCatalogOpen] = usePersistentOpen("miseby.nav.menu", !!isCatalogSection);
+  // `open = manual || sectionActive` dentro del hook: la sección activa
+  // siempre auto-abre; la otra conserva su estado manual (jamás cierre forzado).
   return (
     <div className="space-y-1">
-      {RESTAURANT_ITEMS_TOP.map(renderItem)}
-      <button
-        type="button"
-        onClick={() => setLinkOpen((prev) => !prev)}
-        aria-expanded={linkOpen}
-        className="cursor-pointer flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted"
+      {RESTAURANT_ITEMS_TOP.map((item) => (
+        <NavTopLink key={item.href} item={item} pathname={pathname} />
+      ))}
+      <NavDropdown
+        icon={QrCode}
+        label="Mise Link & QR"
+        open={linkOpen}
+        onToggle={() => setLinkOpen((prev) => !prev)}
       >
-        <QrCode className="h-4 w-4" />
-        <span className="flex-1 text-left">Mise Link & QR</span>
-        <ChevronDown
-          className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${linkOpen ? "rotate-180" : ""}`}
-        />
-      </button>
-      {linkOpen && (
-        <div className="ml-6 mt-1 space-y-1 border-l border-border pl-2">
-          <Link
-            href="/dashboard/miselink"
-            className={`cursor-pointer block rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted ${
-              isLinksActive
-                ? "bg-muted font-semibold text-[#6D28D9]"
-                : "font-medium text-muted-foreground"
-            }`}
-          >
-            Links
-          </Link>
-          <Link
-            href="/dashboard/miselink/design"
-            className={`cursor-pointer block rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted ${
-              isDesignActive
-                ? "bg-muted font-semibold text-[#6D28D9]"
-                : "font-medium text-muted-foreground"
-            }`}
-          >
-            Diseño
-          </Link>
-        </div>
-      )}
-      <button
-        type="button"
-        onClick={() => setMenuOpen((prev) => !prev)}
-        aria-expanded={menuOpen}
-        className={`cursor-pointer flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-muted ${
-          isMenuSection ? "bg-muted font-semibold text-foreground" : "font-medium text-muted-foreground"
-        }`}
+        <NavSubLink href="/dashboard/miselink" active={isLinksActive}>
+          Links
+        </NavSubLink>
+        <NavSubLink href="/dashboard/miselink/design" active={isDesignActive}>
+          Diseño
+        </NavSubLink>
+      </NavDropdown>
+      <NavDropdown
+        icon={BookOpen}
+        label={catalogLabel}
+        open={catalogOpen}
+        onToggle={() => setCatalogOpen((prev) => !prev)}
+        active={isCatalogSection}
       >
-        <BookOpen className="h-4 w-4" />
-        <span className="flex-1 text-left">Menú</span>
-        <ChevronDown
-          className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${menuOpen ? "rotate-180" : ""}`}
-        />
-      </button>
-      {menuOpen && (
-        <div className="ml-6 mt-1 space-y-1 border-l border-border pl-2">
-          <Link
-            href="/dashboard/menu"
-            className={`cursor-pointer block rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted ${
-              isMenuContentActive
-                ? "bg-muted font-semibold text-[#6D28D9]"
-                : "font-medium text-muted-foreground"
-            }`}
-          >
-            Contenido
-          </Link>
-          <Link
-            href="/dashboard/apariencia"
-            className={`cursor-pointer block rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted ${
-              isAppearanceActive
-                ? "bg-muted font-semibold text-[#6D28D9]"
-                : "font-medium text-muted-foreground"
-            }`}
-          >
-            Apariencia
-          </Link>
-        </div>
-      )}
-      {RESTAURANT_ITEMS_BOTTOM.map(renderItem)}
+        <NavSubLink href={catalogContentHref} active={isCatalogContent}>
+          Contenido
+        </NavSubLink>
+        <NavSubLink href="/dashboard/apariencia" active={isAppearanceActive}>
+          Apariencia
+        </NavSubLink>
+      </NavDropdown>
+      {RESTAURANT_ITEMS_BOTTOM.map((item) => (
+        <NavTopLink key={item.href} item={item} pathname={pathname} />
+      ))}
     </div>
   );
 }
