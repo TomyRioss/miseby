@@ -22,7 +22,7 @@ export function PlanSelector({ value, onChange }: PlanSelectorProps) {
             aria-checked={selected}
             onClick={() => onChange(plan.slug)}
             className={cn(
-              "relative flex flex-col rounded-2xl border-2 p-4 text-left transition-colors",
+              "relative flex flex-col rounded-2xl border-2 p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E88E2]/60",
               selected
                 ? "border-[#0E88E2] bg-[#0E88E2]/5"
                 : "border-border bg-card hover:border-muted-foreground/40"
