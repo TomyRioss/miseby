@@ -11,7 +11,7 @@ import {
 } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 import { toast } from "sonner";
-import { saveAppearanceAction, saveMenuAction } from "@/lib/actions/restaurant";
+import { saveAppearanceAction, saveMenuAction, uploadProductImageAction } from "@/lib/actions/restaurant";
 import { newId, type RestaurantAppearance, type RestaurantCategory, type RestaurantProduct, type WeekSchedule } from "@/lib/restaurant-theme";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,9 +23,11 @@ import { MenuCategoryRow } from "./menu-category-row";
 import { ProductSheet, type SheetState } from "./product-sheet";
 import type { MenuCopy } from "./menu-copy";
 import { MENU_COPY_RESTAURANT } from "./menu-copy";
+import { ImageCropDialog } from "@/components/miselink/editor/image-crop-dialog";
 
 export function MenuManager({
   initialCategories, initialProducts, appearance, currency, slug, hours, schedule,
+  commercialName,
   copy = MENU_COPY_RESTAURANT,
 }: {
   initialCategories: RestaurantCategory[];
@@ -36,6 +38,8 @@ export function MenuManager({
   hours?: string;
   menuPublished: boolean;
   schedule?: WeekSchedule;
+  /** Nombre comercial del local (fallback igual que la página pública). */
+  commercialName?: string;
   copy?: MenuCopy;
 }) {
   const [cats, setCats] = useState<RestaurantCategory[]>([...initialCategories].sort((a, b) => a.order - b.order));
@@ -46,10 +50,18 @@ export function MenuManager({
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [inputFocused, setInputFocused] = useState(false);
-  const [restName, setRestName] = useState(appearance.restaurantName ?? "");
-  const [savedName, setSavedName] = useState(appearance.restaurantName ?? "");
+  const [restName, setRestName] = useState(appearance.restaurantName || commercialName || "");
+  const [savedName, setSavedName] = useState(appearance.restaurantName || commercialName || "");
   const [savingName, setSavingName] = useState(false);
+  const [media, setMedia] = useState({ logoUrl: appearance.logoUrl ?? "", bannerUrl: appearance.bannerUrl ?? "" });
+  const [uploading, setUploading] = useState<"logo" | "banner" | null>(null);
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [cropKind, setCropKind] = useState<"logo" | "banner">("logo");
+  const logoInput = useRef<HTMLInputElement>(null);
+  const bannerInput = useRef<HTMLInputElement>(null);
   const [activeTab, setActiveTab] = useState<string | null>(null);
+  // Cada guardado exitoso recarga solo el iframe del preview.
+  const [previewTick, setPreviewTick] = useState(0);
   const newCatRef = useRef<HTMLInputElement>(null);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -107,6 +119,7 @@ export function MenuManager({
       const res = await saveMenuAction({ categories: cats, products });
       if (!res.ok) throw new Error(res.error);
       setDirty(false);
+      setPreviewTick((t) => t + 1);
       toast.success(`${copy.menuNounCap} al día: ${available.length} ${copy.itemPlural} visibles.`);
     } catch (e) {
       console.error("[menu]", e);
@@ -119,16 +132,56 @@ export function MenuManager({
     if (!next || next === savedName) { setRestName(savedName); return; }
     setSavingName(true);
     try {
-      const res = await saveAppearanceAction({ ...appearance, restaurantName: next });
+      const res = await saveAppearanceAction({ ...appearance, ...media, restaurantName: next });
       if (!res.ok) throw new Error(res.error);
       setSavedName(next);
       setRestName(next);
+      setPreviewTick((t) => t + 1);
       toast.success("Nombre actualizado.");
     } catch (e) {
       console.error("[menu nombre]", e);
       setRestName(savedName);
       toast.error(e instanceof Error ? e.message : "No se pudo guardar. Probá de nuevo.");
     } finally { setSavingName(false); }
+  }
+
+  function onPickFile(kind: "logo" | "banner", file: File | undefined) {
+    if (!file) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      toast.error("Solo JPG, PNG o WebP.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Máximo 5 MB.");
+      return;
+    }
+    setCropKind(kind);
+    setCropSrc(URL.createObjectURL(file));
+  }
+
+  async function onCropDone(file: File) {
+    setCropSrc(null);
+    setUploading(cropKind);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const up = await uploadProductImageAction(fd);
+      if (!up.ok) {
+        toast.error(up.error);
+        return;
+      }
+      const nextMedia = cropKind === "logo" ? { ...media, logoUrl: up.url } : { ...media, bannerUrl: up.url };
+      const res = await saveAppearanceAction({ ...appearance, ...nextMedia, restaurantName: restName || appearance.restaurantName || commercialName || "" });
+      if (!res.ok) throw new Error(res.error);
+      setMedia(nextMedia);
+      setPreviewTick((t) => t + 1);
+      toast.success(cropKind === "logo" ? "Logo actualizado." : "Portada actualizada.");
+    } catch (e) {
+      console.error("[menu media]", e);
+      toast.error(e instanceof Error ? e.message : "No se pudo subir la imagen.");
+    } finally {
+      setUploading(null);
+    }
   }
 
   const inputCls = `min-h-10 transition-all duration-200${inputFocused ? " border-[#6D28D9] ring-2 ring-[#6D28D9]/20" : ""}`;
@@ -140,29 +193,43 @@ export function MenuManager({
         <div className="flex flex-col gap-4">
           {/* Banner del local: portada + logo abajo-izquierda + nombre (sin fondo de tarjeta) */}
           <section aria-label="Vista del local">
-            <div
-              className="relative z-0 flex h-28 items-center justify-center rounded-lg sm:h-32"
-              style={{ background: appearance.primary }}
-              aria-hidden="true"
+            <button
+              type="button"
+              onClick={() => bannerInput.current?.click()}
+              className="group relative z-0 flex h-28 w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg sm:h-32"
+              style={media.bannerUrl ? { backgroundImage: `url(${media.bannerUrl})`, backgroundSize: "cover", backgroundPosition: "center" } : { background: appearance.primary }}
+              aria-label="Subir portada"
             >
-              <ImagePlus className="h-7 w-7 text-white/40" />
-            </div>
+              {!media.bannerUrl && <ImagePlus className="h-7 w-7 text-white/40" aria-hidden="true" />}
+              <span className="absolute inset-0 flex items-center justify-center gap-2 bg-black/55 text-sm font-semibold text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+                <ImagePlus className="h-4 w-4" />
+                {uploading === "banner" ? "Subiendo…" : media.bannerUrl ? "Cambiar portada" : "Subir portada"}
+              </span>
+            </button>
             <div className="flex items-end gap-3 px-5">
               {/* Logo superpuesto al banner al 50%: logo h-24 (96px) con -mt-12 (-48px), por encima del banner */}
-              <div className="relative z-10 -mt-12 shrink-0 overflow-hidden rounded-md bg-muted shadow-lg ring-4 ring-card">
-                {appearance.logoUrl ? (
+              <button
+                type="button"
+                onClick={() => logoInput.current?.click()}
+                className="group relative z-10 -mt-12 shrink-0 cursor-pointer overflow-hidden rounded-md bg-muted shadow-lg ring-4 ring-card"
+                aria-label="Subir logo"
+              >
+                {media.logoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={appearance.logoUrl} alt="" className="h-24 w-24 object-cover" />
+                  <img src={media.logoUrl} alt="" className="h-24 w-24 object-cover" />
                 ) : (
                   <span
                     className="flex h-24 w-24 items-center justify-center text-3xl font-extrabold text-white"
                     style={{ background: appearance.secondary }}
                     aria-hidden="true"
                   >
-                    {(restName || "M").charAt(0).toUpperCase()}
+                    {(restName || commercialName || "M").charAt(0).toUpperCase()}
                   </span>
                 )}
-              </div>
+                <span className="absolute inset-0 flex items-center justify-center bg-black/55 text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+                  <ImagePlus className="h-6 w-6" />
+                </span>
+              </button>
               <div className="min-w-0 flex-1 pb-1 pt-2">
                 <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">{copy.businessWord}</p>
                 <input
@@ -170,13 +237,28 @@ export function MenuManager({
                   onChange={(e) => setRestName(e.target.value.slice(0, 120))}
                   onBlur={commitName}
                   onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
-                  placeholder={copy.businessFallback}
+                  placeholder={commercialName || copy.businessFallback}
                   aria-label="Nombre del restaurante"
                   disabled={savingName}
                   className="w-full truncate border-b border-border bg-transparent pb-0.5 text-base font-bold tracking-tight outline-none transition-colors placeholder:font-normal placeholder:text-muted-foreground focus:border-primary"
                 />
               </div>
             </div>
+            <input ref={bannerInput} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={(e) => onPickFile("banner", e.target.files?.[0])} />
+            <input ref={logoInput} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={(e) => onPickFile("logo", e.target.files?.[0])} />
+            {cropSrc ? (
+              <ImageCropDialog
+                open
+                onOpenChange={(v) => { if (!v) setCropSrc(null); }}
+                image={cropSrc}
+                aspect={cropKind === "logo" ? 1 : 3}
+                round={cropKind === "logo"}
+                title={cropKind === "logo" ? "Recortar logo" : "Recortar portada"}
+                hint={cropKind === "logo" ? "Cuadrado, se ve en el header de la carta." : "Panorámica 1200×400 aprox."}
+                output={cropKind === "logo" ? { width: 512, height: 512 } : { width: 1200, height: 400 }}
+                onDone={onCropDone}
+              />
+            ) : null}
             {/* Tabs de categorías: debajo del banner, cada tab salta a su sección */}
             {cats.length > 0 && (
               <div className="mt-3 flex items-center gap-1 overflow-x-auto border-t border-border px-3 py-2">
@@ -309,7 +391,7 @@ export function MenuManager({
           />
         </div>
       }
-      preview={<CartaPhonePreview slug={slug} appearance={appearance} categories={cats} products={products} currency={currency ?? null} hours={hours ?? ""} restaurantName={restName || appearance.restaurantName} schedule={schedule} linkBase={copy.linkBase} menuNounCap={copy.menuNounCap} variant={copy.linkBase === "catalogo" ? "catalog" : "restaurant"} />}
+      preview={<CartaPhonePreview slug={slug} appearance={{ ...appearance, logoUrl: media.logoUrl, bannerUrl: media.bannerUrl }} categories={cats} products={products} currency={currency ?? null} hours={hours ?? ""} restaurantName={restName || appearance.restaurantName} schedule={schedule} fallbackName={commercialName} reloadSignal={previewTick} linkBase={copy.linkBase} menuNounCap={copy.menuNounCap} variant={copy.linkBase === "catalogo" ? "catalog" : "restaurant"} />}
     />
   );
 }

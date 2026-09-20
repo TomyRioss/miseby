@@ -156,7 +156,11 @@ export function PlatoMenuView({
       <header className="pb-4" style={{ background: bg }}>
         <div
           className="h-20 w-full bg-cover bg-center md:h-28"
-          style={{ backgroundImage: `linear-gradient(90deg, ${light}, ${hexA(primary, "33")})` }}
+          style={
+            ap.bannerUrl
+              ? { backgroundImage: `url(${ap.bannerUrl})` }
+              : { backgroundImage: `linear-gradient(90deg, ${light}, ${hexA(primary, "33")})` }
+          }
           aria-hidden="true"
         />
         {(status || hoursFallback) && (
@@ -190,35 +194,35 @@ export function PlatoMenuView({
       </header>
 
       {/* Nav sticky: buscador + píldoras */}
-      <nav className="sticky top-0 z-10 flex flex-col gap-2 border-b px-4 py-2" style={{ background: bg, borderColor: border }}>
-        <div className="mx-auto flex w-full max-w-2xl items-center gap-1.5 rounded-lg bg-black/[0.06] px-3 py-2">
+      <nav className="sticky top-0 z-10 flex flex-col gap-1.5 border-b px-3 py-1.5" style={{ background: bg, borderColor: border }}>
+        <div className="mx-auto flex w-full max-w-2xl items-center gap-1.5 rounded-lg bg-black/[0.06] px-2.5 py-1.5">
           <input
             type="text"
             placeholder="Buscar productos..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             aria-label="Buscar productos"
-            className="w-full min-w-0 bg-transparent text-sm outline-none placeholder:text-black/40"
+            className="w-full min-w-0 bg-transparent text-[13px] outline-none placeholder:text-black/40"
             style={{ color: text }}
           />
-          <Search className="h-4 w-4 shrink-0 opacity-50" />
+          <Search className="h-3.5 w-3.5 shrink-0 opacity-50" />
         </div>
-        <div className="mx-auto flex w-full max-w-2xl items-center gap-2 overflow-x-auto [scrollbar-width:none]">
+        <div className="mx-auto flex w-full max-w-2xl items-center gap-1.5 overflow-x-auto [scrollbar-width:none]">
           <button
             type="button"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="flex h-8 shrink-0 cursor-pointer items-center gap-1.5 rounded-lg border px-2.5 text-sm font-medium transition-colors hover:bg-black/[0.04]"
+            className="flex h-7 shrink-0 cursor-pointer items-center gap-1.5 rounded-lg border px-2 text-[13px] font-medium transition-colors hover:bg-black/[0.04]"
             style={{ borderColor: border }}
           >
-            <MenuIcon className="h-4 w-4" />
+            <MenuIcon className="h-3.5 w-3.5" />
             Menú
           </button>
-          <div className="h-5 w-px shrink-0" style={{ background: border }} />
+          <div className="h-4 w-px shrink-0" style={{ background: border }} />
           {cats.map((c) => (
             <a
               key={c.id}
               href={`#cat-${c.id}`}
-              className="shrink-0 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors hover:bg-black/[0.04]"
+              className="shrink-0 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors hover:bg-black/[0.04]"
               style={{ borderColor: border }}
             >
               {c.name}

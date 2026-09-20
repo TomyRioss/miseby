@@ -150,11 +150,11 @@ export function ProductSheet({
 
   return (
     <Sheet open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
-      <SheetContent side="right" className="flex w-full flex-col sm:max-w-lg">
+      <SheetContent side="right" className="flex w-full flex-col overflow-x-hidden sm:max-w-xl">
         <SheetHeader>
           <SheetTitle>{state?.mode === "edit" ? `Editar ${copy.itemSingular}` : `Nuevo ${copy.itemSingular}`}</SheetTitle>
         </SheetHeader>
-        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-1 py-4">
+        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto overflow-x-hidden px-1 py-4">
           <div className="flex items-center gap-3">
             <button
               type="button" onClick={() => fileRef.current?.click()} disabled={uploading}
@@ -229,8 +229,8 @@ export function ProductSheet({
                   <div key={v.key} className="rounded-xl border border-border p-3">
                     <div className="flex items-center gap-2">
                       <input type="radio" name="default-variant" checked={i === 0 || v.isDefault} onChange={() => setVariants((p) => p.map((x, j) => ({ ...x, isDefault: j === i })))} aria-label="Variante por defecto" title="Precio principal" />
-                      <Input value={v.name} onChange={(e) => setVariants((p) => p.map((x) => x.key === v.key ? { ...x, name: e.target.value } : x))} placeholder="Ej: Personal / Familiar" maxLength={60} className="min-h-9" />
-                      <Input value={v.price} onChange={(e) => setVariants((p) => p.map((x) => x.key === v.key ? { ...x, price: e.target.value } : x))} placeholder="$" type="number" min={0} aria-label="Precio variante" className="w-28 min-h-9 tabular-nums" />
+                      <Input value={v.name} onChange={(e) => setVariants((p) => p.map((x) => x.key === v.key ? { ...x, name: e.target.value } : x))} placeholder="Ej: Personal / Familiar" maxLength={60} className="min-h-9 min-w-0" />
+                      <Input value={v.price} onChange={(e) => setVariants((p) => p.map((x) => x.key === v.key ? { ...x, price: e.target.value } : x))} placeholder="$" type="number" min={0} aria-label="Precio variante" className="w-24 shrink-0 min-h-9 tabular-nums" />
                       <button type="button" onClick={() => setVariants((p) => p.filter((x) => x.key !== v.key))} aria-label="Quitar variante" className="cursor-pointer rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
                     </div>
                     <div className="mt-2 grid grid-cols-3 gap-2">
@@ -264,8 +264,8 @@ export function ProductSheet({
                   <div className="mt-2 space-y-1.5">
                     {g.modifiers.map((m) => (
                       <div key={m.key} className="flex items-center gap-2">
-                        <Input value={m.name} onChange={(e) => setGroups((p) => p.map((x) => x.key === g.key ? { ...x, modifiers: x.modifiers.map((mm) => mm.key === m.key ? { ...mm, name: e.target.value } : mm) } : x))} placeholder="Ej: Queso extra" maxLength={60} className="min-h-9" />
-                        <Input value={m.price} onChange={(e) => setGroups((p) => p.map((x) => x.key === g.key ? { ...x, modifiers: x.modifiers.map((mm) => mm.key === m.key ? { ...mm, price: e.target.value } : mm) } : x))} placeholder="$" type="number" min={0} aria-label="Precio opción" className="w-28 min-h-9 tabular-nums" />
+                        <Input value={m.name} onChange={(e) => setGroups((p) => p.map((x) => x.key === g.key ? { ...x, modifiers: x.modifiers.map((mm) => mm.key === m.key ? { ...mm, name: e.target.value } : mm) } : x))} placeholder="Ej: Queso extra" maxLength={60} className="min-h-9 min-w-0" />
+                        <Input value={m.price} onChange={(e) => setGroups((p) => p.map((x) => x.key === g.key ? { ...x, modifiers: x.modifiers.map((mm) => mm.key === m.key ? { ...mm, price: e.target.value } : mm) } : x))} placeholder="$" type="number" min={0} aria-label="Precio opción" className="w-24 shrink-0 min-h-9 tabular-nums" />
                         <button type="button" onClick={() => setGroups((p) => p.map((x) => x.key === g.key ? { ...x, modifiers: x.modifiers.filter((mm) => mm.key !== m.key) } : x))} aria-label="Quitar opción" className="cursor-pointer rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
                       </div>
                     ))}

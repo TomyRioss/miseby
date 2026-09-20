@@ -29,15 +29,34 @@ async function currentOrg() {
   return { user, org: data.organization };
 }
 
-export async function updateBusinessProfileAction(input: unknown): Promise<ActionResult> {
+export async function updateBusinessProfileAction(input: unknown): Promise<ActionResult & { slug?: string }> {
   try {
     const parsed = businessProfileSchema.safeParse(input);
     if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
     const { user, org } = await currentOrg();
     if (user.role !== "business_owner") return { ok: false, error: "Solo el administrador puede editar." };
-    await updateOrganization(org.id, parsed.data, user.id);
+    const nameChanged = parsed.data.commercialName.trim() !== (org.commercialName ?? "").trim();
+    let slug: string | undefined;
+    if (nameChanged) {
+      const { generateUniqueSlug } = await import("@/lib/services/organizations");
+      slug = await generateUniqueSlug(parsed.data.commercialName.trim());
+      await updateOrganization(org.id, { ...parsed.data, slug } as Parameters<typeof updateOrganization>[1], user.id);
+      // Sincroniza nombre visible de la carta con el nombre real.
+      try {
+        const page = await getOrCreateMiseLinkPage(user.id);
+        const current = getRestaurantData(page.theme);
+        await updateTheme(user.id, { restaurant: { ...current, appearance: { ...current.appearance, restaurantName: parsed.data.commercialName.trim() } } } as Record<string, unknown>);
+      } catch (e) {
+        console.error("[restaurant] sync appearance name", e);
+      }
+      revalidatePath(`/menu/${org.slug}`);
+      if (slug) revalidatePath(`/menu/${slug}`);
+    } else {
+      await updateOrganization(org.id, parsed.data, user.id);
+    }
     revalidatePath("/dashboard/negocio");
-    return { ok: true };
+    revalidatePath("/dashboard/menu");
+    return { ok: true, ...(slug ? { slug } : {}) };
   } catch (e) {
     return fail(e, "No se pudo guardar el negocio.");
   }
@@ -70,7 +89,8 @@ export async function saveAppearanceAction(input: unknown): Promise<ActionResult
     const { user } = await currentOrg();
     const current = await currentRestaurant();
     await getOrCreateMiseLinkPage(user.id);
-    await updateTheme(user.id, { restaurant: { ...current, appearance: parsed.data } } as Record<string, unknown>);
+    const prevAp = current.appearance ?? {};
+    await updateTheme(user.id, { restaurant: { ...current, appearance: { ...prevAp, ...parsed.data } } } as Record<string, unknown>);
     revalidatePath("/dashboard/apariencia");
     revalidatePath("/dashboard/menu");
     revalidatePath("/dashboard/catalogo");

@@ -22,6 +22,9 @@ export const restaurantAppearanceSchema = z.object({
   showPrices: z.boolean(),
   showImages: z.boolean(),
   showDescriptions: z.boolean(),
+  restaurantName: z.string().trim().max(120).optional().or(z.literal("")),
+  logoUrl: z.string().trim().url("URL inválida").max(2000).optional().or(z.literal("")),
+  bannerUrl: z.string().trim().url("URL inválida").max(2000).optional().or(z.literal("")),
 });
 export type RestaurantAppearanceInput = z.infer<typeof restaurantAppearanceSchema>;
 

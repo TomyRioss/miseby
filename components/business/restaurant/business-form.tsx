@@ -143,6 +143,7 @@ export function BusinessForm({ initial, extra, canEdit }: Props) {
       });
       if (!r2.ok) throw new Error(r2.error);
       toast.success("Ficha guardada. Ya se ve en tu menú.");
+      if (r1.slug) toast.success(`Nueva URL del menú: /menu/${r1.slug}`);
     } catch (e) {
       console.error("[negocio]", e);
       toast.error(e instanceof Error ? e.message : "No se pudo guardar. Revisá los datos.");

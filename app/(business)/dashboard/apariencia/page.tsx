@@ -13,12 +13,14 @@ export default async function AparienciaPage() {
   if (!user) return null;
   let planCode: string | undefined;
   let slug: string | undefined;
+  let commercialName = "";
   let currency: string | null | undefined;
   let rest = getRestaurantData(null);
   try {
     const data = await getOrganizationForMember(user.id);
     planCode = data?.membership?.plan.code;
     slug = data?.organization.slug;
+    commercialName = data?.organization.commercialName ?? "";
     currency = data?.organization.currency;
     const page = await getOrCreateMiseLinkPage(user.id);
     rest = getRestaurantData(page.theme);
@@ -41,6 +43,7 @@ export default async function AparienciaPage() {
             slug={slug}
             hours={rest.hours}
             schedule={rest.schedule}
+            commercialNameFallback={commercialName}
           />
         </main>
       </div>

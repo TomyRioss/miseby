@@ -40,6 +40,7 @@ export type RestaurantAppearance = {
   showDescriptions: boolean;
   restaurantName: string;
   logoUrl: string;
+  bannerUrl: string;
 };
 export type RestaurantIa = { isActive: boolean; whatToRecommend?: string; customInstructions?: string };
 export type DayKey = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
@@ -73,6 +74,7 @@ export const RESTAURANT_DEFAULT_APPEARANCE: RestaurantAppearance = {
   showDescriptions: true,
   restaurantName: "",
   logoUrl: "",
+  bannerUrl: "",
 };
 
 function normalizeVariant(v: unknown, idx: number): RestaurantVariant {
@@ -151,6 +153,7 @@ export function getRestaurantData(theme: unknown): RestaurantData {
       ...rawAppearance,
       restaurantName: typeof rawAppearance.restaurantName === "string" ? rawAppearance.restaurantName.slice(0, 120) : "",
       logoUrl: typeof rawAppearance.logoUrl === "string" ? rawAppearance.logoUrl.slice(0, 2000) : "",
+      bannerUrl: typeof rawAppearance.bannerUrl === "string" ? rawAppearance.bannerUrl.slice(0, 2000) : "",
     },
     categories: Array.isArray(r.categories) ? (r.categories as RestaurantCategory[]) : [],
     products: Array.isArray(r.products) ? (r.products as unknown[]).map(normalizeRestaurantProduct) : [],
