@@ -131,7 +131,7 @@ export function MenuManager({
     } finally { setSavingName(false); }
   }
 
-  const inputCls = `min-h-10 transition-all duration-200${inputFocused ? " border-[#6D28D9] ring-2 ring-[#6D28D9]/20" : ""}`;
+  const inputCls = `min-h-10 transition-all duration-200${inputFocused ? " border-[#0A2540] ring-2 ring-[#0A2540]/20" : ""}`;
   const btnPrimary = "min-h-10 shrink-0 bg-[#0A2540] text-white transition-all duration-200 hover:bg-[#0A2540]/90 hover:shadow-md active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
 
   return (
@@ -204,7 +204,7 @@ export function MenuManager({
                 <button
                   type="button"
                   onClick={focusNewCat}
-                  className="shrink-0 cursor-pointer whitespace-nowrap px-3 py-2 text-[13px] font-medium text-[#6D28D9] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="shrink-0 cursor-pointer whitespace-nowrap px-3 py-2 text-[13px] font-medium text-[#0A2540] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   + Añadir categoría
                 </button>
