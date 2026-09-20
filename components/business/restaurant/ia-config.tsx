@@ -52,10 +52,10 @@ export function IaConfig({ initial, menuSummary }: { initial: IaForm; menuSummar
           onFocus={(v) => setForm((f) => ({ ...f, whatToRecommend: v }))}
           onTone={(v) => setForm((f) => ({ ...f, customInstructions: v }))}
         />
-        <IaSaveBar saving={saving} dirty={dirty} savedLabel={timeAgo(savedAt)} error={error} prompt={prompt} onSave={save} />
       </div>
-      <div className="min-w-0 lg:col-span-3 lg:sticky lg:top-4">
+      <div className="min-w-0 space-y-4 lg:col-span-3 lg:sticky lg:top-4">
         <IaChatPanel isActive={form.isActive} menuSummary={menuSummary} focus={form.whatToRecommend ?? ""} />
+        <IaSaveBar saving={saving} dirty={dirty} savedLabel={timeAgo(savedAt)} error={error} prompt={prompt} onSave={save} />
       </div>
     </div>
   );
