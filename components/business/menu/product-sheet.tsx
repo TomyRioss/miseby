@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ImagePlus, Loader2, Plus, Trash2 } from "lucide-react";
+import { ImagePlus, Loader2, Plus, Sparkles, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { uploadProductImageAction } from "@/lib/actions/restaurant";
 import { newId, type RestaurantCategory, type RestaurantProduct } from "@/lib/restaurant-theme";
@@ -66,6 +66,7 @@ export function ProductSheet({
   const [variants, setVariants] = useState<VariantRow[]>([]);
   const [groups, setGroups] = useState<GroupRow[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -84,6 +85,32 @@ export function ProductSheet({
       setVariants([]); setUseVariants(false); setGroups([]);
     }
   }, [state]);
+
+  async function handleGenerateDescription() {
+    const n = name.trim();
+    if (!n) return toast.error("Poné el nombre primero.");
+    if (generating) return;
+    setGenerating(true);
+    try {
+      const res = await fetch("/api/mise-ia/describe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: n, itemWord: copy.itemSingular }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.ok || typeof data.text !== "string") {
+        toast.error(data?.error ?? "La IA no está disponible ahora.");
+        return;
+      }
+      setDescription(data.text.slice(0, 240));
+      toast.success("Descripción generada. Editala a gusto.");
+    } catch (e) {
+      console.error("[describe]", e);
+      toast.error("No se pudo generar. Probá de nuevo.");
+    } finally {
+      setGenerating(false);
+    }
+  }
 
   async function handleFile(file: File | undefined) {
     if (!file) return;
@@ -219,7 +246,18 @@ export function ProductSheet({
             </div>
             <div>
               <div className="flex items-baseline justify-between"><Label htmlFor="ps-desc">Descripción</Label>
-                <span className="text-[11px] tabular-nums text-muted-foreground">{description.length}/240</span></div>
+                <span className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleGenerateDescription}
+                    disabled={generating}
+                    className="cursor-pointer inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold text-[#6D28D9] transition-colors hover:bg-[#6D28D9]/10 disabled:cursor-wait disabled:opacity-60"
+                  >
+                    {generating ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                    {generating ? "Generando…" : description ? "Regenerar con IA" : "Generar con IA"}
+                  </button>
+                  <span className="text-[11px] tabular-nums text-muted-foreground">{description.length}/240</span>
+                </span></div>
               <Textarea id="ps-desc" value={description} onChange={(e) => setDescription(e.target.value)} rows={2} maxLength={240} placeholder={copy.descPlaceholder} className="mt-1.5 resize-none" />
             </div>
             <label className="flex cursor-pointer items-center justify-between rounded-xl border border-border px-3 py-2.5">

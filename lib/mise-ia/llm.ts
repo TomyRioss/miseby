@@ -128,3 +128,66 @@ export async function getMeseroReply(ctx: MeseroContext): Promise<MeseroResult> 
     clearTimeout(timer);
   }
 }
+
+/** Descripción corta de producto/plato (≤240 caracteres) con Mise IA. */
+export async function generateProductDescription(input: {
+  name: string;
+  itemWord?: string;
+  businessName?: string;
+}): Promise<MeseroResult> {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) {
+    console.error("[mise-ia llm] sin OPENROUTER_API_KEY en el server");
+    return { text: null, reason: "no_key" };
+  }
+  const item = (input.itemWord || "producto").toLowerCase();
+  const system = [
+    `Escribís descripciones cortas para el ${item} de un local en Argentina, en español rioplatense, una sola línea, máximo 200 caracteres.`,
+    `Sin hashtags, sin emojis, sin comillas. Solo la descripción, nada más.`,
+    input.businessName ? `Local: ${input.businessName}.` : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 60_000);
+  try {
+    const res = await fetch(OPENROUTER_URL, {
+      method: "POST",
+      signal: ctrl.signal,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+        "HTTP-Referer": "https://miseby.app",
+        "X-Title": "Miseby Mise IA",
+      },
+      body: JSON.stringify({
+        model: MISE_IA_MODEL,
+        temperature: 0.8,
+        max_tokens: 150,
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: `Descripción para: ${input.name}` },
+        ],
+      }),
+    });
+    if (!res.ok) {
+      console.error("[mise-ia llm] http", res.status, (await res.text()).slice(0, 200));
+      return { text: null, reason: "http", httpStatus: res.status };
+    }
+    const data = await res.json().catch(() => null);
+    const text = data?.choices?.[0]?.message?.content?.trim();
+    if (!text) {
+      console.error("[mise-ia llm] respuesta sin contenido", JSON.stringify(data)?.slice(0, 300));
+      return { text: null, reason: "empty_content" };
+    }
+    return { text: text.replace(/\s+/g, " ").slice(0, 240), reason: "ok" };
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    const tls = /certificate|self-signed|SELF_SIGNED/i.test(msg);
+    const timeout = e instanceof DOMException && e.name === "AbortError";
+    console.error("[mise-ia llm]", timeout ? "timeout 60s" : msg);
+    return { text: null, reason: timeout ? "timeout" : tls ? "tls" : "error" };
+  } finally {
+    clearTimeout(timer);
+  }
+}
