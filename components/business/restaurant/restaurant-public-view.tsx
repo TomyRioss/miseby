@@ -1,8 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Clock, Copy, Info, Package, Search, Share, UtensilsCrossed, X } from "lucide-react";
+import Link from "next/link";
+import { Clock, Copy, Info, Package, Plus, Search, Share, ShoppingBag, UtensilsCrossed, X } from "lucide-react";
 import { toast } from "sonner";
+import { usePedido } from "@/components/menu/use-pedido";
 import {
   formatPrice,
   productMinPrice,
@@ -323,6 +325,15 @@ export function RestaurantPublicView({
 
   const byCat = (id: string) => filtered.filter((p) => p.categoryId === id);
 
+  // Carrito solo en variante catálogo pública con slug (paridad con /menu).
+  const { add, count } = usePedido(slug ?? "");
+  const showCart = isCatalog && !!slug;
+
+  function handleAdd(id: string, name: string, price: number) {
+    add({ id, name, price });
+    toast.success(`${name} agregado.`);
+  }
+
   function handleShare() {
     const url = slug ? `${window.location.origin}/${base}/${slug}` : window.location.href;
     navigator.clipboard
@@ -412,6 +423,17 @@ export function RestaurantPublicView({
                             {multi ? `Desde ${formatPrice(productMinPrice(p), currency ?? "COP")}` : formatPrice(productMinPrice(p), currency ?? "COP")}
                           </span>
                         ) : null}
+                        {showCart && (
+                          <button
+                            type="button"
+                            onClick={() => handleAdd(p.id, p.name, productMinPrice(p))}
+                            aria-label={`Agregar ${p.name} al pedido`}
+                            className="mt-0.5 flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-white transition-opacity hover:opacity-90"
+                            style={{ background: ap.primary }}
+                          >
+                            <Plus className="h-4 w-4" />
+                          </button>
+                        )}
                       </div>
                     );
                   })}
@@ -481,6 +503,19 @@ export function RestaurantPublicView({
       {/* Footer: solo en página pública (en preview lo reemplazan
           los botones Visitar/Compartir de CartaPhonePreview) */}
       {!preview && <Footer slug={slug} primary={ap.primary} linkBase={base} />}
+
+      {/* Barra flotante del pedido (solo catálogo): link al checkout */}
+      {showCart && count > 0 && (
+        <Link
+          href={`/catalogo/${slug}/checkout`}
+          aria-label={`Ver pedido, ${count} producto${count === 1 ? "" : "s"}`}
+          className="fixed inset-x-4 bottom-4 z-10 mx-auto flex max-w-[548px] cursor-pointer items-center justify-center gap-2 rounded-full px-4 py-3 text-sm font-bold text-white shadow-lg transition-opacity hover:opacity-90"
+          style={{ background: ap.primary }}
+        >
+          <ShoppingBag className="h-5 w-5" />
+          Ver pedido, {count} producto{count === 1 ? "" : "s"}
+        </Link>
+      )}
     </main>
   );
 }
