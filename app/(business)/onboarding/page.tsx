@@ -6,6 +6,7 @@ import { MiseMark } from "@/components/brand/mise-mark";
 import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getOrganizationForMember } from "@/lib/services/organizations";
+import { getOnboardingStatus } from "@/lib/services/onboarding";
 import { getOrCreateMiseLinkPage } from "@/lib/services/miselink";
 import { getRestaurantData } from "@/lib/restaurant-theme";
 import {
@@ -48,9 +49,9 @@ export default async function OnboardingPage() {
     ? (data.membership?.plan.code as OnboardingPlanCode)
     : "mise";
 
-  const baseComplete = Boolean(org.phone?.trim() && (org.city?.trim() || org.address?.trim()));
+  const status = await getOnboardingStatus(user.id).catch(() => null);
+  if (status?.completed) redirect("/dashboard");
 
-  let planComplete = true;
   let username = "";
   let bio = "";
   let hours = "";
@@ -66,11 +67,6 @@ export default async function OnboardingPage() {
   } catch (e) {
     console.error("[onboarding]", e);
   }
-
-  if (planCode === "mise_link") planComplete = Boolean(bio.trim());
-  if (planCode === "mise_restaurant") planComplete = Boolean(hours.trim());
-
-  if (baseComplete && planComplete) redirect("/dashboard");
 
   // Los miembros no administran: van directo al panel.
   if (data.role !== "business_owner") redirect("/dashboard");
