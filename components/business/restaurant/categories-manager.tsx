@@ -133,7 +133,7 @@ export function CategoriesManager({
             </div>
           ))}
         </div>
-        <Button onClick={save} disabled={saving || !dirty && items.length > 0 && false} className="mt-4 min-h-10 w-full bg-[#0A2540] hover:bg-[#0A2540]/90 sm:w-auto sm:px-8">
+        <Button onClick={save} disabled={saving || !dirty} className="mt-4 min-h-10 w-full bg-[#0A2540] hover:bg-[#0A2540]/90 sm:w-auto sm:px-8">
           {saving ? "Guardando..." : dirty ? "Guardar cambios" : <span className="inline-flex items-center gap-1.5"><Check className="h-4 w-4" />Al día</span>}
         </Button>
         </section>

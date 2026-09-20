@@ -294,7 +294,7 @@ export function MenuManager({
           {/* Barra guardar estática al final del flujo (no flotante). Siempre visible:
               con cero secciones el guardado avisa que se necesita al menos una (TOM-179). */}
           <div className="rounded-xl border border-border bg-card p-3 sm:p-4">
-              <Button onClick={save} disabled={saving}
+              <Button onClick={save} disabled={saving || !dirty}
                 className="min-h-11 w-full bg-[#0A2540] text-[15px] text-white transition-all duration-200 hover:bg-[#0A2540]/90 hover:shadow-md active:scale-[0.98] sm:w-auto sm:px-10">
                 {saving ? "Guardando..." : dirty ? `Guardar ${copy.menuNoun}` : `${copy.menuNounCap} al día`}
               </Button>
