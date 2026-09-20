@@ -57,6 +57,7 @@ export async function POST(req: Request) {
 
     // Reply con Mimo v2.5 groundeado en la carta real; fallback determinístico si falla.
     let reply = result.reply;
+    let source: "ia" | "local" = "local";
     const llmReply = await getMeseroReply({
       message: parsed.data.message,
       history: parsed.data.history ?? [],
@@ -68,11 +69,15 @@ export async function POST(req: Request) {
       focus: rest.ia?.whatToRecommend ?? "",
       tone: rest.ia?.customInstructions ?? "",
     });
-    if (llmReply) reply = llmReply;
+    if (llmReply) {
+      reply = llmReply;
+      source = "ia";
+    }
 
     return NextResponse.json({
       ok: true,
       reply,
+      source,
       dishes,
       business: { name: businessName, hours: rest.hours ?? "", whatsapp: rest.whatsapp ?? "" },
     });

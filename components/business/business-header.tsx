@@ -1,19 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { BookOpen, Building2, ChartNoAxesColumn, ChevronDown, CreditCard, LayoutDashboard, Link2, LogOut, Package, QrCode, Settings, Sparkles, Tags, User, Users } from "lucide-react";
+import { BookOpen, Building2, ChartNoAxesColumn, ChevronDown, LayoutDashboard, Link2, LogOut, Package, QrCode, Sparkles, Tags, Users } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { PLAN_LABELS } from "@/lib/mise-labels";
 
 export function BusinessHeader({ markSuffix, planCode }: { markSuffix?: string; planCode?: string }) {
@@ -58,10 +49,9 @@ export function BusinessHeader({ markSuffix, planCode }: { markSuffix?: string; 
   );
 }
 
-export function BusinessSidebar({ userLabel, hasMiseLink = false, planCode }: { userLabel: string; hasMiseLink?: boolean; planCode?: string }) {
+export function BusinessSidebar({ account, hasMiseLink = false, planCode }: { account?: React.ReactNode; hasMiseLink?: boolean; planCode?: string }) {
   // hasMiseLink se ignora a propósito: el toggle siempre visible (consistente en todas las páginas).
   void hasMiseLink;
-  const router = useRouter();
   const pathname = usePathname();
   const isRestaurant = planCode === "mise_restaurant";
   const isMiseLinkSection = pathname?.startsWith("/dashboard/miselink") ?? false;
@@ -70,88 +60,9 @@ export function BusinessSidebar({ userLabel, hasMiseLink = false, planCode }: { 
   const isLinksActive = pathname === "/dashboard/miselink";
   const isDesignActive = pathname === "/dashboard/miselink/design";
 
-  const handleLogout = async () => {
-    try {
-      await signOut({ redirect: false });
-    } catch (e) {
-      console.error("[logout]", e);
-    }
-    router.replace("/login");
-  };
-
   return (
     <aside className="hidden w-56 shrink-0 flex-col border-r border-border bg-card p-4 md:flex">
-      <DropdownMenu>
-        <Tooltip delayDuration={400}>
-          <TooltipTrigger asChild>
-            <DropdownMenuTrigger asChild>
-              <button
-                aria-haspopup="menu"
-                aria-label={`Cuenta: ${userLabel}`}
-                className="cursor-pointer flex w-full items-center gap-2 rounded-xl px-2 py-2 text-left transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
-              >
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted">
-                  <User className="h-5 w-5 shrink-0 text-muted-foreground" />
-                </span>
-                <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">
-                  {userLabel}
-                </span>
-                <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
-              </button>
-            </DropdownMenuTrigger>
-          </TooltipTrigger>
-          <TooltipContent
-            side="right"
-            sideOffset={8}
-            className="max-w-[min(20rem,calc(100vw-2rem))] break-words"
-          >
-            <span className="block select-all text-xs font-medium">{userLabel}</span>
-          </TooltipContent>
-        </Tooltip>
-        <DropdownMenuContent
-          align="start"
-          sideOffset={8}
-          collisionPadding={12}
-          className="w-[min(20rem,calc(100vw-2rem))] p-1.5"
-        >
-          <DropdownMenuLabel className="px-3 py-3">
-            <span className="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-              Cuenta
-            </span>
-            <span
-              aria-label={userLabel}
-              className="block max-w-full select-all whitespace-normal break-words text-xs font-medium normal-case leading-relaxed tracking-normal text-foreground"
-            >
-              {userLabel}
-            </span>
-          </DropdownMenuLabel>
-          <DropdownMenuSeparator className="my-1.5" />
-          <DropdownMenuItem asChild className="cursor-pointer gap-3 rounded-lg px-3 py-2.5 text-xs font-semibold tracking-wide focus:bg-accent focus:text-accent-foreground">
-            <Link href="/dashboard/cuenta">
-              <User className="h-4 w-4 shrink-0 text-muted-foreground" />
-              CUENTA
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild className="cursor-pointer gap-3 rounded-lg px-3 py-2.5 text-xs font-semibold tracking-wide focus:bg-accent focus:text-accent-foreground">
-            <Link href="/dashboard/billing">
-              <CreditCard className="h-4 w-4 shrink-0 text-muted-foreground" />
-              BILLING &amp; PLANS
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild className="cursor-pointer gap-3 rounded-lg px-3 py-2.5 text-xs font-semibold tracking-wide focus:bg-accent focus:text-accent-foreground">
-            <Link href="/dashboard/ajustes">
-              <Settings className="h-4 w-4 shrink-0 text-muted-foreground" />
-              AJUSTES
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator className="my-1.5" />
-          <DropdownMenuItem onClick={handleLogout} className="cursor-pointer gap-3 rounded-lg px-3 py-2.5 text-xs font-semibold tracking-wide text-destructive focus:bg-destructive/10 focus:text-destructive">
-            <LogOut className="h-4 w-4 shrink-0 text-destructive/70" />
-            Salir
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-
+      {account}
       <nav className="mt-2 space-y-1">
         {isRestaurant ? (
           <RestaurantNav pathname={pathname} />

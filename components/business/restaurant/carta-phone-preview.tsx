@@ -15,7 +15,8 @@ import { RestaurantPublicView } from "./restaurant-public-view";
  *
  * Variant restaurant: iframe a la página pública real /menu/[slug]
  * (píxel a píxel lo que ve el cliente; muestra lo GUARDADO).
- * Variant catalog: RestaurantPublicView (el que usa /catalogo/[slug]).
+ * Variant catalog: iframe a la página pública real /catalogo/[slug]
+ * (igual que restaurant; muestra lo GUARDADO).
  */
 export function CartaPhonePreview({
   slug,
@@ -51,10 +52,10 @@ export function CartaPhonePreview({
 }) {
   const publicHref = slug ? `/${linkBase}/${slug}` : undefined;
   const noun = menuNounCap.toLowerCase();
-  const isRestaurant = variant === "restaurant";
-  // La página real /menu/[slug]: el preview es un iframe a esa misma URL,
+  // Ambas variantes (restaurant y catalog) previsualizan con iframe a su
+  // página pública real (/menu/[slug] o /catalogo/[slug]):
   // píxel a píxel lo que ve el cliente (muestra lo guardado, no borradores).
-  const showRealMenu = isRestaurant && !!slug;
+  const showRealMenu = !!slug;
   const [frameKey, setFrameKey] = useState(0);
   // El iframe recarga solo tras cada guardado (reloadSignal) o con el botón.
   const iframeKey = `${frameKey}-${reloadSignal ?? 0}`;

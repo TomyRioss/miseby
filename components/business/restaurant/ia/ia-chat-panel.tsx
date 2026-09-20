@@ -97,6 +97,7 @@ export function IaChatPanel({ isActive, menuSummary, focus }: Props) {
   const [msg, setMsg] = useState("");
   const [typing, setTyping] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
+  const [source, setSource] = useState<"ia" | "local" | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -128,6 +129,7 @@ export function IaChatPanel({ isActive, menuSummary, focus }: Props) {
       const data: {
         ok?: boolean;
         reply?: string;
+        source?: "ia" | "local";
         dishes?: RecommendedDish[];
         error?: string;
       } | null = await res.json().catch(() => null);
@@ -151,6 +153,7 @@ export function IaChatPanel({ isActive, menuSummary, focus }: Props) {
           at: Date.now(),
         },
       ]);
+      setSource(data.source ?? "local");
     } catch (e) {
       console.error("[mise-ia chat]", e);
       const msgErr = "Sin conexión. Revisá tu internet y probá de nuevo.";
@@ -177,6 +180,14 @@ export function IaChatPanel({ isActive, menuSummary, focus }: Props) {
           <span aria-hidden className={`mr-1.5 h-1.5 w-1.5 rounded-full ${isActive ? "bg-white" : "bg-muted-foreground"}`} />
           {isActive ? "En línea" : "En pausa"}
         </Badge>
+        {source && (
+          <span
+            title={source === "ia" ? "Responde la IA (OpenRouter)" : "Sin IA: respuesta automática local. Revisá tu key de OpenRouter."}
+            className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${source === "ia" ? "bg-[#6D28D9]/10 text-[#6D28D9]" : "bg-amber-500/15 text-amber-700 dark:text-amber-400"}`}
+          >
+            {source === "ia" ? "IA en vivo" : "Respuesta local"}
+          </span>
+        )}
       </CardHeader>
 
       <CardContent className="flex min-h-0 flex-1 flex-col pt-4">
