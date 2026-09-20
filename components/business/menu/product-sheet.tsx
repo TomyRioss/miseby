@@ -12,7 +12,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 
 export type SheetState =
@@ -150,7 +149,7 @@ export function ProductSheet({
 
   return (
     <Sheet open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
-      <SheetContent side="right" className="flex w-full flex-col overflow-x-hidden sm:max-w-xl">
+      <SheetContent side="right" className="flex w-full flex-col overflow-x-hidden sm:max-w-2xl">
         <SheetHeader>
           <SheetTitle>{state?.mode === "edit" ? `Editar ${copy.itemSingular}` : `Nuevo ${copy.itemSingular}`}</SheetTitle>
         </SheetHeader>
@@ -212,8 +211,6 @@ export function ProductSheet({
             </label>
           </div>
 
-          <Separator />
-
           <div>
             <label className="flex cursor-pointer items-center justify-between">
               <span><span className="block text-sm font-semibold">Variantes</span>
@@ -244,8 +241,6 @@ export function ProductSheet({
               </div>
             )}
           </div>
-
-          <Separator />
 
           <div>
             <p className="text-sm font-semibold">Grupos de agregados</p>

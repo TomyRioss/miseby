@@ -147,7 +147,7 @@ export function AddItemDialog({
           <FaPlus className="h-4 w-4" /> Agregar
         </Button>
       </DialogTrigger>
-      <DialogContent className="flex h-[640px] max-h-[85vh] flex-col gap-0 overflow-hidden rounded-3xl border-border/60 p-6 shadow-xl sm:max-w-3xl">
+      <DialogContent className="flex h-[640px] max-h-[85vh] flex-col gap-0 overflow-hidden rounded-3xl border-border/60 p-6 shadow-xl sm:max-w-4xl">
         <DialogHeader className="shrink-0 pb-4">
           <DialogTitle className="text-[15px] font-semibold">Agregar</DialogTitle>
         </DialogHeader>
@@ -237,7 +237,7 @@ export function AddItemDialog({
                     Sin resultados. Probá con “link” o pegá una URL arriba.
                   </p>
                 ) : (
-                  <ul className="divide-y divide-border">
+                  <ul>
                     {filteredSocials.map((n) => {
                       const s = MISELINK_SOCIAL_NETWORKS[n];
                       const Icon = s.icon;

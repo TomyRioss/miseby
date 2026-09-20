@@ -12,7 +12,7 @@ export function MenuEditorLayout({ left, preview }: { left: React.ReactNode; pre
     <div className="grid w-full gap-8 lg:grid-cols-[minmax(0,1fr)_auto_360px]">
       <div className="flex min-w-0 flex-col gap-6">{left}</div>
 
-      <Separator orientation="vertical" className="hidden lg:block" />
+      <Separator orientation="vertical" className="hidden lg:block fixed top-1/2 -translate-y-1/2 h-[50vh] right-[calc(2rem+360px+2rem)]" />
 
       <aside className="hidden lg:block">
         <div className="fixed right-8 top-1/2 h-[calc(100vh-8rem)] max-h-[760px] w-[360px] -translate-y-1/2">{preview}</div>

@@ -180,7 +180,7 @@ export function BusinessSidebar({ userLabel, hasMiseLink = false, planCode }: { 
         <div>
           <button
             type="button"
-            onClick={() => setOpen(!open)}
+            onClick={() => setOpen((prev) => !prev)}
             aria-expanded={open}
             className="cursor-pointer flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted"
           >
@@ -339,7 +339,7 @@ function RestaurantNav({ pathname }: { pathname: string | null }) {
       {RESTAURANT_ITEMS_TOP.map(renderItem)}
       <button
         type="button"
-        onClick={() => setLinkOpen(!linkOpen)}
+        onClick={() => setLinkOpen((prev) => !prev)}
         aria-expanded={linkOpen}
         className="cursor-pointer flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted"
       >
@@ -375,7 +375,7 @@ function RestaurantNav({ pathname }: { pathname: string | null }) {
       )}
       <button
         type="button"
-        onClick={() => setMenuOpen(!menuOpen)}
+        onClick={() => setMenuOpen((prev) => !prev)}
         aria-expanded={menuOpen}
         className={`cursor-pointer flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-muted ${
           isMenuSection ? "bg-muted font-semibold text-foreground" : "font-medium text-muted-foreground"
