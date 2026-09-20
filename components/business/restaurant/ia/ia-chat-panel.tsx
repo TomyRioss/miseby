@@ -124,6 +124,7 @@ export function IaChatPanel({ isActive, menuSummary, focus }: Props) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: value, history }),
+        signal: AbortSignal.timeout(35_000),
       });
       const data: {
         ok?: boolean;
@@ -153,7 +154,10 @@ export function IaChatPanel({ isActive, menuSummary, focus }: Props) {
       ]);
     } catch (e) {
       console.error("[mise-ia chat]", e);
-      const msgErr = "Sin conexión. Revisá tu internet y probá de nuevo.";
+      const timedOut = e instanceof DOMException && e.name === "TimeoutError";
+      const msgErr = timedOut
+        ? "Tardó demasiado en responder. Probá de nuevo."
+        : "Sin conexión. Revisá tu internet y probá de nuevo.";
       setSendError(msgErr);
       toast.error(msgErr);
     } finally {
