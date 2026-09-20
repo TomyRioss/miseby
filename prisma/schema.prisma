@@ -11,6 +11,7 @@ datasource db {
 enum UserRole {
   platform_owner
   business_owner
+  business_admin
   business_member
 }
 
@@ -99,6 +100,7 @@ model Organization {
 
 enum OrganizationMemberRole {
   business_owner
+  business_admin
   business_member
 }
 
@@ -192,6 +194,7 @@ model Membership {
 
 enum InvitationRole {
   business_owner
+  business_admin
   business_member
 }
 
@@ -241,6 +244,9 @@ enum AuditAction {
   invitation_resent
   invitation_cancelled
   invitation_accepted
+  member_invited
+  member_removed
+  member_role_changed
   user_password_changed
   platform_owner_login
 }

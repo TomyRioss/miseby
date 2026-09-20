@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { Building2, CreditCard, CheckCircle } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getOrganizationForMember } from "@/lib/services/organizations";
@@ -8,6 +9,7 @@ import { InfoRow } from "@/components/business/info-row";
 import { NoMembershipBanner } from "@/components/business/no-membership-banner";
 import { BusinessHeader, BusinessSidebar } from "@/components/business/business-header";
 import { SidebarAccount } from "@/components/business/sidebar-account";
+import { orgRoleLabel } from "@/components/business/members/role-labels";
 import { BUSINESS_TYPE_LABELS, ORG_STATUSES, MEMBERSHIP_STATUSES, PLAN_LABELS, formatDate } from "@/lib/mise-labels";
 
 export const metadata: Metadata = {
@@ -55,12 +57,17 @@ export default async function BusinessDashboardPage() {
   }
   const miseLinkHandle = miseLinkUsername ?? org?.slug ?? "";
 
+  // TOM-193: business_member no accede a Vista general → contenido del catálogo según plan.
+  if (role === "business_member") {
+    redirect(membership?.plan.code === "mise_restaurant" ? "/dashboard/menu" : "/dashboard/catalogo");
+  }
+
   return (
     <div className="flex h-full flex-col overflow-hidden bg-background">
       <BusinessHeader markSuffix={planSuffix} />
 
       <div className="flex min-h-0 flex-1">
-        <BusinessSidebar account={<SidebarAccount />} hasMiseLink={hasMiseLink} planCode={membership?.plan.code} />
+        <BusinessSidebar account={<SidebarAccount />} hasMiseLink={hasMiseLink} planCode={membership?.plan.code} orgRole={role} />
 
         <main className="min-h-0 flex-1 overflow-y-auto p-6 lg:p-10">
           {error ? (
@@ -80,7 +87,7 @@ export default async function BusinessDashboardPage() {
                   {org.commercialName}
                 </h1>
                 <p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
-                  {role === "business_owner" ? "Administrador" : "Miembro del equipo"}
+                  {orgRoleLabel(role)}
                   <StatusBadge
                     label={ORG_STATUSES[org.status]?.label ?? org.status}
                     color={ORG_STATUSES[org.status]?.color}
@@ -134,7 +141,7 @@ export default async function BusinessDashboardPage() {
                       />
                     )}
                     {org.city && <InfoRow label="Ciudad" value={org.city} />}
-                    <InfoRow label="Mi rol" value={role === "business_owner" ? "Administrador" : "Miembro"} />
+                    <InfoRow label="Mi rol" value={orgRoleLabel(role)} />
                   </section>
 
                   <section className="rounded-2xl border border-border bg-card p-6">

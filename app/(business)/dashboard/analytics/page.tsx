@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getOrganizationForMember } from "@/lib/services/organizations";
 import { getOrCreateMiseLinkPage } from "@/lib/services/miselink";
@@ -17,12 +18,14 @@ export default async function AnalyticsPage() {
   if (!user) return null;
   let planCode: string | undefined;
   let planName: string | undefined;
+  let orgRole: string | null | undefined;
   let rest = getRestaurantData(null);
   let linkClicks = 0;
   let clickData: { title: string; clicks: number }[] = [];
   try {
     const data = await getOrganizationForMember(user.id);
     planCode = data?.membership?.plan.code;
+    orgRole = data?.role;
     planName = data?.membership ? (PLAN_LABELS[data.membership.plan.code] ?? data.membership.plan.name) : undefined;
     const page = await getOrCreateMiseLinkPage(user.id);
     rest = getRestaurantData(page.theme);
@@ -44,6 +47,11 @@ export default async function AnalyticsPage() {
     }));
   } catch (e) {
     console.error("[analytics page]", e);
+  }
+
+  // TOM-193: business_member no accede a Analytics → contenido del catálogo según plan.
+  if (orgRole === "business_member") {
+    redirect(planCode === "mise_restaurant" ? "/dashboard/menu" : "/dashboard/catalogo");
   }
 
   const categories = rest.categories ?? [];
@@ -120,7 +128,7 @@ export default async function AnalyticsPage() {
     <div className="flex h-full flex-col overflow-hidden bg-background">
       <BusinessHeader markSuffix={planName} planCode={planCode} />
       <div className="flex min-h-0 flex-1">
-        <BusinessSidebar account={<SidebarAccount />} hasMiseLink={false} planCode={planCode} />
+        <BusinessSidebar account={<SidebarAccount />} hasMiseLink={false} planCode={planCode} orgRole={orgRole} />
         <main className="min-h-0 flex-1 overflow-y-auto p-6 lg:p-10">
           <div className="mx-auto w-full max-w-6xl">
             <h1 className="font-display text-2xl font-semibold">Analytics</h1>

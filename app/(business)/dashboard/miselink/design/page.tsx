@@ -21,19 +21,19 @@ export default async function MiseLinkDesignPage() {
     return null;
   });
 
-  const planCode = await getOrganizationForMember(user.id)
-    .then((d) => d?.membership?.plan.code)
-    .catch((e) => {
-      console.error("[design page plan]", e);
-      return undefined;
-    });
+  const membership = await getOrganizationForMember(user.id).catch((e) => {
+    console.error("[design page plan]", e);
+    return null;
+  });
+  const planCode = membership?.membership?.plan.code;
+  const orgRole = membership?.role;
 
   if (!page) {
     return (
       <div className="flex h-full flex-col overflow-hidden bg-background">
         <BusinessHeader markSuffix="LINK" />
         <div className="flex min-h-0 flex-1">
-          <BusinessSidebar account={<SidebarAccount />} hasMiseLink={false} planCode={planCode} />
+          <BusinessSidebar account={<SidebarAccount />} hasMiseLink={false} planCode={planCode} orgRole={orgRole} />
           <main className="min-h-0 flex-1 overflow-y-auto px-6 py-6">No se pudo cargar el diseño.</main>
         </div>
       </div>
@@ -44,7 +44,7 @@ export default async function MiseLinkDesignPage() {
     <div className="flex h-full flex-col overflow-hidden bg-background">
       <BusinessHeader markSuffix="LINK" />
       <div className="flex min-h-0 flex-1">
-        <BusinessSidebar account={<SidebarAccount />} hasMiseLink planCode={planCode} />
+        <BusinessSidebar account={<SidebarAccount />} hasMiseLink planCode={planCode} orgRole={orgRole} />
         <main className="min-h-0 w-full flex-1 overflow-y-auto px-6 py-6 sm:px-10 lg:px-12 lg:py-10">
           <div className="mx-auto w-full max-w-6xl">
             <DesignEditor

@@ -11,7 +11,7 @@ export async function requirePlatformOwner() {
 
 export async function requireBusinessUser() {
   const user = await getCurrentUser();
-  if (!user || (user.role !== "business_owner" && user.role !== "business_member")) {
+  if (!user || (user.role !== "business_owner" && user.role !== "business_admin" && user.role !== "business_member")) {
     throw new Error("No autorizado");
   }
   return user;
