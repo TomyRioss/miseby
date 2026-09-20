@@ -37,6 +37,7 @@ export default async function MenuPage() {
             menuPublished={rest.menuPublished === true}
             schedule={rest.schedule}
             commercialName={data.organization.commercialName}
+            baseUpdatedAt={rest.updatedAt}
           />
         </main>
       </div>

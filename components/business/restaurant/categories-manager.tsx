@@ -19,6 +19,7 @@ export function CategoriesManager({
   slug,
   hours,
   schedule,
+  commercialName,
 }: {
   initial: RestaurantCategory[];
   appearance: RestaurantAppearance;
@@ -27,6 +28,7 @@ export function CategoriesManager({
   slug?: string;
   hours?: string;
   schedule?: WeekSchedule;
+  commercialName?: string | null;
 }) {
   const [items, setItems] = useState<RestaurantCategory[]>([...initial].sort((a, b) => a.order - b.order));
   const [name, setName] = useState("");
@@ -131,7 +133,7 @@ export function CategoriesManager({
             </div>
           ))}
         </div>
-        <Button onClick={save} disabled={saving || !dirty && items.length > 0 && false} className="mt-4 min-h-10 w-full bg-[#0A2540] hover:bg-[#0A2540]/90 sm:w-auto sm:px-8">
+        <Button onClick={save} disabled={saving || !dirty} className="mt-4 min-h-10 w-full bg-[#0A2540] hover:bg-[#0A2540]/90 sm:w-auto sm:px-8">
           {saving ? "Guardando..." : dirty ? "Guardar cambios" : <span className="inline-flex items-center gap-1.5"><Check className="h-4 w-4" />Al día</span>}
         </Button>
         </section>
@@ -145,7 +147,7 @@ export function CategoriesManager({
           products={products}
           currency={currency}
           hours={hours}
-          restaurantName={appearance.restaurantName}
+          restaurantName={appearance.restaurantName || commercialName || ""}
           schedule={schedule}
         />
       }
