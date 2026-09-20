@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireBusinessUser } from "@/lib/auth/guards";
+import { getOrgRole } from "@/lib/auth/org-role";
 import { getOrganizationForMember, updateOrganization, generateUniqueSlug } from "@/lib/services/organizations";
 import { getOrCreateMiseLinkPage, updateTheme } from "@/lib/services/miselink";
 import {
@@ -34,7 +35,10 @@ export async function updateBusinessProfileAction(input: unknown): Promise<Actio
     const parsed = businessProfileSchema.safeParse(input);
     if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
     const { user, org } = await currentOrg();
-    if (user.role !== "business_owner") return { ok: false, error: "Solo el administrador puede editar." };
+    const orgRole = await getOrgRole(user.id, org.id);
+    if (orgRole !== "business_owner" && orgRole !== "business_admin") {
+      return { ok: false, error: "Solo el administrador puede editar." };
+    }
     const nameChanged = parsed.data.commercialName.trim() !== (org.commercialName ?? "").trim();
     let slug: string | undefined;
     if (nameChanged) {
