@@ -11,7 +11,7 @@ import {
 } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 import { toast } from "sonner";
-import { saveAppearanceAction, saveMenuAction } from "@/lib/actions/restaurant";
+import { saveMenuAction } from "@/lib/actions/restaurant";
 import { newId, type RestaurantAppearance, type RestaurantCategory, type RestaurantProduct, type WeekSchedule } from "@/lib/restaurant-theme";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,7 +49,6 @@ export function MenuManager({
   const [inputFocused, setInputFocused] = useState(false);
   const [restName, setRestName] = useState(appearance.restaurantName ?? "");
   const [savedName, setSavedName] = useState(appearance.restaurantName ?? "");
-  const [savingName, setSavingName] = useState(false);
   const [activeTab, setActiveTab] = useState<string | null>(null);
   const newCatRef = useRef<HTMLInputElement>(null);
   const baseUpdatedAtRef = useRef(baseUpdatedAt);
@@ -112,9 +111,12 @@ export function MenuManager({
     if (cats.length === 0) return toast.error("Creá al menos una sección.");
     setSaving(true);
     try {
-      const res = await saveMenuAction({ categories: cats, products, baseUpdatedAt: baseUpdatedAtRef.current });
+      const nextName = restName.trim().slice(0, 120);
+      const res = await saveMenuAction({ categories: cats, products, restaurantName: nextName, baseUpdatedAt: baseUpdatedAtRef.current });
       if (!res.ok) throw new Error(res.error);
       if (res.updatedAt !== undefined) baseUpdatedAtRef.current = res.updatedAt;
+      setSavedName(nextName);
+      setRestName(nextName);
       setDirty(false);
       toast.success(`${copy.menuNounCap} al día: ${available.length} ${copy.itemPlural} visibles.`);
     } catch (e) {
@@ -123,21 +125,13 @@ export function MenuManager({
     } finally { setSaving(false); }
   }
 
-  async function commitName() {
-    const next = restName.trim().slice(0, 120);
-    if (!next || next === savedName) { setRestName(savedName); return; }
-    setSavingName(true);
-    try {
-      const res = await saveAppearanceAction({ ...appearance, restaurantName: next });
-      if (!res.ok) throw new Error(res.error);
-      setSavedName(next);
-      setRestName(next);
-      toast.success("Nombre actualizado.");
-    } catch (e) {
-      console.error("[menu nombre]", e);
-      setRestName(savedName);
-      toast.error(e instanceof Error ? e.message : "No se pudo guardar. Probá de nuevo.");
-    } finally { setSavingName(false); }
+  function touchName(v: string) {
+    setRestName(v.slice(0, 120));
+    setDirty(true);
+  }
+
+  function revertNameIfEmpty() {
+    if (!restName.trim()) setRestName(savedName);
   }
 
   const inputCls = `min-h-10 transition-all duration-200${inputFocused ? " border-[#0A2540] ring-2 ring-[#0A2540]/20" : ""}`;
@@ -176,12 +170,12 @@ export function MenuManager({
                 <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">{copy.businessWord}</p>
                 <input
                   value={restName}
-                  onChange={(e) => setRestName(e.target.value.slice(0, 120))}
-                  onBlur={commitName}
+                  onChange={(e) => touchName(e.target.value)}
+                  onBlur={revertNameIfEmpty}
                   onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
                   placeholder={copy.businessFallback}
                   aria-label="Nombre del restaurante"
-                  disabled={savingName}
+                  disabled={saving}
                   className="w-full truncate border-b border-border bg-transparent pb-0.5 text-base font-bold tracking-tight outline-none transition-colors placeholder:font-normal placeholder:text-muted-foreground focus:border-primary"
                 />
               </div>

@@ -129,8 +129,13 @@ export async function saveMenuAction(input: unknown): Promise<SaveMenuResult> {
     }
     const now = new Date().toISOString();
     const sorted = [...parsed.data.categories].sort((a, b) => a.order - b.order);
+    const nextName = parsed.data.restaurantName?.trim().slice(0, 120);
+    const appearance = {
+      ...current.appearance,
+      ...(nextName !== undefined ? { restaurantName: nextName } : {}),
+    };
     await getOrCreateMiseLinkPage(user.id);
-    await updateTheme(user.id, { restaurant: { ...current, categories: sorted, products: parsed.data.products, updatedAt: now } } as Record<string, unknown>);
+    await updateTheme(user.id, { restaurant: { ...current, appearance, categories: sorted, products: parsed.data.products, updatedAt: now } } as Record<string, unknown>);
     revalidatePath("/dashboard/menu");
     revalidatePath("/dashboard/catalogo");
     revalidatePath("/dashboard/categorias");
