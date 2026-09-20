@@ -13,12 +13,22 @@ export function getSupabaseAdmin() {
 }
 
 export async function ensureAvatarsBucket(supabase: ReturnType<typeof getSupabaseAdmin>) {
-  const { error } = await supabase.storage.getBucket(AVATARS_BUCKET);
+  const { data: bucket, error } = await supabase.storage.getBucket(AVATARS_BUCKET);
   if (error && error.message?.toLowerCase().includes("not found")) {
     const { error: createError } = await supabase.storage.createBucket(AVATARS_BUCKET, {
       public: true,
     });
     if (createError) throw createError;
+    return;
+  }
+  if (error) throw error;
+  // Si el bucket existe pero no es público, las URLs son inaccesibles
+  // (imagen rota sin error). Asegurar público.
+  if (bucket && bucket.public !== true) {
+    const { error: updateError } = await supabase.storage.updateBucket(AVATARS_BUCKET, {
+      public: true,
+    });
+    if (updateError) throw updateError;
   }
 }
 

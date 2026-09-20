@@ -26,7 +26,7 @@ export async function uploadAvatarAction(formData: FormData): Promise<Result> {
       return { ok: false, error: "Solo JPG, PNG o WebP." };
     }
     if (file.size > MAX_BYTES) {
-      return { ok: false, error: "Máximo 2 MB." };
+      return { ok: false, error: "Máximo 5 MB." };
     }
     const page = await getOrCreateMiseLinkPage(user.id);
     const supabase = getSupabaseAdmin();
@@ -38,7 +38,7 @@ export async function uploadAvatarAction(formData: FormData): Promise<Result> {
       .upload(path, bytes, { contentType: file.type, upsert: false });
     if (error) {
       console.error("[avatar upload]", error);
-      return { ok: false, error: "No se pudo subir. Probá de nuevo." };
+      return { ok: false, error: "No se pudo subir la imagen. Probá de nuevo." };
     }
     const { data } = supabase.storage.from(AVATARS_BUCKET).getPublicUrl(path);
     if (!data?.publicUrl) {
@@ -64,7 +64,7 @@ export async function uploadBannerAction(formData: FormData): Promise<Result> {
       return { ok: false, error: "Solo JPG, PNG o WebP." };
     }
     if (file.size > MAX_BYTES) {
-      return { ok: false, error: "Máximo 2 MB." };
+      return { ok: false, error: "Máximo 5 MB." };
     }
     const page = await getOrCreateMiseLinkPage(user.id);
     const supabase = getSupabaseAdmin();
@@ -76,7 +76,7 @@ export async function uploadBannerAction(formData: FormData): Promise<Result> {
       .upload(path, bytes, { contentType: file.type, upsert: false });
     if (error) {
       console.error("[banner upload]", error);
-      return { ok: false, error: "No se pudo subir. Probá de nuevo." };
+      return { ok: false, error: "No se pudo subir la imagen. Probá de nuevo." };
     }
     const { data } = supabase.storage.from(AVATARS_BUCKET).getPublicUrl(path);
     if (!data?.publicUrl) {
