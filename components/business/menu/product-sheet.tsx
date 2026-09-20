@@ -153,7 +153,7 @@ export function ProductSheet({
         <SheetHeader>
           <SheetTitle>{state?.mode === "edit" ? `Editar ${copy.itemSingular}` : `Nuevo ${copy.itemSingular}`}</SheetTitle>
         </SheetHeader>
-        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto overflow-x-hidden px-1 py-4">
+        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto overflow-x-hidden px-4 py-4 sm:px-5">
           <div className="flex items-center gap-3">
             <button
               type="button" onClick={() => fileRef.current?.click()} disabled={uploading}

@@ -165,26 +165,28 @@ export function PlatoMenuView({
         ) : null}
       </div>
 
-      {/* Portada */}
+      {/* Portada + franja de estado solapada abajo, a todo ancho */}
       <header className="pb-4" style={{ background: bg }}>
-        <div
-          className="h-20 w-full bg-cover bg-center md:h-28"
-          style={
-            ap.bannerUrl
-              ? { backgroundImage: `url(${ap.bannerUrl})` }
-              : { backgroundImage: `linear-gradient(90deg, ${light}, ${hexA(primary, "33")})` }
-          }
-          aria-hidden="true"
-        />
-        {(status || hoursFallback) && (
+        <div className="relative">
           <div
-            className="flex items-center justify-center gap-1.5 py-1.5 text-xs font-bold text-white"
-            style={{ background: status ? (status.open ? "#059669" : "#DC2626") : primary }}
-          >
-            <Clock className="h-3.5 w-3.5 shrink-0" />
-            {status ? status.text : hoursFallback}
-          </div>
-        )}
+            className="h-28 w-full bg-cover bg-center md:h-40"
+            style={
+              ap.bannerUrl
+                ? { backgroundImage: `url(${ap.bannerUrl})` }
+                : { backgroundImage: `linear-gradient(90deg, ${light}, ${hexA(primary, "33")})` }
+            }
+            aria-hidden="true"
+          />
+          {(status || hoursFallback) && (
+            <div
+              className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-1.5 rounded-t-2xl py-1.5 text-xs font-bold text-white"
+              style={{ background: status ? (status.open ? "#059669" : "#DC2626") : primary }}
+            >
+              <Clock className="h-3.5 w-3.5 shrink-0" />
+              {status ? status.text : hoursFallback}
+            </div>
+          )}
+        </div>
         <div className="mx-auto mt-4 max-w-2xl px-4">
           <div className="flex items-center gap-3">
             {logoUrl ? (

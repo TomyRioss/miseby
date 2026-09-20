@@ -14,3 +14,7 @@ Historial del proyecto (fuente: Linear proyecto Miseby). Una fila por task cerra
 | 2026-09-20 | miseby | TOM-184 legales + 404 custom | S | n/a | mimo-v2.5/muse-spark | Done, merge 86ec0ee a dev |
 | 2026-09-20 | miseby | TOM-188 | M | ~11min | spark(BE+FE), correccion-steer(slug) | OK merge 75d4285 |
 | 2026-09-20 | miseby | TOM-189 | M | n/a | spark+mimo | OK: paridad catalogo multirubro vs restaurant (iframe real, owner-preview, copy neutra, revalidates) mergeado a dev |
+| 2026-09-20 | miseby | TOM-190 | S | n/a | spark | OK: carrito+checkout+WhatsApp catalogo mergeado a dev |
+| 2026-09-20 | miseby | TOM-191 | S | n/a | spark | OK: sidebar MISE paridad total mergeado a dev |
+| 2026-09-20 | miseby | TOM-193 | M | ~30min | spark(BE+FE)+mimo(QA) | OK: seccion Miembros identica mise/restaurant + rol business_admin per-org (member sin analytics/negocio/miembros/vista-general, admin gestiona solo members, owner todo) mergeado a dev |
+| 2026-09-20 | miseby | TOM-192 | M | n/a | spark+mimo | OK: root-cause upload foto (1MB limit) + dogfood report, mergeado a dev |

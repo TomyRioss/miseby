@@ -118,19 +118,21 @@ export default async function BusinessDashboardPage() {
                         </a>
                       }
                     />
-                    <InfoRow
-                      label="Mise-Restaurant"
-                      value={
-                        <a
-                          href={`/menu/${org.slug}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="font-mono text-xs text-[#075296] underline underline-offset-2"
-                        >
-                          miseby.com/menu/{org.slug}
-                        </a>
-                      }
-                    />
+                    {membership.plan.code === "mise_restaurant" && (
+                      <InfoRow
+                        label="Mise-Restaurant"
+                        value={
+                          <a
+                            href={`/menu/${org.slug}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="font-mono text-xs text-[#075296] underline underline-offset-2"
+                          >
+                            miseby.com/menu/{org.slug}
+                          </a>
+                        }
+                      />
+                    )}
                     {org.city && <InfoRow label="Ciudad" value={org.city} />}
                     <InfoRow label="Mi rol" value={role === "business_owner" ? "Administrador" : "Miembro"} />
                   </section>
@@ -217,19 +219,21 @@ export default async function BusinessDashboardPage() {
                       </a>
                     }
                   />
-                  <InfoRow
-                    label="Mise-Restaurant"
-                    value={
-                      <a
-                        href={`/menu/${org.slug}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="font-mono text-xs text-[#075296] underline underline-offset-2"
-                      >
-                        miseby.com/menu/{org.slug}
-                      </a>
-                    }
-                  />
+                  {org.businessType === "restaurant" && (
+                    <InfoRow
+                      label="Mise-Restaurant"
+                      value={
+                        <a
+                          href={`/menu/${org.slug}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="font-mono text-xs text-[#075296] underline underline-offset-2"
+                        >
+                          miseby.com/menu/{org.slug}
+                        </a>
+                      }
+                    />
+                  )}
                   {org.city && <InfoRow label="Ciudad" value={org.city} />}
                   <InfoRow
                     label="Estado del negocio"
