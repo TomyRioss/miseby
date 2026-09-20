@@ -66,7 +66,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ slug: s
 
     let reply = result.reply;
     let source: "ia" | "local" = "local";
-    const llmReply = await getMeseroReply({
+    let detail = "local";
+    const llm = await getMeseroReply({
       message: parsed.data.message,
       history: parsed.data.history ?? [],
       products: rest.products ?? [],
@@ -77,15 +78,19 @@ export async function POST(req: Request, { params }: { params: Promise<{ slug: s
       focus: rest.ia?.whatToRecommend ?? "",
       tone: rest.ia?.customInstructions ?? "",
     });
-    if (llmReply) {
-      reply = llmReply;
+    if (llm.text) {
+      reply = llm.text;
       source = "ia";
+      detail = "ia";
+    } else {
+      detail = `local:${llm.reason}`;
     }
 
     return NextResponse.json({
       ok: true,
       reply,
       source,
+      detail,
       dishes: result.dishes.map((d) => ({ ...d, url: `#prod-${d.id}` })),
       business: { name: businessName, hours: rest.hours ?? "", whatsapp: rest.whatsapp ?? "" },
     });

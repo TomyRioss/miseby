@@ -56,9 +56,11 @@ export async function POST(req: Request) {
     }));
 
     // Reply con Mimo v2.5 groundeado en la carta real; fallback determinístico si falla.
+    // `detail` explica por qué cayó a local (visible en el badge del preview).
     let reply = result.reply;
     let source: "ia" | "local" = "local";
-    const llmReply = await getMeseroReply({
+    let detail: string = "local";
+    const llm = await getMeseroReply({
       message: parsed.data.message,
       history: parsed.data.history ?? [],
       products: rest.products ?? [],
@@ -69,15 +71,32 @@ export async function POST(req: Request) {
       focus: rest.ia?.whatToRecommend ?? "",
       tone: rest.ia?.customInstructions ?? "",
     });
-    if (llmReply) {
-      reply = llmReply;
+    if (llm.text) {
+      reply = llm.text;
       source = "ia";
+      detail = "ia";
+    } else {
+      detail =
+        llm.reason === "no_key"
+          ? "local:no_key (falta OPENROUTER_API_KEY en el server — reiniciar dev)"
+          : llm.reason === "empty_menu"
+            ? "local:empty_menu (0 productos disponibles en la carta)"
+            : llm.reason === "tls"
+              ? "local:tls (el server no valida el certificado — proxy/antivirus)"
+              : llm.reason === "timeout"
+                ? "local:timeout (el modelo tardó +120s)"
+                : llm.reason === "http"
+                  ? `local:http_${llm.httpStatus ?? "?"} (OpenRouter rechazó la request)`
+                  : llm.reason === "empty_content"
+                    ? "local:empty_content (el modelo no devolvió texto)"
+                    : "local:error";
     }
 
     return NextResponse.json({
       ok: true,
       reply,
       source,
+      detail,
       dishes,
       business: { name: businessName, hours: rest.hours ?? "", whatsapp: rest.whatsapp ?? "" },
     });

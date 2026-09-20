@@ -5,6 +5,18 @@ const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 /** Modelo del mesero. Overridable con MISE_IA_MODEL. */
 export const MISE_IA_MODEL = process.env.MISE_IA_MODEL ?? "xiaomi/mimo-v2.5";
 
+export type LlmReason =
+  | "ok"
+  | "no_key"
+  | "empty_menu"
+  | "http"
+  | "tls"
+  | "timeout"
+  | "empty_content"
+  | "error";
+
+export type MeseroResult = { text: string | null; reason: LlmReason; httpStatus?: number };
+
 export type LlmHistoryMsg = { role: "user" | "ia"; text: string };
 
 export type MeseroContext = {
@@ -41,14 +53,21 @@ export function buildMenuContext(
 }
 
 /**
- * Respuesta del mesero vía OpenRouter. Devuelve null si no hay key
- * o si el proveedor falla (el caller usa el reply determinístico).
+ * Respuesta del mesero vía OpenRouter. Nunca lanza: si el proveedor falla,
+ * `text` es null y `reason` explica por qué (el caller usa el determinístico).
+ * Sin timeout agresivo: mimo razona y puede tardar; red de 120s solamente.
  */
-export async function getMeseroReply(ctx: MeseroContext): Promise<string | null> {
+export async function getMeseroReply(ctx: MeseroContext): Promise<MeseroResult> {
   const apiKey = process.env.OPENROUTER_API_KEY;
-  if (!apiKey) return null;
+  if (!apiKey) {
+    console.error("[mise-ia llm] sin OPENROUTER_API_KEY en el server");
+    return { text: null, reason: "no_key" };
+  }
   const menu = buildMenuContext(ctx.products, ctx.categories);
-  if (!menu) return null;
+  if (!menu) {
+    console.error("[mise-ia llm] carta vacía (0 productos disponibles)");
+    return { text: null, reason: "empty_menu" };
+  }
 
   const system = [
     `Sos el mesero de "${ctx.businessName || "nuestro local"}" (Argentina). Respondés breve, cálido, en español rioplatense (2-4 líneas).`,
@@ -71,7 +90,7 @@ export async function getMeseroReply(ctx: MeseroContext): Promise<string | null>
   ];
 
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 25_000);
+  const timer = setTimeout(() => ctrl.abort(), 120_000);
   try {
     const res = await fetch(OPENROUTER_URL, {
       method: "POST",
@@ -91,14 +110,21 @@ export async function getMeseroReply(ctx: MeseroContext): Promise<string | null>
     });
     if (!res.ok) {
       console.error("[mise-ia llm] http", res.status, (await res.text()).slice(0, 200));
-      return null;
+      return { text: null, reason: "http", httpStatus: res.status };
     }
     const data = await res.json().catch(() => null);
     const text = data?.choices?.[0]?.message?.content?.trim();
-    return text ? text.slice(0, 1200) : null;
+    if (!text) {
+      console.error("[mise-ia llm] respuesta sin contenido", JSON.stringify(data)?.slice(0, 300));
+      return { text: null, reason: "empty_content" };
+    }
+    return { text: text.slice(0, 1200), reason: "ok" };
   } catch (e) {
-    console.error("[mise-ia llm]", e);
-    return null;
+    const msg = e instanceof Error ? e.message : String(e);
+    const tls = /certificate|self-signed|SELF_SIGNED/i.test(msg);
+    const timeout = e instanceof DOMException && e.name === "AbortError";
+    console.error("[mise-ia llm]", timeout ? "timeout 120s" : msg);
+    return { text: null, reason: timeout ? "timeout" : tls ? "tls" : "error" };
   } finally {
     clearTimeout(timer);
   }
