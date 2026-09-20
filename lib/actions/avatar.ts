@@ -38,7 +38,7 @@ export async function uploadAvatarAction(formData: FormData): Promise<Result> {
       .upload(path, bytes, { contentType: file.type, upsert: false });
     if (error) {
       console.error("[avatar upload]", error);
-      return { ok: false, error: `No se pudo subir: ${error.message}` };
+      return { ok: false, error: "No se pudo subir la imagen. Probá de nuevo." };
     }
     const { data } = supabase.storage.from(AVATARS_BUCKET).getPublicUrl(path);
     if (!data?.publicUrl) {
@@ -76,7 +76,7 @@ export async function uploadBannerAction(formData: FormData): Promise<Result> {
       .upload(path, bytes, { contentType: file.type, upsert: false });
     if (error) {
       console.error("[banner upload]", error);
-      return { ok: false, error: `No se pudo subir: ${error.message}` };
+      return { ok: false, error: "No se pudo subir la imagen. Probá de nuevo." };
     }
     const { data } = supabase.storage.from(AVATARS_BUCKET).getPublicUrl(path);
     if (!data?.publicUrl) {
