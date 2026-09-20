@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/auth/session";
 import { getOrganizationForMember } from "@/lib/services/organizations";
 import { getOrCreateMiseLinkPage } from "@/lib/services/miselink";
 import { getRestaurantData } from "@/lib/restaurant-theme";
+import { getMeseroReply } from "@/lib/mise-ia/llm";
 import { recommendDishes } from "@/lib/mise-ia/recommender";
 
 const ChatSchema = z.object({
@@ -54,9 +55,24 @@ export async function POST(req: Request) {
       url: `/menu/${menuSlug}#prod-${d.id}`,
     }));
 
+    // Reply con Mimo v2.5 groundeado en la carta real; fallback determinístico si falla.
+    let reply = result.reply;
+    const llmReply = await getMeseroReply({
+      message: parsed.data.message,
+      history: parsed.data.history ?? [],
+      products: rest.products ?? [],
+      categories: rest.categories ?? [],
+      businessName,
+      hours: rest.hours ?? "",
+      whatsapp: rest.whatsapp ?? "",
+      focus: rest.ia?.whatToRecommend ?? "",
+      tone: rest.ia?.customInstructions ?? "",
+    });
+    if (llmReply) reply = llmReply;
+
     return NextResponse.json({
       ok: true,
-      reply: result.reply,
+      reply,
       dishes,
       business: { name: businessName, hours: rest.hours ?? "", whatsapp: rest.whatsapp ?? "" },
     });
