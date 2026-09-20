@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ChevronDown,
   FoldVertical, List, Plus, UnfoldVertical, ArrowRight, ImagePlus,
@@ -51,6 +51,12 @@ export function MenuManager({
   const [savingName, setSavingName] = useState(false);
   const [activeTab, setActiveTab] = useState<string | null>(null);
   const newCatRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (!dirty) return;
+    const onBeforeUnload = (e: BeforeUnloadEvent) => { e.preventDefault(); };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [dirty]);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } }),
@@ -215,7 +221,10 @@ export function MenuManager({
           {/* Secciones */}
           <section id="menu-secciones" className="scroll-mt-24 rounded-2xl border border-border bg-card p-5 sm:p-6">
             <div className="flex items-center justify-between gap-2">
-              <h2 className="text-base font-semibold tracking-tight">Secciones</h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-base font-semibold tracking-tight">Secciones</h2>
+                {dirty && <Badge className="bg-[#0A2540]">Sin guardar</Badge>}
+              </div>
               <DropdownMenu>
                 <DropdownMenuTrigger className="flex min-h-10 min-w-10 items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-muted-foreground outline-none transition-colors duration-150 hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                   Ordenar <ChevronDown className="h-3.5 w-3.5" />
