@@ -14,6 +14,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   return {
     title: `${name} | Catálogo`,
     description: `Catálogo de productos de ${name}.`,
+    robots: catalog.preview ? { index: false, follow: false } : undefined,
   };
 }
 
@@ -66,7 +67,7 @@ export default async function PublicCatalogPage({ params }: Params) {
         products={catalog.data.products ?? []}
         currency={catalog.currency}
         hours={catalog.data.hours}
-        preview={false}
+        preview={catalog.preview}
         businessName={catalog.data.appearance?.restaurantName || catalog.commercialName}
         slug={catalog.slug}
         schedule={catalog.data.schedule}

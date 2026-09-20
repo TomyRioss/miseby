@@ -50,7 +50,9 @@ export async function updateBusinessProfileAction(input: unknown): Promise<Actio
         console.error("[restaurant] sync appearance name", e);
       }
       revalidatePath(`/menu/${org.slug}`);
+      revalidatePath(`/catalogo/${org.slug}`);
       if (slug) revalidatePath(`/menu/${slug}`);
+      if (slug) revalidatePath(`/catalogo/${slug}`);
     } else {
       await updateOrganization(org.id, parsed.data, user.id);
     }
@@ -95,6 +97,7 @@ export async function saveAppearanceAction(input: unknown): Promise<ActionResult
     revalidatePath("/dashboard/menu");
     revalidatePath("/dashboard/catalogo");
     revalidatePath(`/menu/${org.slug}`, "page");
+    revalidatePath(`/catalogo/${org.slug}`, "page");
     return { ok: true };
   } catch (e) {
     return fail(e, "No se pudo guardar la apariencia.");
@@ -170,6 +173,12 @@ export async function saveMenuAction(input: unknown): Promise<SaveMenuResult> {
     revalidatePath("/dashboard/catalogo");
     revalidatePath("/dashboard/categorias");
     revalidatePath("/dashboard/productos");
+    revalidatePath(`/menu/${org.slug}`, "page");
+    revalidatePath(`/catalogo/${org.slug}`, "page");
+    if (slug) {
+      revalidatePath(`/menu/${slug}`, "page");
+      revalidatePath(`/catalogo/${slug}`, "page");
+    }
     return { ok: true, updatedAt: now, slug };
   } catch (e) {
     return fail(e, "No se pudo guardar el menú.");
@@ -229,11 +238,14 @@ export async function uploadProductImageAction(formData: FormData): Promise<{ ok
 
 export async function setMenuPublishedAction(published: boolean): Promise<ActionResult> {
   try {
-    const { user } = await currentOrg();
+    const { user, org } = await currentOrg();
     const current = await currentRestaurant();
     await getOrCreateMiseLinkPage(user.id);
     await updateTheme(user.id, { restaurant: { ...current, menuPublished: published } } as Record<string, unknown>);
     revalidatePath("/dashboard/catalogo");
+    revalidatePath("/dashboard/menu");
+    revalidatePath(`/menu/${org.slug}`, "page");
+    revalidatePath(`/catalogo/${org.slug}`, "page");
     return { ok: true };
   } catch (e) {
     return fail(e, "No se pudo cambiar el estado del menú.");
