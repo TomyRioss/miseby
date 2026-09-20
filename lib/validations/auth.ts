@@ -7,11 +7,16 @@ export const loginSchema = z.object({
 export type LoginInput = z.infer<typeof loginSchema>;
 
 export const registerSchema = z.object({
-  name: z.string().min(2, "Nombre muy corto"),
-  email: z.string().email("Email inválido"),
-  password: z.string().min(8, "Mínimo 8 caracteres"),
-  businessName: z.string().min(2, "Nombre de negocio muy corto"),
-  country: z.string().min(2, "País requerido"),
+  name: z.string().trim().min(2, "Ingresá tu nombre (mínimo 2 caracteres)").max(80, "Nombre muy largo"),
+  email: z.string().trim().toLowerCase().email("Email inválido (ej: nombre@mail.com)").max(254, "Email muy largo"),
+  password: z
+    .string()
+    .min(8, "Mínimo 8 caracteres")
+    .max(72, "Máximo 72 caracteres")
+    .regex(/[A-Za-z]/, "Incluí al menos una letra")
+    .regex(/[0-9]/, "Incluí al menos un número"),
+  businessName: z.string().trim().min(2, "Nombre de negocio muy corto").max(100, "Nombre muy largo"),
+  country: z.string().min(2, "Elegí tu país"),
   planCode: z.enum(["mise_link", "mise", "mise_restaurant"]).default("mise"),
 });
 export type RegisterInput = z.infer<typeof registerSchema>;
