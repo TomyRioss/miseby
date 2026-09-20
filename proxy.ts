@@ -3,14 +3,19 @@ import { auth } from "@/auth";
 
 const PLATFORM_OWNER_PREFIX = "/control";
 const BUSINESS_PREFIX = "/dashboard";
+const ONBOARDING_PATH = "/onboarding";
 const PUBLIC_ONLY_PATHS = ["/login", "/register", "/forgot-password", "/reset-password"];
 
 export default auth((request) => {
   const { pathname } = request.nextUrl;
   const user = request.auth?.user;
 
+  const isOnboarding = pathname === ONBOARDING_PATH || pathname.startsWith(`${ONBOARDING_PATH}/`);
+
   const isProtected =
-    pathname.startsWith(PLATFORM_OWNER_PREFIX) || pathname.startsWith(BUSINESS_PREFIX);
+    pathname.startsWith(PLATFORM_OWNER_PREFIX) ||
+    pathname.startsWith(BUSINESS_PREFIX) ||
+    isOnboarding;
 
   if (isProtected && !user) {
     const url = request.nextUrl.clone();
@@ -31,7 +36,7 @@ export default auth((request) => {
   }
 
   if (
-    pathname.startsWith(BUSINESS_PREFIX) &&
+    (pathname.startsWith(BUSINESS_PREFIX) || isOnboarding) &&
     user?.role !== "business_owner" &&
     user?.role !== "business_member"
   ) {
