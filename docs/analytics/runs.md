@@ -22,3 +22,4 @@ Historial del proyecto (fuente: Linear proyecto Miseby). Una fila por task cerra
 | 2026-09-20 | miseby | TOM-195 | S | n/a | spark | OK: autogenerar descripcion IA mergeado a dev |
 | 2026-09-21 | miseby | TOM-197 | S | n/a | spark | OK: subpagina /menu/[slug]/[productoId] con variantes+modificadores y agregar a mi pedido, mergeado a dev (6e7746f) |
 | 2026-09-21 | miseby | TOM-196 | M | ~25min | spark(BE ~6.5min+FE ~13.5min) | OK: control total platform_owner (gate En revision en miselink/menu+checkout/catalogo+checkout, usuarios suspender/reactivar/eliminar, miembros org rol/suspension-temporal/baja/invitar, login bloquea suspendidos) mergeado a dev (3f1a6ae) |
+| 2026-09-21 | miseby | TOM-198 | S | n/a | muse-spark code 127s medidos | OK merge dev 2075f99 |
