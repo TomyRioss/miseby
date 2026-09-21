@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getPublicCatalogBySlug } from "@/lib/services/catalog";
+import { getPublicOrganizationBySlug } from "@/lib/services/public-organization";
+import { OrganizationUnavailable } from "@/components/public/organization-unavailable";
 import { CatalogCheckoutView } from "@/components/business/catalog/catalog-checkout-view";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
+  const gate = await getPublicOrganizationBySlug(slug).catch(() => null);
+  if (gate && !gate.visible) return { title: "En revisión | MISE BY" };
   const catalog = await getPublicCatalogBySlug(slug).catch(() => null);
   if (!catalog) return { title: "Pedido no encontrado | MISE BY" };
   const name = catalog.data.appearance?.restaurantName || catalog.commercialName || "Catálogo";
@@ -16,6 +20,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function CatalogCheckoutPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const gate = await getPublicOrganizationBySlug(slug).catch(() => null);
+  if (gate && !gate.visible) {
+    return <OrganizationUnavailable businessName={gate.organization.commercialName} />;
+  }
   const catalog = await getPublicCatalogBySlug(slug).catch((e) => {
     console.error("[public catalog checkout]", e);
     return null;
