@@ -24,6 +24,14 @@ export async function loginAction(email: string, password: string): Promise<Acti
     return { ok: true };
   } catch (error) {
     if (error instanceof AuthError) {
+      const cause =
+        ((error.cause as unknown as { err?: { message?: string } })?.err?.message ??
+          (error.cause as unknown as Error | null)?.message ??
+          error.message ??
+          "") as string;
+      if (/suspend/i.test(cause)) {
+        return { ok: false, error: "Tu cuenta fue suspendida. Contactá a soporte." };
+      }
       return { ok: false, error: "Email o contraseña incorrectos" };
     }
     return { ok: false, error: "Error al iniciar sesión" };

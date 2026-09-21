@@ -1,5 +1,8 @@
 import "server-only";
+import { auth } from "@/auth";
 import { getCurrentUser } from "@/lib/auth/session";
+
+export const SUSPENDED_MESSAGE = "Tu cuenta fue suspendida. Contactá a soporte.";
 
 export async function requirePlatformOwner() {
   const user = await getCurrentUser();
@@ -19,6 +22,11 @@ export async function requireBusinessUser() {
 
 export async function requireUser() {
   const user = await getCurrentUser();
-  if (!user) throw new Error("No autorizado");
+  if (!user) {
+    // Sesión vigente pero perfil suspendido/eliminado → mensaje claro.
+    const session = await auth().catch(() => null);
+    if (session?.user) throw new Error(SUSPENDED_MESSAGE);
+    throw new Error("No autorizado");
+  }
   return user;
 }

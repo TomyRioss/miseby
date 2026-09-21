@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/session";
+import { prisma } from "@/lib/prisma";
 import {
   getPublicPageByUsername,
   getOwnPageByUsername,
   type MiseLinkPageWithRelations,
 } from "@/lib/services/miselink";
+import { getPublicOrganizationBySlug } from "@/lib/services/public-organization";
+import { OrganizationUnavailable } from "@/components/public/organization-unavailable";
 import { MiseLinkPublicView } from "@/components/miselink/render/miselink-public-view";
 
 type Params = { params: Promise<{ username: string }> };
@@ -24,10 +27,20 @@ async function resolvePage(username: string): Promise<{
   return null;
 }
 
+async function resolveGate(page: MiseLinkPageWithRelations) {
+  const org = await prisma.organization
+    .findUnique({ where: { id: page.organizationId }, select: { slug: true } })
+    .catch(() => null);
+  if (!org) return null;
+  return getPublicOrganizationBySlug(org.slug).catch(() => null);
+}
+
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { username } = await params;
   const resolved = await resolvePage(username).catch(() => null);
   if (!resolved) return { title: "Página no encontrada | Mise Link Oficial" };
+  const gate = await resolveGate(resolved.page).catch(() => null);
+  if (gate && !gate.visible) return { title: "En revisión | Mise Link Oficial" };
   const { page } = resolved;
   return {
     title: `@${page.username} | Mise Link Oficial`,
@@ -42,6 +55,10 @@ export default async function MiseLinkPublicPage({ params }: Params) {
   if (!resolved) notFound();
 
   const { page, preview } = resolved;
+  const gate = await resolveGate(page).catch(() => null);
+  if (gate && !gate.visible) {
+    return <OrganizationUnavailable businessName={gate.organization.commercialName} />;
+  }
   const activeItems = preview ? page.items.filter((i) => i.active) : page.items;
 
   return (
