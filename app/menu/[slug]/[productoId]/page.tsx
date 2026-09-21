@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getPublicMenuBySlug } from "@/lib/services/public-menu";
-import { getPublicOrganizationBySlug } from "@/lib/services/public-organization";
-import { OrganizationUnavailable } from "@/components/public/organization-unavailable";
 import { ProductDetailView } from "@/components/menu/product-detail-view";
 
 export async function generateMetadata({
@@ -24,10 +22,6 @@ export default async function ProductPage({
   params: Promise<{ slug: string; productoId: string }>;
 }) {
   const { slug, productoId } = await params;
-  const gate = await getPublicOrganizationBySlug(slug).catch(() => null);
-  if (gate && !gate.visible) {
-    return <OrganizationUnavailable businessName={gate.organization.commercialName} />;
-  }
   const data = await getPublicMenuBySlug(slug);
   if (!data) notFound();
   const product = data.rest.products?.find((p) => p.id === productoId);
