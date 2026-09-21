@@ -111,8 +111,8 @@ export function AvatarEditDialog({
       setError("Solo JPG, PNG o WebP.");
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      setError("Máximo 5 MB.");
+    if (file.size > 20 * 1024 * 1024) {
+      setError("Máximo 20 MB.");
       return;
     }
     setError("");
@@ -148,8 +148,8 @@ export function AvatarEditDialog({
       setBannerError("Solo JPG, PNG o WebP.");
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      setBannerError("Máximo 5 MB. Ideal 1200x400.");
+    if (file.size > 20 * 1024 * 1024) {
+      setBannerError("Máximo 20 MB. Ideal 1200x400.");
       return;
     }
     setBannerError("");

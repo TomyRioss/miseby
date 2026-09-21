@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ChevronDown, Clock, Menu as MenuIcon, Search, Share2 } from "lucide-react";
+import { ChevronDown, Clock, Menu as MenuIcon, Search, Share2, Sparkles } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 import { toast } from "sonner";
 import {
@@ -77,6 +77,7 @@ export function PlatoMenuView({
 }) {
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [meseroOpen, setMeseroOpen] = useState(false);
   const { add, count } = usePedido(slug);
 
   const name = restaurantName || ap.restaurantName || "";
@@ -232,6 +233,18 @@ export function PlatoMenuView({
             <MenuIcon className="h-3.5 w-3.5" />
             Menú
           </button>
+          {meseroActive && (
+            <button
+              type="button"
+              onClick={() => setMeseroOpen(true)}
+              aria-label="Hablar con el mesero IA"
+              className="flex h-6 shrink-0 cursor-pointer items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold text-white transition-opacity hover:opacity-90"
+              style={{ background: secondary }}
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              Mesero IA
+            </button>
+          )}
           <div className="h-4 w-px shrink-0" style={{ background: border }} />
           {cats.map((c) => (
             <a
@@ -278,11 +291,11 @@ export function PlatoMenuView({
                       {ap.showImages && p.imageUrl ? (
                         <div className="relative">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={p.imageUrl} alt={p.name} loading="lazy" className="h-28 w-full object-cover lg:h-36" />
+                          <img src={p.imageUrl} alt={p.name} loading="lazy" className="h-28 w-full bg-black/[0.04] object-contain lg:h-36" />
                         </div>
                       ) : null}
                       <div className="p-2.5">
-                        <p className="truncate font-semibold">{p.name}</p>
+                        <p title={p.name} className="line-clamp-2 min-h-9 text-[13px] font-semibold leading-snug">{p.name}</p>
                         {ap.showDescriptions && p.description ? (
                           <p className="mt-0.5 line-clamp-2 text-xs" style={{ color: sub }}>{p.description}</p>
                         ) : null}
@@ -323,7 +336,7 @@ export function PlatoMenuView({
                       {ap.showImages && p.imageUrl ? (
                         <div className="relative shrink-0">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={p.imageUrl} alt={p.name} loading="lazy" className="h-20 w-20 rounded-lg object-cover lg:h-32 lg:w-32" />
+                          <img src={p.imageUrl} alt={p.name} loading="lazy" className="h-20 w-20 rounded-lg bg-black/[0.04] object-contain lg:h-32 lg:w-32" />
                         </div>
                       ) : null}
                     </div>
@@ -382,7 +395,7 @@ export function PlatoMenuView({
           Ver pedido, {count} producto{count === 1 ? "" : "s"}
         </a>
       )}
-      {meseroActive && <MeseroWidget slug={slug} restaurantName={name} accent={secondary} />}
+      {meseroActive && <MeseroWidget slug={slug} restaurantName={name} accent={secondary} hideFab open={meseroOpen} onOpenChange={setMeseroOpen} />}
     </main>
   );
 }

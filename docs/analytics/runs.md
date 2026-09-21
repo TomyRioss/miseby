@@ -19,3 +19,6 @@ Historial del proyecto (fuente: Linear proyecto Miseby). Una fila por task cerra
 | 2026-09-20 | miseby | TOM-193 | M | ~30min | spark(BE+FE)+mimo(QA) | OK: seccion Miembros identica mise/restaurant + rol business_admin per-org (member sin analytics/negocio/miembros/vista-general, admin gestiona solo members, owner todo) mergeado a dev |
 | 2026-09-20 | miseby | TOM-192 | M | n/a | spark+mimo | OK: root-cause upload foto (1MB limit) + dogfood report, mergeado a dev |
 | 2026-09-20 | miseby | TOM-194 | M | n/a | spark | OK: fixes B1-C6 + avatar mergeados a dev |
+| 2026-09-20 | miseby | TOM-195 | S | n/a | spark | OK: autogenerar descripcion IA mergeado a dev |
+| 2026-09-21 | miseby | TOM-197 | S | n/a | spark | OK: subpagina /menu/[slug]/[productoId] con variantes+modificadores y agregar a mi pedido, mergeado a dev (6e7746f) |
+| 2026-09-21 | miseby | TOM-196 | M | ~25min | spark(BE ~6.5min+FE ~13.5min) | OK: control total platform_owner (gate En revision en miselink/menu+checkout/catalogo+checkout, usuarios suspender/reactivar/eliminar, miembros org rol/suspension-temporal/baja/invitar, login bloquea suspendidos) mergeado a dev (3f1a6ae) |

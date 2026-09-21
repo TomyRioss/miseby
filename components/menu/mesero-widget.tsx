@@ -17,12 +17,25 @@ export function MeseroWidget({
   slug,
   restaurantName,
   accent = "#6D28D9",
+  open: controlledOpen,
+  onOpenChange,
+  hideFab = false,
 }: {
   slug: string;
   restaurantName: string;
   accent?: string;
+  open?: boolean;
+  onOpenChange?: (v: boolean) => void;
+  /** Sin botón flotante: se abre desde la nav superior y el diálogo
+   *  flota por encima de las barras de compra (nunca las tapa). */
+  hideFab?: boolean;
 }) {
-  const [open, setOpen] = useState(false);
+  const [innerOpen, setInnerOpen] = useState(false);
+  const open = controlledOpen ?? innerOpen;
+  function setOpenValue(v: boolean) {
+    if (controlledOpen === undefined) setInnerOpen(v);
+    onOpenChange?.(v);
+  }
   const [chat, setChat] = useState<Msg[]>([]);
   const [msg, setMsg] = useState("");
   const [typing, setTyping] = useState(false);
@@ -62,12 +75,12 @@ export function MeseroWidget({
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-3 sm:bottom-6 sm:right-6">
+    <div className={`fixed right-4 z-50 flex flex-col items-end gap-3 ${hideFab ? "bottom-24 sm:bottom-24" : "bottom-4 sm:bottom-6"}`}>
       {open && (
         <div
           role="dialog"
           aria-label={`Mesero de ${restaurantName}`}
-          className="flex h-[min(32rem,70dvh)] w-[min(22rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+          className={`flex w-[min(22rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl ${hideFab ? "h-[min(32rem,calc(100dvh-14rem))]" : "h-[min(32rem,70dvh)]"}`}
         >
           <div className="flex items-center gap-2.5 border-b border-border px-4 py-3" style={{ backgroundColor: `${accent}14` }}>
             <span
@@ -83,7 +96,7 @@ export function MeseroWidget({
             </div>
             <button
               type="button"
-              onClick={() => setOpen(false)}
+              onClick={() => setOpenValue(false)}
               aria-label="Cerrar chat"
               className="cursor-pointer rounded-full p-1.5 text-muted-foreground hover:bg-muted"
             >
@@ -124,7 +137,7 @@ export function MeseroWidget({
                       <a
                         key={d.id}
                         href={d.url}
-                        onClick={() => setOpen(false)}
+                        onClick={() => setOpenValue(false)}
                         className="cursor-pointer flex items-center justify-between gap-2 rounded-xl border border-border bg-background px-3 py-2 text-left shadow-sm hover:bg-muted"
                       >
                         <span className="min-w-0">
@@ -181,16 +194,18 @@ export function MeseroWidget({
         </div>
       )}
 
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-expanded={open}
-        aria-label={open ? "Cerrar mesero" : "Hablar con el mesero"}
-        className="cursor-pointer flex h-14 w-14 items-center justify-center rounded-full text-white shadow-xl transition-transform hover:scale-105"
-        style={{ backgroundColor: accent }}
-      >
-        {open ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
-      </button>
+      {!hideFab && (
+        <button
+          type="button"
+          onClick={() => setOpenValue(!open)}
+          aria-expanded={open}
+          aria-label={open ? "Cerrar mesero" : "Hablar con el mesero"}
+          className="cursor-pointer flex h-14 w-14 items-center justify-center rounded-full text-white shadow-xl transition-transform hover:scale-105"
+          style={{ backgroundColor: accent }}
+        >
+          {open ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
+        </button>
+      )}
     </div>
   );
 }

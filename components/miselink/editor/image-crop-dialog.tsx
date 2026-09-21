@@ -6,7 +6,13 @@ import "react-easy-crop/react-easy-crop.css";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
-async function toCroppedFile(imageSrc: string, pixels: Area, outW: number, outH: number): Promise<File> {
+async function toCroppedFile(
+  imageSrc: string,
+  pixels: Area,
+  outW: number,
+  outH: number,
+  format: "webp" | "original" = "webp",
+): Promise<File> {
   const img = await new Promise<HTMLImageElement>((resolve, reject) => {
     const i = new Image();
     i.crossOrigin = "anonymous";
@@ -22,9 +28,14 @@ async function toCroppedFile(imageSrc: string, pixels: Area, outW: number, outH:
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, outW, outH);
   ctx.drawImage(img, pixels.x, pixels.y, pixels.width, pixels.height, 0, 0, outW, outH);
-  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.92));
+  // Todo salvo el logo sale en WebP comprimido para que pese poco.
+  const mime = format === "webp" ? "image/webp" : "image/jpeg";
+  const quality = format === "webp" ? 0.82 : 0.92;
+  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, mime, quality));
   if (!blob) throw new Error("crop");
-  return new File([blob], "crop.jpg", { type: "image/jpeg" });
+  const ext = blob.type === "image/webp" ? "webp" : "jpg";
+  const outMime = blob.type || mime;
+  return new File([blob], `crop.${ext}`, { type: outMime });
 }
 
 export function ImageCropDialog({
@@ -36,6 +47,7 @@ export function ImageCropDialog({
   title,
   hint,
   output,
+  format = "webp",
   onDone,
 }: {
   open: boolean;
@@ -46,6 +58,8 @@ export function ImageCropDialog({
   title: string;
   hint?: string;
   output: { width: number; height: number };
+  /** "webp" comprime todo; "original" conserva JPEG (logo). */
+  format?: "webp" | "original";
   onDone: (file: File) => void;
 }) {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -63,7 +77,7 @@ export function ImageCropDialog({
     setError("");
     setSaving(true);
     try {
-      const file = await toCroppedFile(image, pixels, output.width, output.height);
+      const file = await toCroppedFile(image, pixels, output.width, output.height, format);
       onDone(file);
     } catch (e) {
       console.error("[crop] no se pudo recortar", e);

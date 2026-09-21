@@ -5,7 +5,7 @@ import { requireBusinessUser } from "@/lib/auth/guards";
 import { getOrCreateMiseLinkPage } from "@/lib/services/miselink";
 import { getSupabaseAdmin, AVATARS_BUCKET, ensureAvatarsBucket } from "@/lib/supabase/server";
 
-const MAX_BYTES = 5 * 1024 * 1024;
+const MAX_BYTES = 20 * 1024 * 1024;
 const ALLOWED = new Map([
   ["image/jpeg", "jpg"],
   ["image/png", "png"],
@@ -26,7 +26,7 @@ export async function uploadAvatarAction(formData: FormData): Promise<Result> {
       return { ok: false, error: "Solo JPG, PNG o WebP." };
     }
     if (file.size > MAX_BYTES) {
-      return { ok: false, error: "Máximo 5 MB." };
+      return { ok: false, error: "Máximo 20 MB." };
     }
     const page = await getOrCreateMiseLinkPage(user.id);
     const supabase = getSupabaseAdmin();
@@ -64,7 +64,7 @@ export async function uploadBannerAction(formData: FormData): Promise<Result> {
       return { ok: false, error: "Solo JPG, PNG o WebP." };
     }
     if (file.size > MAX_BYTES) {
-      return { ok: false, error: "Máximo 5 MB." };
+      return { ok: false, error: "Máximo 20 MB." };
     }
     const page = await getOrCreateMiseLinkPage(user.id);
     const supabase = getSupabaseAdmin();

@@ -379,11 +379,13 @@ export function RestaurantPublicView({
       {/* Barra de búsqueda sticky */}
       <SearchBar value={search} onChange={setSearch} background={ap.background} />
 
-      {/* Lista de categorías y productos */}
+      {/* Lista de categorías y productos: primera categoría en slider
+          horizontal (estilo referencia), resto en listas verticales. */}
       <div className="flex-1 space-y-5 px-4 pb-4">
-        {cats.map((c) => {
+        {cats.map((c, ci) => {
           const prods = byCat(c.id);
           if (prods.length === 0 && search.trim()) return null;
+          const isFirst = ci === 0 && !search.trim();
           return (
             <div key={c.id}>
               <div className="mb-2 flex items-baseline justify-between gap-3 border-b border-black/10 pb-2 dark:border-white/10">
@@ -396,32 +398,66 @@ export function RestaurantPublicView({
               </div>
               {prods.length === 0 ? (
                 <p className="py-3 text-center text-[12px] opacity-40">Sin resultados</p>
+              ) : isFirst ? (
+                <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  {prods.map((p) => {
+                    const multi = (p.variants?.length ?? 0) > 1;
+                    return (
+                      <div key={p.id} className="w-44 shrink-0 snap-start overflow-hidden rounded-2xl border border-black/10 bg-white dark:border-white/10 dark:bg-white/5">
+                        {ap.showImages && p.imageUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={p.imageUrl} alt="" loading="lazy" className="aspect-[4/3] w-full bg-black/[0.04] object-contain dark:bg-white/[0.06]" />
+                        ) : null}
+                        <div className="p-2.5">
+                          <p title={p.name} className={`line-clamp-2 min-h-9 text-[13px] font-bold leading-snug ${titleCls(ap.titleFont)}`}>{p.name}</p>
+                          {ap.showDescriptions && p.description ? (
+                            <p className="mt-0.5 line-clamp-2 min-h-8 text-[11px] leading-snug opacity-60">{p.description}</p>
+                          ) : null}
+                          {ap.showPrices ? (
+                            <p className="mt-1 text-[13px] font-extrabold tabular-nums" style={{ color: ap.secondary }}>
+                              {multi ? `Desde ${formatPrice(productMinPrice(p), currency ?? "COP")}` : formatPrice(productMinPrice(p), currency ?? "COP")}
+                            </p>
+                          ) : null}
+                          {showCart && (
+                            <button
+                              type="button"
+                              onClick={() => handleAdd(p.id, p.name, productMinPrice(p))}
+                              aria-label={`Agregar ${p.name} al pedido`}
+                              className="mt-2 flex h-8 w-full cursor-pointer items-center justify-center gap-1 rounded-full text-[12px] font-bold text-white transition-opacity hover:opacity-90"
+                              style={{ background: ap.primary }}
+                            >
+                              <Plus className="h-4 w-4" /> Agregar
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               ) : (
                 <div className="divide-y" style={{ borderColor: `${ap.primary}15` }}>
                   {prods.map((p) => {
                     const multi = (p.variants?.length ?? 0) > 1;
                     return (
                       <div key={p.id} className="flex items-start justify-between gap-3 py-3 transition-colors duration-200 hover:bg-black/[0.03] dark:hover:bg-white/[0.03]">
-                        <div className="flex min-w-0 flex-1 items-start gap-3">
-                          {ap.showImages && p.imageUrl ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={p.imageUrl} alt="" loading="lazy" className="h-14 w-14 shrink-0 rounded-xl object-cover" />
+                        <div className="min-w-0 flex-1">
+                          <p className={`text-[14px] font-semibold leading-snug ${titleCls(ap.titleFont)}`}>{p.name}</p>
+                          {ap.showDescriptions && p.description ? (
+                            <p className="mt-0.5 line-clamp-2 text-[12px] leading-relaxed opacity-60">{p.description}</p>
                           ) : null}
-                          <div className="min-w-0">
-                            <p className={`text-[14px] font-semibold leading-snug ${titleCls(ap.titleFont)}`}>{p.name}</p>
-                            {ap.showDescriptions && p.description ? (
-                              <p className="mt-0.5 line-clamp-2 text-[12px] leading-relaxed opacity-60">{p.description}</p>
-                            ) : null}
-                            {multi ? <p className="mt-0.5 text-[11px] opacity-40">{p.variants!.length} opciones</p> : null}
-                          </div>
+                          {multi ? <p className="mt-0.5 text-[11px] opacity-40">{p.variants!.length} opciones</p> : null}
+                          {ap.showPrices ? (
+                            <p
+                              className="mt-1 text-[13px] font-extrabold tabular-nums"
+                              style={{ color: ap.secondary }}
+                            >
+                              {multi ? `Desde ${formatPrice(productMinPrice(p), currency ?? "COP")}` : formatPrice(productMinPrice(p), currency ?? "COP")}
+                            </p>
+                          ) : null}
                         </div>
-                        {ap.showPrices ? (
-                          <span
-                            className="mt-0.5 shrink-0 rounded-full px-3 py-1 text-[12px] font-bold tabular-nums text-white"
-                            style={{ background: ap.secondary }}
-                          >
-                            {multi ? `Desde ${formatPrice(productMinPrice(p), currency ?? "COP")}` : formatPrice(productMinPrice(p), currency ?? "COP")}
-                          </span>
+                        {ap.showImages && p.imageUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={p.imageUrl} alt="" loading="lazy" className="h-20 w-20 shrink-0 rounded-xl bg-black/[0.04] object-contain dark:bg-white/[0.06]" />
                         ) : null}
                         {showCart && (
                           <button

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { ImagePlus, Loader2, Plus, Sparkles, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { uploadProductImageAction } from "@/lib/actions/restaurant";
+import { ImageCropDialog } from "@/components/miselink/editor/image-crop-dialog";
 import { newId, type RestaurantCategory, type RestaurantProduct } from "@/lib/restaurant-theme";
 import type { MenuCopy } from "./menu-copy";
 import { MENU_COPY_RESTAURANT } from "./menu-copy";
@@ -67,6 +68,7 @@ export function ProductSheet({
   const [groups, setGroups] = useState<GroupRow[]>([]);
   const [uploading, setUploading] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -112,18 +114,34 @@ export function ProductSheet({
     }
   }
 
-  async function handleFile(file: File | undefined) {
+  function handleFile(file: File | undefined) {
     if (!file) return;
     if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
       toast.error("Solo JPG, PNG o WebP.");
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Máximo 5 MB.");
+    if (file.size > 20 * 1024 * 1024) {
+      toast.error("Máximo 20 MB.");
       return;
     }
+    setCropSrc((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(file);
+    });
+  }
+
+  function closeCrop() {
+    setCropSrc((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
+  }
+
+  async function uploadCropped(file: File) {
+    closeCrop();
     setUploading(true);
     try {
+      // El recorte ya sale en WebP comprimido (ImageCropDialog).
       const fd = new FormData();
       fd.append("file", file);
       const res = await uploadProductImageAction(fd);
@@ -156,8 +174,6 @@ export function ProductSheet({
         if (v.price.trim() === "") return toast.error(`Poné el precio de "${v.name.trim() || "la variante"}".`);
         const vp = Number(v.price);
         if (!Number.isFinite(vp) || vp <= 0) return toast.error(`El precio de "${v.name.trim()}" tiene que ser mayor a $0.`);
-        if (v.costPrice.trim() !== "" && (!Number.isFinite(Number(v.costPrice)) || Number(v.costPrice) < 0)) return toast.error(`El costo de "${v.name.trim()}" no puede ser negativo.`);
-        if (v.packagingPrice.trim() !== "" && (!Number.isFinite(Number(v.packagingPrice)) || Number(v.packagingPrice) < 0)) return toast.error(`El empaque de "${v.name.trim()}" no puede ser negativo.`);
         const sku = v.sku.trim().toLowerCase();
         if (sku) {
           if (seenSku.has(sku)) return toast.error(`El SKU "${v.sku.trim()}" está duplicado.`);
@@ -196,6 +212,7 @@ export function ProductSheet({
   }
 
   return (
+    <>
     <Sheet open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
       <SheetContent side="right" className="flex w-full flex-col overflow-x-hidden sm:max-w-2xl">
         <SheetHeader>
@@ -219,7 +236,7 @@ export function ProductSheet({
             </button>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold">Foto del {copy.itemSingular}</p>
-              <p className="text-xs text-muted-foreground">JPG, PNG o WebP · máx 5 MB.</p>
+              <p className="text-xs text-muted-foreground">JPG, PNG o WebP · máx 20 MB.</p>
               <div className="mt-1.5 flex gap-2">
                 <Button size="sm" variant="outline" disabled={uploading} onClick={() => fileRef.current?.click()}>
                   {uploading ? "Subiendo..." : imageUrl ? "Cambiar" : "Subir"}
@@ -289,11 +306,6 @@ export function ProductSheet({
                       <Input value={v.price} onChange={(e) => setVariants((p) => p.map((x) => x.key === v.key ? { ...x, price: e.target.value } : x))} placeholder="$" type="number" min={0} aria-label="Precio variante" className="w-24 shrink-0 min-h-9 tabular-nums" />
                       <button type="button" onClick={() => setVariants((p) => p.filter((x) => x.key !== v.key))} aria-label="Quitar variante" className="cursor-pointer rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
                     </div>
-                    <div className="mt-2 grid grid-cols-3 gap-2">
-                      <Input value={v.costPrice} onChange={(e) => setVariants((p) => p.map((x) => x.key === v.key ? { ...x, costPrice: e.target.value } : x))} placeholder="Costo" type="number" min={0} aria-label="Costo" className="min-h-9 tabular-nums" />
-                      <Input value={v.packagingPrice} onChange={(e) => setVariants((p) => p.map((x) => x.key === v.key ? { ...x, packagingPrice: e.target.value } : x))} placeholder="Empaque" type="number" min={0} aria-label="Empaque" className="min-h-9 tabular-nums" />
-                      <Input value={v.sku} onChange={(e) => setVariants((p) => p.map((x) => x.key === v.key ? { ...x, sku: e.target.value } : x))} placeholder="SKU" maxLength={64} aria-label="SKU" className="min-h-9" />
-                    </div>
                   </div>
                 ))}
                 <Button size="sm" variant="outline" onClick={() => setVariants((p) => [...p, { key: newId("row"), name: "", price: "", costPrice: "", packagingPrice: "", sku: "", isDefault: p.length === 0 }])}><Plus className="h-4 w-4" /> Variante</Button>
@@ -303,30 +315,64 @@ export function ProductSheet({
 
           <div>
             <p className="text-sm font-semibold">Grupos de agregados</p>
-            <p className="text-xs text-muted-foreground">{copy.groupsHint}</p>
+            <p className="text-xs text-muted-foreground">{copy.groupsHint} El precio de cada opción es lo que se suma al plato. Poné 0 si es sin cargo.</p>
             <div className="mt-3 space-y-3">
-              {groups.map((g) => (
+              {groups.map((g) => {
+                const summary = g.required
+                  ? g.multiple ? "El cliente debe elegir al menos 1 (puede elegir varias)."
+                  : "El cliente debe elegir 1 opción."
+                  : g.multiple ? "El cliente puede no elegir o elegir varias."
+                  : "El cliente puede elegir hasta 1 (opcional).";
+                return (
                 <div key={g.key} className="rounded-xl border border-border p-3">
                   <div className="flex items-center gap-2">
-                    <Input value={g.name} onChange={(e) => setGroups((p) => p.map((x) => x.key === g.key ? { ...x, name: e.target.value } : x))} placeholder={copy.groupExample} maxLength={60} className="min-h-9" />
-                    <button type="button" onClick={() => setGroups((p) => p.filter((x) => x.key !== g.key))} aria-label="Quitar grupo" className="cursor-pointer rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
+                    <div className="min-w-0 flex-1">
+                      <Label className="text-xs text-muted-foreground">Nombre del grupo *</Label>
+                      <Input value={g.name} onChange={(e) => setGroups((p) => p.map((x) => x.key === g.key ? { ...x, name: e.target.value } : x))} placeholder={copy.groupExample} maxLength={60} className="mt-1 min-h-9" />
+                    </div>
+                    <button type="button" onClick={() => setGroups((p) => p.filter((x) => x.key !== g.key))} aria-label="Quitar grupo" title="Quitar grupo" className="mt-5 cursor-pointer rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
                   </div>
-                  <div className="mt-2 flex gap-4 text-xs">
-                    <label className="flex items-center gap-1.5"><input type="checkbox" checked={g.required} onChange={(e) => setGroups((p) => p.map((x) => x.key === g.key ? { ...x, required: e.target.checked } : x))} /> Obligatorio</label>
-                    <label className="flex items-center gap-1.5"><input type="checkbox" checked={g.multiple} onChange={(e) => setGroups((p) => p.map((x) => x.key === g.key ? { ...x, multiple: e.target.checked } : x))} /> Varias opciones</label>
+                  <div className="mt-2.5 grid gap-2 rounded-lg bg-muted/50 p-2.5 sm:grid-cols-2">
+                    <label className="flex cursor-pointer items-start gap-2">
+                      <input type="checkbox" className="mt-0.5" checked={g.required} onChange={(e) => setGroups((p) => p.map((x) => x.key === g.key ? { ...x, required: e.target.checked } : x))} />
+                      <span><span className="block text-xs font-semibold">Obligatorio</span>
+                      <span className="block text-[11px] text-muted-foreground">Tiene que elegir al menos 1.</span></span>
+                    </label>
+                    <label className="flex cursor-pointer items-start gap-2">
+                      <input type="checkbox" className="mt-0.5" checked={g.multiple} onChange={(e) => setGroups((p) => p.map((x) => x.key === g.key ? { ...x, multiple: e.target.checked } : x))} />
+                      <span><span className="block text-xs font-semibold">Varias opciones</span>
+                      <span className="block text-[11px] text-muted-foreground">Puede combinar varias.</span></span>
+                    </label>
                   </div>
+                  <p className="mt-1.5 text-[11px] text-muted-foreground" aria-live="polite">{summary}</p>
                   <div className="mt-2 space-y-1.5">
-                    {g.modifiers.map((m) => (
-                      <div key={m.key} className="flex items-center gap-2">
-                        <Input value={m.name} onChange={(e) => setGroups((p) => p.map((x) => x.key === g.key ? { ...x, modifiers: x.modifiers.map((mm) => mm.key === m.key ? { ...mm, name: e.target.value } : mm) } : x))} placeholder={copy.optionExample} maxLength={60} className="min-h-9 min-w-0" />
-                        <Input value={m.price} onChange={(e) => setGroups((p) => p.map((x) => x.key === g.key ? { ...x, modifiers: x.modifiers.map((mm) => mm.key === m.key ? { ...mm, price: e.target.value } : mm) } : x))} placeholder="$" type="number" min={0} aria-label="Precio opción" className="w-24 shrink-0 min-h-9 tabular-nums" />
-                        <button type="button" onClick={() => setGroups((p) => p.map((x) => x.key === g.key ? { ...x, modifiers: x.modifiers.filter((mm) => mm.key !== m.key) } : x))} aria-label="Quitar opción" className="cursor-pointer rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
+                    <div className="flex gap-2 px-0 text-[11px] font-medium text-muted-foreground">
+                      <span className="min-w-0 flex-1">Opción</span>
+                      <span className="w-28 shrink-0">Precio extra ($)</span>
+                      <span className="w-9 shrink-0" />
+                    </div>
+                    {g.modifiers.map((m) => {
+                      const pv = Number(m.price);
+                      const isFree = m.price.trim() === "" || (Number.isFinite(pv) && pv === 0);
+                      return (
+                      <div key={m.key}>
+                        <div className="flex items-center gap-2">
+                          <Input value={m.name} onChange={(e) => setGroups((p) => p.map((x) => x.key === g.key ? { ...x, modifiers: x.modifiers.map((mm) => mm.key === m.key ? { ...mm, name: e.target.value } : mm) } : x))} placeholder={copy.optionExample} maxLength={60} aria-label="Nombre de la opción" className="min-h-9 min-w-0" />
+                          <div className="relative w-28 shrink-0">
+                            <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">$</span>
+                            <Input value={m.price} onChange={(e) => setGroups((p) => p.map((x) => x.key === g.key ? { ...x, modifiers: x.modifiers.map((mm) => mm.key === m.key ? { ...mm, price: e.target.value } : mm) } : x))} placeholder="0" type="number" min={0} aria-label="Precio extra en pesos. 0 = sin cargo" title="Precio extra en pesos. 0 = sin cargo" className="min-h-9 pl-6 tabular-nums" />
+                          </div>
+                          <button type="button" onClick={() => setGroups((p) => p.map((x) => x.key === g.key ? { ...x, modifiers: x.modifiers.filter((mm) => mm.key !== m.key) } : x))} aria-label="Quitar opción" className="cursor-pointer rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
+                        </div>
+                        <p className="mt-0.5 pl-0.5 text-[11px] text-muted-foreground">{isFree ? "Sin cargo para el cliente." : `Suma $${m.price} al precio del plato.`}</p>
                       </div>
-                    ))}
+                      );
+                    })}
                     <Button size="sm" variant="ghost" onClick={() => setGroups((p) => p.map((x) => x.key === g.key ? { ...x, modifiers: [...x.modifiers, { key: newId("row"), name: "", price: "0" }] } : x))}><Plus className="h-3.5 w-3.5" /> Opción</Button>
                   </div>
                 </div>
-              ))}
+                );
+              })}
               <Button size="sm" variant="outline" onClick={() => setGroups((p) => [...p, { key: newId("row"), name: "", required: false, multiple: true, modifiers: [{ key: newId("row"), name: "", price: "0" }] }])}><Plus className="h-4 w-4" /> Grupo</Button>
             </div>
           </div>
@@ -337,5 +383,18 @@ export function ProductSheet({
         </SheetFooter>
       </SheetContent>
     </Sheet>
+    {cropSrc ? (
+      <ImageCropDialog
+        open
+        onOpenChange={(v) => { if (!v) closeCrop(); }}
+        image={cropSrc}
+        aspect={1}
+        title={`Recortar foto del ${copy.itemSingular}`}
+        hint="Cuadrada, se ve en la tarjeta del plato."
+        output={{ width: 1024, height: 1024 }}
+        onDone={uploadCropped}
+      />
+    ) : null}
+    </>
   );
 }

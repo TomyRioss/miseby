@@ -65,8 +65,8 @@ export function AppearanceForm({
       toast.error("Solo JPG, PNG o WebP.");
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Máximo 5 MB.");
+    if (file.size > 20 * 1024 * 1024) {
+      toast.error("Máximo 20 MB.");
       return;
     }
     setCropKind(kind);
@@ -209,6 +209,7 @@ export function AppearanceForm({
             title={cropKind === "logo" ? "Recortar logo" : "Recortar portada"}
             hint={cropKind === "logo" ? "Cuadrado, se ve en el header de la carta." : "Panorámica 1200×400 aprox."}
             output={cropKind === "logo" ? { width: 512, height: 512 } : { width: 1200, height: 400 }}
+            format={cropKind === "logo" ? "original" : "webp"}
             onDone={onCropDone}
           />
         ) : null}

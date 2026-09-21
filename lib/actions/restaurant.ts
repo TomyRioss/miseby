@@ -204,7 +204,7 @@ export async function saveIaAction(input: unknown): Promise<ActionResult> {
   }
 }
 
-const PRODUCT_IMAGE_MAX = 5 * 1024 * 1024;
+const PRODUCT_IMAGE_MAX = 20 * 1024 * 1024;
 const PRODUCT_IMAGE_TYPES = new Map([
   ["image/jpeg", "jpg"],
   ["image/png", "png"],
@@ -220,7 +220,7 @@ export async function uploadProductImageAction(formData: FormData): Promise<{ ok
     if (!(file instanceof File) || file.size === 0) return { ok: false, error: "Elegí una imagen." };
     const ext = PRODUCT_IMAGE_TYPES.get(file.type);
     if (!ext) return { ok: false, error: "Solo JPG, PNG o WebP." };
-    if (file.size > PRODUCT_IMAGE_MAX) return { ok: false, error: "Máximo 5 MB." };
+    if (file.size > PRODUCT_IMAGE_MAX) return { ok: false, error: "Máximo 20 MB." };
     const page = await getOrCreateMiseLinkPage(user.id);
     const supabase = getSupabaseAdmin();
     await ensureAvatarsBucket(supabase);

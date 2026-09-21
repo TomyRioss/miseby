@@ -140,6 +140,21 @@ export default async function BusinessDashboardPage() {
                         }
                       />
                     )}
+                    {membership.plan.code === "mise" && (
+                      <InfoRow
+                        label="Mise-Catálogo"
+                        value={
+                          <a
+                            href={`/catalogo/${org.slug}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="font-mono text-xs text-[#075296] underline underline-offset-2"
+                          >
+                            miseby.com/catalogo/{org.slug}
+                          </a>
+                        }
+                      />
+                    )}
                     {org.city && <InfoRow label="Ciudad" value={org.city} />}
                     <InfoRow label="Mi rol" value={orgRoleLabel(role)} />
                   </section>
