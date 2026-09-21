@@ -10,7 +10,7 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@
 import { ConfirmButton } from "@/components/control/confirm-button";
 import { formatDate } from "@/lib/mise-labels";
 import { setUserStatusAction, deleteUserAction } from "@/lib/actions/users";
-import type { UserProfile, UserStatus } from "@prisma/client";
+import type { UserProfile } from "@prisma/client";
 
 const ROLE_LABELS: Record<string, string> = {
   platform_owner: "Platform Owner",
@@ -23,7 +23,7 @@ export function UsersTable({ users }: { users: UserProfile[] }) {
   const router = useRouter();
   const [busyId, setBusyId] = useState<string | null>(null);
 
-  const setStatus = async (id: string, status: UserStatus) => {
+  const setStatus = async (id: string, status: "active" | "suspended") => {
     setBusyId(id);
     try {
       const result = await setUserStatusAction(id, { status });
