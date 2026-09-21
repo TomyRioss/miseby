@@ -26,10 +26,13 @@ export default async function MiseLinkDashboardPage() {
     return null;
   });
   const planCode = membership?.membership?.plan.code;
+  const orgSlug = membership?.organization?.slug;
   const orgRole = membership?.role;
 
   const editor = page ? (
     <MiseLinkEditor
+      planCode={planCode}
+      orgSlug={orgSlug}
       initial={{
         page: {
           username: page.username,

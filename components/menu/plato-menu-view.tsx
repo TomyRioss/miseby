@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { ChevronDown, Clock, Menu as MenuIcon, Search, Share2, Sparkles } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 import { toast } from "sonner";
@@ -78,6 +79,7 @@ export function PlatoMenuView({
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [meseroOpen, setMeseroOpen] = useState(false);
+  const router = useRouter();
   const { add, count } = usePedido(slug);
 
   const name = restaurantName || ap.restaurantName || "";
@@ -122,7 +124,7 @@ export function PlatoMenuView({
   }
 
   function pick(p: RestaurantProduct) {
-    setSelectedId((prev) => (prev === p.id ? null : p.id));
+    router.push(`/menu/${slug}/${p.id}`);
   }
 
   function addSelected() {

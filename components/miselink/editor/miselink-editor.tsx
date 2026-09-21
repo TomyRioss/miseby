@@ -11,8 +11,12 @@ import { ShareDialog } from "./share-dialog";
 
 export function MiseLinkEditor({
   initial,
+  planCode,
+  orgSlug,
 }: {
   initial: { page: EditorPage; items: MiseLinkItem[]; socials: MiseLinkSocial[] };
+  planCode?: string;
+  orgSlug?: string;
 }) {
   const state = useMiseLinkState(initial);
   const [shareOpen, setShareOpen] = useState(false);
@@ -22,7 +26,7 @@ export function MiseLinkEditor({
       <div className="mx-auto grid w-full max-w-7xl gap-12 px-6 py-6 sm:px-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:px-12 lg:py-10 xl:px-16">
       <div className="flex flex-col gap-6">
         <MainMenuHeader state={state} />
-        <AddItemDialog onAdd={state.addLink} />
+        <AddItemDialog onAdd={state.addLink} planCode={planCode} orgSlug={orgSlug} />
         <MainMenuList state={state} />
       </div>
 

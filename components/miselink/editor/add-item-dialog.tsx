@@ -7,6 +7,8 @@ import {
   FaHeart,
   FaEllipsis,
   FaLink,
+  FaBookOpen,
+  FaUtensils,
   FaChevronRight,
   FaCircleCheck,
   FaCircleExclamation,
@@ -53,8 +55,12 @@ function isValidUrl(v: string) {
 
 export function AddItemDialog({
   onAdd,
+  planCode,
+  orgSlug,
 }: {
   onAdd: (input: AddInput) => Promise<boolean>;
+  planCode?: string;
+  orgSlug?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<Mode>("menu");
@@ -87,6 +93,29 @@ export function AddItemDialog({
       setSearch("");
       setCategory("sugeridos");
     }
+  };
+
+  const catalogSuggestion = useMemo(() => {
+    if (!orgSlug) return null;
+    if (planCode === "mise")
+      return { title: "Catalogo", url: `/catalogo/${orgSlug}`, Icon: FaBookOpen };
+    if (planCode === "mise_restaurant")
+      return { title: "Menu", url: `/menu/${orgSlug}`, Icon: FaUtensils };
+    return null;
+  }, [planCode, orgSlug]);
+
+  const addCatalog = async () => {
+    if (!catalogSuggestion || busy) return;
+    setBusy(true);
+    setError("");
+    const ok = await onAdd({
+      title: catalogSuggestion.title,
+      url: catalogSuggestion.url,
+      type: "link",
+    });
+    setBusy(false);
+    if (ok) close(false);
+    else setError("No se pudo agregar. Revisá los datos.");
   };
 
   const filteredSocials = useMemo(() => {
@@ -227,6 +256,27 @@ export function AddItemDialog({
                     </span>
                     <FaChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground/50 transition-transform group-hover:translate-x-0.5 group-hover:text-[#075296]" />
                   </button>
+                  {catalogSuggestion && (
+                    <button
+                      type="button"
+                      onClick={addCatalog}
+                      disabled={busy}
+                      className="cursor-pointer group flex items-center gap-4 rounded-2xl border border-border/60 bg-[#F7F9FC] p-4 text-left transition-all hover:border-[#075296]/30 hover:bg-[#F1F4F8] disabled:opacity-60"
+                    >
+                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#075296] to-[#0E88E2] shadow-sm">
+                        <catalogSuggestion.Icon className="h-4 w-4 text-white" />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-sm font-semibold text-foreground">
+                          {catalogSuggestion.title}
+                        </span>
+                        <span className="block truncate text-xs text-muted-foreground">
+                          {catalogSuggestion.url}
+                        </span>
+                      </span>
+                      <FaChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground/50 transition-transform group-hover:translate-x-0.5 group-hover:text-[#075296]" />
+                    </button>
+                  )}
                 </div>
 
                 <p className="mb-1 mt-6 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
