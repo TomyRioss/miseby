@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getPublicCatalogBySlug } from "@/lib/services/catalog";
+import { getPublicOrganizationBySlug } from "@/lib/services/public-organization";
+import { OrganizationUnavailable } from "@/components/public/organization-unavailable";
 import { productMinPrice } from "@/lib/restaurant-theme";
 import { CatalogPublicView } from "@/components/business/catalog/catalog-public-view";
 
@@ -8,6 +10,8 @@ type Params = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
+  const gate = await getPublicOrganizationBySlug(slug).catch(() => null);
+  if (gate && !gate.visible) return { title: "En revisión | MISE BY" };
   const catalog = await getPublicCatalogBySlug(slug).catch(() => null);
   if (!catalog) return { title: "Catálogo no encontrado | MISE BY" };
   const name = catalog.data.appearance?.restaurantName || catalog.commercialName;
@@ -49,6 +53,10 @@ function jsonLd(catalog: NonNullable<Awaited<ReturnType<typeof getPublicCatalogB
 
 export default async function PublicCatalogPage({ params }: Params) {
   const { slug } = await params;
+  const gate = await getPublicOrganizationBySlug(slug).catch(() => null);
+  if (gate && !gate.visible) {
+    return <OrganizationUnavailable businessName={gate.organization.commercialName} />;
+  }
   const catalog = await getPublicCatalogBySlug(slug).catch((e) => {
     console.error("[public catalog]", e);
     return null;
