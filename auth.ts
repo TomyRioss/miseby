@@ -46,12 +46,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         });
         if (!profile) return null;
 
+        const isValid = await bcrypt.compare(password, profile.passwordHash);
+        if (!isValid) return null;
+
+        // Chequeo de suspensión DESPUÉS de validar la contraseña: así la
+        // respuesta para "email inexistente", "contraseña mal" y "suspendida"
+        // es idéntica sin la contraseña correcta (no enumera usuarios).
         if (profile.status === "suspended") {
           throw new Error("Tu cuenta fue suspendida. Contactá a soporte.");
         }
-
-        const isValid = await bcrypt.compare(password, profile.passwordHash);
-        if (!isValid) return null;
 
         return {
           id: profile.id,

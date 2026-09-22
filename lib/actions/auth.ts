@@ -14,16 +14,62 @@ import {
   resetPasswordSchema,
   changePasswordSchema,
 } from "@/lib/validations/auth";
+import { headers } from "next/headers";
 import { requireUser } from "@/lib/auth/guards";
+import {
+  checkThrottle,
+  recordFailure,
+  recordSuccess,
+  formatRetryAfter,
+  LOGIN_THROTTLE,
+  LOGIN_IP_THROTTLE,
+  REGISTER_THROTTLE,
+  FORGOT_THROTTLE,
+} from "@/lib/auth/rate-limit";
 
 type ActionResult = { ok: true } | { ok: false; error: string };
 
+async function clientIp(): Promise<string> {
+  const h = await headers();
+  const fwd = h.get("x-forwarded-for");
+  if (fwd) return fwd.split(",")[0]?.trim() || "unknown";
+  return h.get("x-real-ip")?.trim() || "unknown";
+}
+
+const THROTTLED_MSG =
+  "Demasiados intentos. Por seguridad tu acceso se bloqueó temporalmente.";
+
+function throttledError(retryAfterSec: number): string {
+  return `${THROTTLED_MSG} ${formatRetryAfter(retryAfterSec)}.`;
+}
+
 export async function loginAction(email: string, password: string): Promise<ActionResult> {
+  const normalized = email.trim().toLowerCase();
+  const ip = await clientIp();
+  // Clave por email+IP y tope agregado por IP (frena barridos que rotan email).
+  // El chequeo previo al signIn cuenta incluso emails inexistentes: no revela si
+  // el email existe y el mensaje de bloqueo es idéntico en todos los casos.
+  const key = `login:${normalized}:${ip}`;
+  const ipKey = `login-ip:${ip}`;
+  const hit = checkThrottle(key, LOGIN_THROTTLE);
+  if (hit.blocked) {
+    return { ok: false, error: throttledError(hit.retryAfterSec) };
+  }
+  const ipHit = checkThrottle(ipKey, LOGIN_IP_THROTTLE);
+  if (ipHit.blocked) {
+    return { ok: false, error: throttledError(ipHit.retryAfterSec) };
+  }
   try {
     await signIn("credentials", { email, password, redirect: false });
+    recordSuccess(key);
     return { ok: true };
   } catch (error) {
     if (error instanceof AuthError) {
+      const fail = recordFailure(key, LOGIN_THROTTLE);
+      recordFailure(ipKey, LOGIN_IP_THROTTLE);
+      if (fail.retryAfterSec > 0) {
+        return { ok: false, error: throttledError(fail.retryAfterSec) };
+      }
       const cause =
         ((error.cause as unknown as { err?: { message?: string } })?.err?.message ??
           (error.cause as unknown as Error | null)?.message ??
@@ -43,10 +89,18 @@ export async function registerAction(input: unknown): Promise<ActionResult> {
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
   }
+  const ip = await clientIp();
+  const key = `register:${ip}`;
+  const hit = checkThrottle(key, REGISTER_THROTTLE);
+  if (hit.blocked) {
+    return { ok: false, error: throttledError(hit.retryAfterSec) };
+  }
   try {
     await registerBusinessOwner(parsed.data);
+    recordSuccess(key);
     return { ok: true };
   } catch (error) {
+    recordFailure(key, REGISTER_THROTTLE);
     return { ok: false, error: error instanceof Error ? error.message : "Error al registrar" };
   }
 }
@@ -56,11 +110,20 @@ export async function forgotPasswordAction(input: unknown): Promise<ActionResult
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
   }
+  const ip = await clientIp();
+  const key = `forgot:${parsed.data.email.trim().toLowerCase()}:${ip}`;
+  // Bloqueado o no, la respuesta es siempre ok:true para no revelar si el
+  // email existe; si hay throttle simplemente no se reenvía el correo.
+  if (checkThrottle(key, FORGOT_THROTTLE).blocked) {
+    return { ok: true };
+  }
   try {
     await requestPasswordReset(parsed.data.email);
+    recordSuccess(key);
     return { ok: true };
   } catch {
-    return { ok: false, error: "Error al solicitar recuperación" };
+    recordFailure(key, FORGOT_THROTTLE);
+    return { ok: true };
   }
 }
 
