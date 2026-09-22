@@ -510,9 +510,10 @@ export function RestaurantPublicView({
         )}
       </div>
 
-      {/* Footer: solo en página pública (en preview lo reemplazan
+      {/* Footer: solo en página pública del menú (el catálogo no lo lleva,
+          igual que el menú digital Plato; en preview lo reemplazan
           los botones Visitar/Compartir de CartaPhonePreview) */}
-      {!preview && <Footer slug={slug} primary={ap.primary} linkBase={base} />}
+      {!preview && !isCatalog && <Footer slug={slug} primary={ap.primary} linkBase={base} />}
 
       {/* Barra flotante del pedido (solo catálogo): link al checkout */}
       {showCart && count > 0 && (
