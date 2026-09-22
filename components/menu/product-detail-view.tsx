@@ -28,6 +28,7 @@ export function ProductDetailView({
   const { add } = usePedido(slug);
   const cur = currency ?? "COP";
   const primary = ap.primary || "#0A2540";
+  const secondary = ap.secondary || "#6D28D9";
   const text = ap.text || "#171717";
   const border = /^#[0-9a-fA-F]{6}$/.test(text) ? `${text}1F` : text;
 
@@ -105,7 +106,7 @@ export function ProductDetailView({
         ) : null}
         <h1 className="text-2xl font-bold">{p.name}</h1>
         {p.description ? <p className="mt-1 text-sm opacity-70">{p.description}</p> : null}
-        <p className="mt-2 text-lg font-bold" style={{ color: primary }}>
+        <p className="mt-2 text-lg font-bold" style={{ color: secondary }}>
           {formatPrice(productPrice(p), cur)}
         </p>
 
@@ -128,7 +129,7 @@ export function ProductDetailView({
                     style={{ accentColor: primary }}
                   />
                   <span className="flex-1 font-medium">{v.name}</span>
-                  <span className="font-bold">{formatPrice(v.price, cur)}</span>
+                  <span className="font-bold" style={{ color: secondary }}>{formatPrice(v.price, cur)}</span>
                 </label>
               ))}
             </div>

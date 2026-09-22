@@ -35,6 +35,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
       currency={org.currency}
       whatsapp={rest.whatsapp}
       primary={ap.primary}
+      secondary={ap.secondary}
       background={ap.background}
       text={ap.text}
     />

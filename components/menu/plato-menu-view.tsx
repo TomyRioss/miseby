@@ -205,7 +205,7 @@ export function PlatoMenuView({
               </div>
             )}
             <div className="min-w-0">
-              <h1 className={`text-2xl font-bold leading-tight sm:text-3xl md:text-4xl ${titleCls(ap.titleFont)}`}>{name}</h1>
+              <h1 className={`text-2xl font-bold leading-tight sm:text-3xl md:text-4xl ${titleCls(ap.titleFont)}`} style={{ color: primary }}>{name}</h1>
             </div>
           </div>
         </div>
@@ -268,7 +268,7 @@ export function PlatoMenuView({
           if (prods.length === 0) return null;
           return (
             <details key={c.id} id={`cat-${c.id}`} open className="group scroll-mt-16 pt-6 first:pt-4">
-              <summary className={`mb-3 flex cursor-pointer list-none items-center justify-between border-b pb-2 text-lg font-bold uppercase tracking-tight ${titleCls(ap.titleFont)}`} style={{ borderColor: border }}>
+              <summary className={`mb-3 flex cursor-pointer list-none items-center justify-between border-b pb-2 text-lg font-bold uppercase tracking-tight ${titleCls(ap.titleFont)}`} style={{ borderColor: border, color: primary }}>
                 {c.name}
                 <ChevronDown className="h-5 w-5 shrink-0 opacity-50 transition-transform group-open:rotate-180" />
               </summary>
@@ -302,7 +302,7 @@ export function PlatoMenuView({
                           <p className="mt-0.5 line-clamp-2 text-xs" style={{ color: sub }}>{p.description}</p>
                         ) : null}
                         {ap.showPrices ? (
-                          <p className="mt-1 font-bold" style={{ color: primary }}>{priceOf(p)}</p>
+                          <p className="mt-1 font-bold" style={{ color: secondary }}>{priceOf(p)}</p>
                         ) : null}
                       </div>
                     </div>
@@ -332,7 +332,7 @@ export function PlatoMenuView({
                           <p className="mt-0.5 line-clamp-2 text-sm lg:text-base" style={{ color: sub }}>{p.description}</p>
                         ) : null}
                         {ap.showPrices ? (
-                          <p className="mt-1 font-bold lg:text-lg" style={{ color: primary }}>{priceOf(p)}</p>
+                          <p className="mt-1 font-bold lg:text-lg" style={{ color: secondary }}>{priceOf(p)}</p>
                         ) : null}
                       </div>
                       {ap.showImages && p.imageUrl ? (

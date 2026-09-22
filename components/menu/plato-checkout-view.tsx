@@ -17,6 +17,7 @@ export function PlatoCheckoutView({
   currency = "COP",
   whatsapp,
   primary = "#0A2540",
+  secondary = "#6D28D9",
   background = "#FFFFFF",
   text = "#171717",
 }: {
@@ -25,6 +26,7 @@ export function PlatoCheckoutView({
   currency?: string | null;
   whatsapp?: string | null;
   primary?: string;
+  secondary?: string;
   background?: string;
   text?: string;
 }) {
@@ -34,8 +36,8 @@ export function PlatoCheckoutView({
   const [pay, setPay] = useState<PayMethod>("efectivo");
   const cur = currency ?? "COP";
 
-  const sub = "#6B7280";
-  const border = "#E5E7EB";
+  const sub = /^#[0-9a-fA-F]{6}$/.test(text) ? `${text}99` : "#6B7280";
+  const border = /^#[0-9a-fA-F]{6}$/.test(text) ? `${text}1F` : "#E5E7EB";
 
   function confirm() {
     if (items.length === 0) return toast.error("Tu pedido está vacío.");
@@ -97,7 +99,7 @@ export function PlatoCheckoutView({
                     <p className="truncate text-sm font-semibold">
                       {x.qty}x {x.name}
                     </p>
-                    <p className="text-sm font-bold" style={{ color: primary }}>{formatPrice(x.qty * x.price, cur)}</p>
+                    <p className="text-sm font-bold" style={{ color: secondary }}>{formatPrice(x.qty * x.price, cur)}</p>
                   </div>
                   <div className="flex shrink-0 items-center gap-1">
                     <button type="button" onClick={() => setQty(x.id, x.qty - 1)} aria-label="Quitar uno" className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-black/[0.06]">
