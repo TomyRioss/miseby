@@ -24,3 +24,4 @@ Historial del proyecto (fuente: Linear proyecto Miseby). Una fila por task cerra
 | 2026-09-21 | miseby | TOM-196 | M | ~25min | spark(BE ~6.5min+FE ~13.5min) | OK: control total platform_owner (gate En revision en miselink/menu+checkout/catalogo+checkout, usuarios suspender/reactivar/eliminar, miembros org rol/suspension-temporal/baja/invitar, login bloquea suspendidos) mergeado a dev (3f1a6ae) |
 | 2026-09-21 | miseby | TOM-198 | S | n/a | muse-spark code 127s medidos | OK merge dev 2075f99 |
 | 2026-09-22 | miseby | TOM-199 | S | ~10min | spark(code ~3min)+mimo(QA ~3.5min) | OK: colores Apariencia aplicados al menu real (precios secondary, titulos/botones primary; 4 archivos +13/-9) mergeado a dev (ded4ac1); tsc+eslint limpios; visual pendiente (pool sin DB) |
+| 2026-09-22 | miseby | TOM-200 | M | n/a | architect+programmers+qa (mimo-v2.5/muse-spark) | OK merge dev 7da7e11 |

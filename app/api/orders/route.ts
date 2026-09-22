@@ -3,12 +3,14 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getOrganizationForMember } from "@/lib/services/organizations";
 import { getPublicMenuBySlug } from "@/lib/services/public-menu";
+import { getPublicCatalogBySlug } from "@/lib/services/catalog";
 import { createOrderSchema, updateOrderStatusSchema } from "@/lib/validations/order";
 
 /**
  * POST /api/orders — público, SIN auth.
- * Crea un pedido para la org del slug. Mismo gate que el checkout:
- * org activa + menú publicado (si no, 404).
+ * Crea un pedido para la org del slug. Acepta slugs de menú y de catálogo
+ * (el catálogo es público siempre; el menú mantiene su gate propio).
+ * Si ninguno resuelve, 404.
  */
 export async function POST(req: Request) {
   try {
@@ -20,10 +22,21 @@ export async function POST(req: Request) {
     const data = parsed.data;
 
     const menu = await getPublicMenuBySlug(data.slug);
-    if (!menu) {
-      return NextResponse.json({ ok: false, error: "Menú no disponible" }, { status: 404 });
+    let organizationId: string | null = menu?.organization.id ?? null;
+    if (!organizationId) {
+      const catalog = await getPublicCatalogBySlug(data.slug);
+      if (catalog) {
+        const org = await prisma.organization.findUnique({
+          where: { slug: catalog.slug },
+          select: { id: true },
+        });
+        organizationId = org?.id ?? null;
+      }
     }
-    const org = menu.organization;
+    if (!organizationId) {
+      return NextResponse.json({ ok: false, error: "Negocio no disponible" }, { status: 404 });
+    }
+    const org = { id: organizationId };
 
     if (!data.customerPhone.trim()) {
       return NextResponse.json({ ok: false, error: "El teléfono es obligatorio" }, { status: 400 });
