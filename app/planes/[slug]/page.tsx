@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LandingNavbar } from "@/components/landing/landing-navbar";
 import { LandingFooter } from "@/components/landing/landing-footer";
+import { auth } from "@/auth";
 import { PLANS, getPlan } from "@/lib/landing/plans";
 
 interface PlanPageProps {
@@ -31,10 +32,11 @@ export default async function PlanDetailPage({ params }: PlanPageProps) {
   if (!plan) notFound();
 
   const others = PLANS.filter((p) => p.slug !== plan.slug);
+  const session = await auth();
 
   return (
     <div className="h-full overflow-y-auto bg-background">
-      <LandingNavbar />
+      <LandingNavbar isLoggedIn={Boolean(session?.user)} />
 
       <main className="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
         <Link

@@ -7,7 +7,7 @@ import { MiseMark } from "@/components/brand/mise-mark";
 import { PLANS } from "@/lib/landing/plans";
 import { Button } from "@/components/ui/button";
 
-export function LandingNavbar() {
+export function LandingNavbar({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -30,16 +30,26 @@ export function LandingNavbar() {
         </div>
 
         <div className="hidden items-center gap-2 md:flex">
-          <Button variant="ghost" asChild>
-            <Link href="/login" className="cursor-pointer">
-              Iniciar sesión
-            </Link>
-          </Button>
-          <Button asChild>
-            <Link href="/register" className="cursor-pointer">
-              Registrar negocio
-            </Link>
-          </Button>
+          {isLoggedIn ? (
+            <Button asChild>
+              <Link href="/dashboard" className="cursor-pointer">
+                Ir al panel
+              </Link>
+            </Button>
+          ) : (
+            <>
+              <Button variant="ghost" asChild>
+                <Link href="/login" className="cursor-pointer">
+                  Iniciar sesión
+                </Link>
+              </Button>
+              <Button asChild>
+                <Link href="/register" className="cursor-pointer">
+                  Registrar negocio
+                </Link>
+              </Button>
+            </>
+          )}
         </div>
 
         <button
@@ -67,16 +77,26 @@ export function LandingNavbar() {
             </Link>
           ))}
           <div className="mt-3 flex gap-2">
-            <Button variant="outline" asChild className="flex-1">
-              <Link href="/login" className="cursor-pointer" onClick={() => setOpen(false)}>
-                Iniciar sesión
-              </Link>
-            </Button>
-            <Button asChild className="flex-1">
-              <Link href="/register" className="cursor-pointer" onClick={() => setOpen(false)}>
-                Registrar negocio
-              </Link>
-            </Button>
+            {isLoggedIn ? (
+              <Button asChild className="flex-1">
+                <Link href="/dashboard" className="cursor-pointer" onClick={() => setOpen(false)}>
+                  Ir al panel
+                </Link>
+              </Button>
+            ) : (
+              <>
+                <Button variant="outline" asChild className="flex-1">
+                  <Link href="/login" className="cursor-pointer" onClick={() => setOpen(false)}>
+                    Iniciar sesión
+                  </Link>
+                </Button>
+                <Button asChild className="flex-1">
+                  <Link href="/register" className="cursor-pointer" onClick={() => setOpen(false)}>
+                    Registrar negocio
+                  </Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       )}

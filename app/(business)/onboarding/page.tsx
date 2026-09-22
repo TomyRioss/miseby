@@ -56,6 +56,7 @@ export default async function OnboardingPage() {
   let bio = "";
   let hours = "";
   let whatsapp = "";
+  let schedule = null;
 
   try {
     const page = await getOrCreateMiseLinkPage(user.id);
@@ -64,6 +65,7 @@ export default async function OnboardingPage() {
     const rest = getRestaurantData(page.theme);
     hours = rest.hours ?? "";
     whatsapp = rest.whatsapp ?? "";
+    schedule = rest.schedule ?? null;
   } catch (e) {
     console.error("[onboarding]", e);
   }
@@ -82,6 +84,7 @@ export default async function OnboardingPage() {
     bio,
     hours,
     whatsapp,
+    schedule,
   };
 
   return (

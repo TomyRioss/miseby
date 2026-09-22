@@ -15,13 +15,15 @@ import {
   changePasswordSchema,
 } from "@/lib/validations/auth";
 import { requireUser } from "@/lib/auth/guards";
+import { prisma } from "@/lib/prisma";
+import { getOnboardingStatus } from "@/lib/services/onboarding";
 
 type ActionResult = { ok: true } | { ok: false; error: string };
+type LoginResult = { ok: true; redirect: string } | { ok: false; error: string };
 
-export async function loginAction(email: string, password: string): Promise<ActionResult> {
+export async function loginAction(email: string, password: string): Promise<LoginResult> {
   try {
     await signIn("credentials", { email, password, redirect: false });
-    return { ok: true };
   } catch (error) {
     if (error instanceof AuthError) {
       const cause =
@@ -35,6 +37,20 @@ export async function loginAction(email: string, password: string): Promise<Acti
       return { ok: false, error: "Email o contraseña incorrectos" };
     }
     return { ok: false, error: "Error al iniciar sesión" };
+  }
+  // Destino post-login: preserva el gate de onboarding sin pasar por /onboarding
+  // cuando el usuario ya lo completó (misma regla que app/(business)/onboarding/page.tsx).
+  try {
+    const profile = await prisma.userProfile.findUnique({
+      where: { email: email.toLowerCase() },
+      select: { id: true, role: true },
+    });
+    if (!profile) return { ok: true, redirect: "/dashboard" };
+    if (profile.role === "platform_owner") return { ok: true, redirect: "/control" };
+    const status = await getOnboardingStatus(profile.id);
+    return { ok: true, redirect: status.completed ? "/dashboard" : "/onboarding" };
+  } catch {
+    return { ok: true, redirect: "/dashboard" };
   }
 }
 

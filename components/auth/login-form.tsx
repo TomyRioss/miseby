@@ -33,7 +33,7 @@ export function LoginForm() {
         toast.error(result.error);
         return;
       }
-      router.push("/onboarding");
+      router.replace(result.redirect);
       router.refresh();
     } catch (err) {
       console.error(err);

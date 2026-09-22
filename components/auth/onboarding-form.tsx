@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Loader2 } from "lucide-react";
+import { Clock, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Field, FieldLabel, FieldError, FieldGroup } from "@/components/ui/field";
 import { updateBusinessProfileAction, saveRestaurantHoursAction } from "@/lib/actions/restaurant";
 import { updateUsernameAction, updateProfileAction } from "@/lib/actions/miselink";
+import {
+  defaultSchedule,
+  formatScheduleToText,
+  parseSchedule,
+  scheduleSummary,
+  type WeekSchedule,
+} from "@/lib/restaurant-theme";
+import { ScheduleDialog } from "@/components/business/restaurant/schedule-dialog";
 
 export type OnboardingPlanCode = "mise_link" | "mise" | "mise_restaurant";
 
@@ -26,6 +34,7 @@ export interface OnboardingInitial {
   bio: string;
   hours: string;
   whatsapp: string;
+  schedule?: WeekSchedule | null;
 }
 
 interface OnboardingFormProps {
@@ -45,6 +54,8 @@ const PLAN_TITLE: Record<OnboardingPlanCode, string> = {
 export function OnboardingForm({ planCode, initial }: OnboardingFormProps) {
   const router = useRouter();
   const [serverError, setServerError] = useState("");
+  const [schedule, setSchedule] = useState<WeekSchedule>(() => parseSchedule(initial.schedule) ?? defaultSchedule());
+  const [scheduleOpen, setScheduleOpen] = useState(false);
   const {
     register,
     handleSubmit,
@@ -88,8 +99,9 @@ export function OnboardingForm({ planCode, initial }: OnboardingFormProps) {
 
       if (planCode === "mise_restaurant" || planCode === "mise") {
         const r3 = await saveRestaurantHoursAction({
-          hours: values.hours.trim(),
+          hours: planCode === "mise_restaurant" ? formatScheduleToText(schedule) : values.hours.trim(),
           whatsapp: values.whatsapp.trim(),
+          ...(planCode === "mise_restaurant" ? { schedule } : {}),
         });
         if (!r3.ok) {
           setServerError(r3.error);
@@ -195,14 +207,24 @@ export function OnboardingForm({ planCode, initial }: OnboardingFormProps) {
 
           {planCode === "mise_restaurant" && (
             <Field>
-              <FieldLabel htmlFor="hours">Horarios de atención</FieldLabel>
-              <Textarea
-                id="hours"
-                rows={3}
-                maxLength={600}
-                placeholder="Lun a Vie 12:00–22:00, Sáb y Dom 11:00–23:00"
-                className={inputCls}
-                {...register("hours")}
+              <FieldLabel htmlFor="schedule-btn">Horarios de atención</FieldLabel>
+              <p className="text-sm text-muted-foreground" aria-live="polite">
+                {scheduleSummary(schedule)}
+              </p>
+              <Button
+                id="schedule-btn"
+                type="button"
+                variant="outline"
+                onClick={() => setScheduleOpen(true)}
+                className="mt-2 w-full sm:w-auto"
+              >
+                <Clock className="h-4 w-4" /> Configurar horarios
+              </Button>
+              <ScheduleDialog
+                open={scheduleOpen}
+                onOpenChange={setScheduleOpen}
+                value={schedule}
+                onSave={setSchedule}
               />
             </Field>
           )}

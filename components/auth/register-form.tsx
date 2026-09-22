@@ -117,7 +117,7 @@ export function RegisterForm({ initialPlan = "mise" }: { initialPlan?: PlanSlug 
         router.push("/login");
         return;
       }
-      router.push("/onboarding");
+      router.replace(loginResult.redirect);
       router.refresh();
     } catch (err) {
       console.error(err);
