@@ -30,7 +30,8 @@ function bodyCls(font: RestaurantAppearance["bodyFont"]) {
 const DAY_MAP: DayKey[] = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 
 /* Calcula abierto/cerrado contra la hora real de render (no módulo) y
-   soporta varios slots por día + slots nocturnos (cierre < apertura). */
+   soporta varios slots por día + slots nocturnos (cierre < apertura).
+   Cerrado siempre con hora 24hs: label "Cerrado abre a las HH:MMhs". */
 function computeScheduleStatus(
   schedule?: WeekSchedule,
   now: Date = new Date(),
@@ -39,25 +40,32 @@ function computeScheduleStatus(
   const dayIndex = (now.getDay() + 6) % 7; // 0=Mon
   const todayKey = DAY_MAP[dayIndex];
   const today = schedule.days[todayKey];
-  if (!today?.enabled || today.slots.length === 0) {
-    return { open: false, label: "Cerrado hoy", timeLabel: "" };
-  }
-  const current = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
-  const slots = [...today.slots].sort((a, b) => a.open.localeCompare(b.open));
-  for (const slot of slots) {
-    const overnight = slot.close <= slot.open;
-    const isOpen = overnight
-      ? current >= slot.open || current < slot.close
-      : current >= slot.open && current < slot.close;
-    if (isOpen) {
-      return { open: true, label: "Abierto", timeLabel: `Cierra a las ${slot.close}` };
+  if (today?.enabled && today.slots.length > 0) {
+    const current = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+    const slots = [...today.slots].sort((a, b) => a.open.localeCompare(b.open));
+    for (const slot of slots) {
+      const overnight = slot.close <= slot.open;
+      const isOpen = overnight
+        ? current >= slot.open || current < slot.close
+        : current >= slot.open && current < slot.close;
+      if (isOpen) {
+        return { open: true, label: "Abierto", timeLabel: `Cierra a las ${slot.close}` };
+      }
+    }
+    const next = slots.find((s) => current < s.open);
+    if (next) {
+      return { open: false, label: `Cerrado abre a las ${next.open}hs`, timeLabel: "" };
     }
   }
-  const next = slots.find((s) => current < s.open);
-  if (next) {
-    return { open: false, label: "Cerrado", timeLabel: `Abre a las ${next.open}` };
+  // Busca la próxima apertura en los siguientes 6 días.
+  for (let d = 1; d < 7; d++) {
+    const day = schedule.days[DAY_MAP[(dayIndex + d) % 7]];
+    if (day?.enabled && day.slots.length > 0) {
+      const first = [...day.slots].sort((a, b) => a.open.localeCompare(b.open))[0];
+      return { open: false, label: `Cerrado abre a las ${first.open}hs`, timeLabel: "" };
+    }
   }
-  return { open: false, label: "Cerrado", timeLabel: "" };
+  return { open: false, label: "Cerrado hoy", timeLabel: "" };
 }
 
 /* ------------------------------------------------------------------ */
@@ -88,58 +96,6 @@ function UtilityBar({ onInfoClick, onShareClick, rewardsAvailable }: { onInfoCli
 }
 
 /* ------------------------------------------------------------------ */
-/*  Franja decorativa — identidad Mar Digital (primary → secondary)   */
-/*  Gradiente multicapa + realces radiales para que no se vea plana  */
-/*  en 375px. NO usa naranja PlatoRest.                               */
-/* ------------------------------------------------------------------ */
-function DecorativeBar({ primary, secondary, catalog = false }: { primary: string; secondary: string; catalog?: boolean }) {
-  const Glyph = catalog ? Package : UtensilsCrossed;
-  return (
-    <div
-      className="relative flex items-center justify-center gap-2 overflow-hidden py-3"
-      style={{
-        background: `linear-gradient(135deg, ${primary} 0%, ${secondary} 130%), ${primary}`,
-      }}
-      aria-hidden="true"
-    >
-      {/* realce superior sutil */}
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(120% 90% at 50% -30%, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0) 55%), radial-gradient(80% 100% at 85% 120%, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 60%)",
-        }}
-      />
-      <span className="relative flex h-8 w-8 items-center justify-center rounded-full bg-white/15 ring-1 ring-white/30 backdrop-blur-[1px]">
-        <Glyph className="h-4 w-4 text-white" />
-      </span>
-      <span className="relative h-px w-10 rounded-full bg-white/40" />
-      <span className="relative h-1 w-1 rounded-full bg-white/60" />
-      <span className="relative h-px w-10 rounded-full bg-white/40" />
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/*  Banda de estado — identidad Mar Digital. Abierto = emerald,        */
-/*  cerrado = primary del local (nunca naranja PlatoRest).             */
-/* ------------------------------------------------------------------ */
-function StatusBand({ status, primary }: { status: { open: boolean; label: string; timeLabel: string }; primary: string }) {
-  return (
-    <div
-      className="flex items-center justify-center gap-2 px-4 py-2.5 text-[13px] font-semibold text-white transition-colors duration-500"
-      style={{ background: status.open ? "#059669" : primary }}
-    >
-      <Clock className="h-3.5 w-3.5 shrink-0" />
-      <span>
-        {status.label}
-        {status.timeLabel ? ` — ${status.timeLabel}` : ""}
-      </span>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
 /*  Header local                                                       */
 /* ------------------------------------------------------------------ */
 function LocalHeader({
@@ -161,10 +117,10 @@ function LocalHeader({
     <div className="flex items-center gap-3.5 px-5 py-4">
       {logoUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={logoUrl} alt="" className="h-14 w-14 shrink-0 rounded-2xl object-cover shadow-lg ring-1 ring-black/10 dark:ring-white/15" />
+        <img src={logoUrl} alt="" className="h-14 w-14 shrink-0 rounded-xl object-cover shadow-lg ring-1 ring-black/10 dark:ring-white/15" />
       ) : (
         <div
-          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-xl font-extrabold tracking-tight text-white shadow-lg ring-1 ring-black/10 dark:ring-white/15"
+          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl text-xl font-extrabold tracking-tight text-white shadow-lg ring-1 ring-black/10 dark:ring-white/15"
           style={{ background: `linear-gradient(140deg, ${primary} 0%, ${secondary} 140%)` }}
           aria-hidden="true"
         >
@@ -304,6 +260,7 @@ export function RestaurantPublicView({
   const [search, setSearch] = useState("");
   const displayRestaurantName = restaurantName || ap.restaurantName || "";
   const displayLogoUrl = ap.logoUrl || "";
+  const displayBannerUrl = ap.bannerUrl || "";
   const scheduleStatus = useMemo(() => computeScheduleStatus(schedule), [schedule]);
   // `hours` es texto libre legacy: se muestra como banda informativa solo si
   // no hay schedule (nunca pisa el estado real del schedule).
@@ -359,12 +316,29 @@ export function RestaurantPublicView({
       {/* Top-bar utilitaria */}
       <UtilityBar onShareClick={handleShare} rewardsAvailable={false} />
 
-      {/* Franja decorativa */}
-      <DecorativeBar primary={ap.primary} secondary={ap.secondary} catalog={isCatalog} />
-
-      {/* Banda de estado */}
-      {scheduleStatus && <StatusBand status={scheduleStatus} primary={ap.primary} />}
-      {!scheduleStatus && hoursFallback && <StatusBand status={hoursFallback} primary={ap.primary} />}
+      {/* Portada + franja de estado solapada abajo, a todo ancho (paridad con /menu).
+          Sin banner se usa gradiente de marca; el estado va pegado abajo de la
+          portada, no como banda suelta. */}
+      <div className="relative">
+        <div
+          className="h-28 w-full bg-cover bg-center sm:h-32"
+          style={
+            displayBannerUrl
+              ? { backgroundImage: `url(${displayBannerUrl})` }
+              : { backgroundImage: `linear-gradient(135deg, ${ap.primary} 0%, ${ap.secondary} 130%), ${ap.primary}` }
+          }
+          aria-hidden="true"
+        />
+        {(scheduleStatus || hoursFallback) && (
+          <div
+            className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-1.5 rounded-t-2xl py-1.5 text-xs font-bold text-white"
+            style={{ background: scheduleStatus ? (scheduleStatus.open ? "#059669" : ap.primary) : ap.primary }}
+          >
+            <Clock className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+            {scheduleStatus ? `${scheduleStatus.label}${scheduleStatus.timeLabel ? ` — ${scheduleStatus.timeLabel}` : ""}` : hoursFallback!.label}
+          </div>
+        )}
+      </div>
 
       {/* Header local */}
       <LocalHeader
@@ -406,7 +380,7 @@ export function RestaurantPublicView({
                       <div key={p.id} className="w-44 shrink-0 snap-start overflow-hidden rounded-2xl border border-black/10 bg-white dark:border-white/10 dark:bg-white/5">
                         {ap.showImages && p.imageUrl ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={p.imageUrl} alt="" loading="lazy" className="aspect-[4/3] w-full bg-black/[0.04] object-contain dark:bg-white/[0.06]" />
+                          <img src={p.imageUrl} alt="" loading="lazy" className="aspect-[4/3] w-full bg-black/[0.04] object-cover dark:bg-white/[0.06]" />
                         ) : null}
                         <div className="p-2.5">
                           <p title={p.name} className={`line-clamp-2 min-h-9 text-[13px] font-bold leading-snug ${titleCls(ap.titleFont)}`}>{p.name}</p>
@@ -457,7 +431,7 @@ export function RestaurantPublicView({
                         </div>
                         {ap.showImages && p.imageUrl ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={p.imageUrl} alt="" loading="lazy" className="h-20 w-20 shrink-0 rounded-xl bg-black/[0.04] object-contain dark:bg-white/[0.06]" />
+                          <img src={p.imageUrl} alt="" loading="lazy" className="h-20 w-20 shrink-0 rounded-xl bg-black/[0.04] object-cover dark:bg-white/[0.06]" />
                         ) : null}
                         {showCart && (
                           <button

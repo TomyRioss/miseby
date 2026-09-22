@@ -48,11 +48,14 @@ export function AppearanceForm({
     ...initial,
     restaurantName: initial.restaurantName || commercialNameFallback || "",
   }));
+  const [savedForm, setSavedForm] = useState(form);
+  const draft = JSON.stringify(form) !== JSON.stringify(savedForm);
   const [saving, setSaving] = useState(false);
   const [previewTick, setPreviewTick] = useState(0);
   const [uploading, setUploading] = useState<"logo" | "banner" | null>(null);
   const [cropSrc, setCropSrc] = useState<string | null>(null);
   const [cropKind, setCropKind] = useState<"logo" | "banner">("logo");
+  const [cropMime, setCropMime] = useState("");
   const logoInput = useRef<HTMLInputElement>(null);
   const bannerInput = useRef<HTMLInputElement>(null);
 
@@ -70,12 +73,24 @@ export function AppearanceForm({
       return;
     }
     setCropKind(kind);
-    setCropSrc(URL.createObjectURL(file));
+    setCropMime(file.type);
+    setCropSrc((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(file);
+    });
+  }
+
+  function closeCrop() {
+    setCropSrc((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
   }
 
   async function onCropDone(file: File) {
-    setCropSrc(null);
-    setUploading(cropKind);
+    const kind = cropKind;
+    closeCrop();
+    setUploading(kind);
     try {
       const fd = new FormData();
       fd.append("file", file);
@@ -84,11 +99,18 @@ export function AppearanceForm({
         toast.error(res.error);
         return;
       }
-      setForm((f) => (cropKind === "logo" ? { ...f, logoUrl: res.url } : { ...f, bannerUrl: res.url }));
-      toast.success(cropKind === "logo" ? "Logo actualizado." : "Portada actualizada.");
+      // Persistir de inmediato: si solo queda en estado local, el
+      // catálogo/menú sigue mostrando el logo/portada anterior.
+      const next = kind === "logo" ? { ...form, logoUrl: res.url } : { ...form, bannerUrl: res.url };
+      setForm(next);
+      const saved = await saveAppearanceAction(next);
+      if (!saved.ok) throw new Error(saved.error);
+      setSavedForm(next);
+      setPreviewTick((t) => t + 1);
+      toast.success(kind === "logo" ? "Logo actualizado." : "Portada actualizada.");
     } catch (e) {
       console.error("[apariencia upload]", e);
-      toast.error("No se pudo subir la imagen.");
+      toast.error(e instanceof Error ? e.message : "No se pudo subir la imagen.");
     } finally {
       setUploading(null);
     }
@@ -103,6 +125,7 @@ export function AppearanceForm({
     try {
       const res = await saveAppearanceAction(form);
       if (!res.ok) throw new Error(res.error);
+      setSavedForm(form);
       setPreviewTick((t) => t + 1);
       toast.success("Apariencia aplicada a tu carta.");
     } catch (e) {
@@ -177,8 +200,8 @@ export function AppearanceForm({
               <p className="truncate text-base font-bold">{displayName || "Tu restaurante"}</p>
             </div>
           </div>
-          <input ref={bannerInput} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={(e) => onPickFile("banner", e.target.files?.[0])} />
-          <input ref={logoInput} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={(e) => onPickFile("logo", e.target.files?.[0])} />
+          <input ref={bannerInput} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={(e) => { onPickFile("banner", e.target.files?.[0]); e.target.value = ""; }} />
+          <input ref={logoInput} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={(e) => { onPickFile("logo", e.target.files?.[0]); e.target.value = ""; }} />
         </div>
 
         <div className="mt-6 space-y-4">
@@ -202,7 +225,7 @@ export function AppearanceForm({
         {cropSrc ? (
           <ImageCropDialog
             open
-            onOpenChange={(v) => { if (!v) setCropSrc(null); }}
+            onOpenChange={(v) => { if (!v) closeCrop(); }}
             image={cropSrc}
             aspect={cropKind === "logo" ? 1 : 3}
             round={cropKind === "logo"}
@@ -210,6 +233,7 @@ export function AppearanceForm({
             hint={cropKind === "logo" ? "Cuadrado, se ve en el header de la carta." : "Panorámica 1200×400 aprox."}
             output={cropKind === "logo" ? { width: 512, height: 512 } : { width: 1200, height: 400 }}
             format={cropKind === "logo" ? "original" : "webp"}
+            sourceType={cropMime || undefined}
             onDone={onCropDone}
           />
         ) : null}
@@ -258,6 +282,7 @@ export function AppearanceForm({
           restaurantName={form.restaurantName}
           schedule={schedule}
           reloadSignal={previewTick}
+          draft={draft}
         />
       }
     />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export type PedidoItem = { id: string; name: string; price: number; qty: number };
 
@@ -23,8 +23,13 @@ function load(slug: string): PedidoItem[] {
 
 /** Carrito del pedido por slug, persistido en localStorage. Sin DB. */
 export function usePedido(slug: string) {
-  // Inicialización perezosa (lee localStorage una vez, sin efecto).
-  const [items, setItems] = useState<PedidoItem[]>(() => load(slug));
+  // Estado inicial [] para igualar al SSR; localStorage se lee solo en el
+  // cliente tras montar (evita hydration mismatch cuando hay pedido guardado).
+  const [items, setItems] = useState<PedidoItem[]>([]);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- carga client-only post-hidratacion para igualar al SSR
+    setItems(load(slug));
+  }, [slug]);
 
   const persist = useCallback(
     (next: PedidoItem[]) => {

@@ -19,20 +19,32 @@ import { MeseroWidget } from "./mesero-widget";
 
 const DAY_MAP: DayKey[] = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 
-/* Estado abierto/cerrado con hora real, multi-slot + nocturnos. */
+/* Estado abierto/cerrado con hora real, multi-slot + nocturnos.
+   Cerrado siempre con hora 24hs: "Cerrado abre a las HH:MMhs". */
 function scheduleStatus(schedule?: WeekSchedule, now: Date = new Date()): { open: boolean; text: string } | null {
   if (!schedule) return null;
-  const today = schedule.days[DAY_MAP[(now.getDay() + 6) % 7]];
-  if (!today?.enabled || today.slots.length === 0) return { open: false, text: "Cerrado hoy" };
+  const dayIdx = (now.getDay() + 6) % 7; // 0=Mon
+  const today = schedule.days[DAY_MAP[dayIdx]];
   const cur = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
-  const slots = [...today.slots].sort((a, b) => a.open.localeCompare(b.open));
-  for (const s of slots) {
-    const overnight = s.close <= s.open;
-    const isOpen = overnight ? cur >= s.open || cur < s.close : cur >= s.open && cur < s.close;
-    if (isOpen) return { open: true, text: `Abierto — Cierra a las ${s.close}` };
+  if (today?.enabled && today.slots.length > 0) {
+    const slots = [...today.slots].sort((a, b) => a.open.localeCompare(b.open));
+    for (const s of slots) {
+      const overnight = s.close <= s.open;
+      const isOpen = overnight ? cur >= s.open || cur < s.close : cur >= s.open && cur < s.close;
+      if (isOpen) return { open: true, text: `Abierto — Cierra a las ${s.close}` };
+    }
+    const next = slots.find((s) => cur < s.open);
+    if (next) return { open: false, text: `Cerrado abre a las ${next.open}hs` };
   }
-  const next = slots.find((s) => cur < s.open);
-  return { open: false, text: next ? `Abre a las ${next.open}` : "Cerrado" };
+  // Busca la próxima apertura en los siguientes 6 días.
+  for (let d = 1; d < 7; d++) {
+    const day = schedule.days[DAY_MAP[(dayIdx + d) % 7]];
+    if (day?.enabled && day.slots.length > 0) {
+      const first = [...day.slots].sort((a, b) => a.open.localeCompare(b.open))[0];
+      return { open: false, text: `Cerrado abre a las ${first.open}hs` };
+    }
+  }
+  return { open: false, text: "Cerrado hoy" };
 }
 
 function hexA(hex: string, alpha: string): string {
@@ -293,7 +305,7 @@ export function PlatoMenuView({
                       {ap.showImages && p.imageUrl ? (
                         <div className="relative">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={p.imageUrl} alt={p.name} loading="lazy" className="h-28 w-full bg-black/[0.04] object-contain lg:h-36" />
+                          <img src={p.imageUrl} alt={p.name} loading="lazy" className="h-28 w-full bg-black/[0.04] object-cover lg:h-36" />
                         </div>
                       ) : null}
                       <div className="p-2.5">
@@ -338,7 +350,7 @@ export function PlatoMenuView({
                       {ap.showImages && p.imageUrl ? (
                         <div className="relative shrink-0">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={p.imageUrl} alt={p.name} loading="lazy" className="h-20 w-20 rounded-lg bg-black/[0.04] object-contain lg:h-32 lg:w-32" />
+                          <img src={p.imageUrl} alt={p.name} loading="lazy" className="h-20 w-20 rounded-lg bg-black/[0.04] object-cover lg:h-32 lg:w-32" />
                         </div>
                       ) : null}
                     </div>

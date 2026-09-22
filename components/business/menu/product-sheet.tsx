@@ -315,7 +315,7 @@ export function ProductSheet({
 
           <div>
             <p className="text-sm font-semibold">Grupos de agregados</p>
-            <p className="text-xs text-muted-foreground">{copy.groupsHint} El precio de cada opción es lo que se suma al plato. Poné 0 si es sin cargo.</p>
+            <p className="text-xs text-muted-foreground">{copy.groupsHint} El precio de cada opción es lo que se suma al {copy.itemSingular}. Poné 0 si es sin cargo.</p>
             <div className="mt-3 space-y-3">
               {groups.map((g) => {
                 const summary = g.required
@@ -364,7 +364,7 @@ export function ProductSheet({
                           </div>
                           <button type="button" onClick={() => setGroups((p) => p.map((x) => x.key === g.key ? { ...x, modifiers: x.modifiers.filter((mm) => mm.key !== m.key) } : x))} aria-label="Quitar opción" className="cursor-pointer rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
                         </div>
-                        <p className="mt-0.5 pl-0.5 text-[11px] text-muted-foreground">{isFree ? "Sin cargo para el cliente." : `Suma $${m.price} al precio del plato.`}</p>
+                        <p className="mt-0.5 pl-0.5 text-[11px] text-muted-foreground">{isFree ? "Sin cargo para el cliente." : `Suma $${m.price} al precio del ${copy.itemSingular}.`}</p>
                       </div>
                       );
                     })}
@@ -390,7 +390,7 @@ export function ProductSheet({
         image={cropSrc}
         aspect={1}
         title={`Recortar foto del ${copy.itemSingular}`}
-        hint="Cuadrada, se ve en la tarjeta del plato."
+        hint={`Cuadrada, se ve en la tarjeta del ${copy.itemSingular}.`}
         output={{ width: 1024, height: 1024 }}
         onDone={uploadCropped}
       />

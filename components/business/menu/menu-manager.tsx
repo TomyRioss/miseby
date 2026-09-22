@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ChevronDown,
-  FoldVertical, List, Plus, UnfoldVertical, ArrowRight, ImagePlus,
+  FoldVertical, List, Plus, UnfoldVertical, ArrowRight, ImagePlus, Loader2,
 } from "lucide-react";
 import {
   DndContext, closestCenter, PointerSensor, TouchSensor,
@@ -57,6 +57,7 @@ export function MenuManager({
   const [uploading, setUploading] = useState<"logo" | "banner" | null>(null);
   const [cropSrc, setCropSrc] = useState<string | null>(null);
   const [cropKind, setCropKind] = useState<"logo" | "banner">("logo");
+  const [cropMime, setCropMime] = useState("");
   const logoInput = useRef<HTMLInputElement>(null);
   const bannerInput = useRef<HTMLInputElement>(null);
   const [activeTab, setActiveTab] = useState<string | null>(null);
@@ -165,6 +166,7 @@ export function MenuManager({
       return;
     }
     setCropKind(kind);
+    setCropMime(file.type);
     setCropSrc((prev) => {
       if (prev) URL.revokeObjectURL(prev);
       return URL.createObjectURL(file);
@@ -215,14 +217,15 @@ export function MenuManager({
             <button
               type="button"
               onClick={() => bannerInput.current?.click()}
-              className="group relative z-0 flex h-28 w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg sm:h-32"
+              disabled={uploading !== null}
+              className="group relative z-0 flex h-28 w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg disabled:cursor-wait sm:h-32"
               style={media.bannerUrl ? { backgroundImage: `url(${media.bannerUrl})`, backgroundSize: "cover", backgroundPosition: "center" } : { background: appearance.primary }}
               aria-label="Subir portada"
             >
-              {!media.bannerUrl && <ImagePlus className="h-7 w-7 text-white/40" aria-hidden="true" />}
-              <span className="absolute inset-0 flex items-center justify-center gap-2 bg-black/55 text-sm font-semibold text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
-                <ImagePlus className="h-4 w-4" />
-                {uploading === "banner" ? "Subiendo…" : media.bannerUrl ? "Cambiar portada" : "Subir portada"}
+              {!media.bannerUrl && uploading !== "banner" && <ImagePlus className="h-7 w-7 text-white/40" aria-hidden="true" />}
+              <span className={`absolute inset-0 flex items-center justify-center gap-2 bg-black/55 text-sm font-semibold text-white transition-opacity ${uploading === "banner" ? "opacity-100" : "opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100"}`}>
+                {uploading === "banner" ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <ImagePlus className="h-4 w-4" />}
+                {uploading === "banner" ? "Subiendo imagen…" : media.bannerUrl ? "Cambiar portada" : "Subir portada"}
               </span>
             </button>
             <div className="flex items-end gap-3 px-5">
@@ -230,10 +233,15 @@ export function MenuManager({
               <button
                 type="button"
                 onClick={() => logoInput.current?.click()}
-                className="group relative z-10 -mt-12 shrink-0 cursor-pointer overflow-hidden rounded-md bg-muted shadow-lg ring-4 ring-card"
+                disabled={uploading !== null}
+                className="group relative z-10 -mt-12 shrink-0 cursor-pointer overflow-hidden rounded-md bg-muted shadow-lg ring-4 ring-card disabled:cursor-wait"
                 aria-label="Subir logo"
               >
-                {media.logoUrl ? (
+                {uploading === "logo" ? (
+                  <span className="flex h-24 w-24 items-center justify-center bg-black/55 text-white" role="status" aria-label="Subiendo logo">
+                    <Loader2 className="h-6 w-6 animate-spin" aria-hidden="true" />
+                  </span>
+                ) : media.logoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={media.logoUrl} alt="" className="h-24 w-24 object-cover" />
                 ) : (
@@ -263,8 +271,8 @@ export function MenuManager({
                 />
               </div>
             </div>
-            <input ref={bannerInput} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={(e) => onPickFile("banner", e.target.files?.[0])} />
-            <input ref={logoInput} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={(e) => onPickFile("logo", e.target.files?.[0])} />
+            <input ref={bannerInput} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={(e) => { onPickFile("banner", e.target.files?.[0]); e.target.value = ""; }} />
+            <input ref={logoInput} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={(e) => { onPickFile("logo", e.target.files?.[0]); e.target.value = ""; }} />
             {cropSrc ? (
               <ImageCropDialog
                 open
@@ -276,6 +284,7 @@ export function MenuManager({
                 hint={cropKind === "logo" ? "Cuadrado, se ve en el header público." : "Panorámica 1200×400 aprox."}
                 output={cropKind === "logo" ? { width: 512, height: 512 } : { width: 1200, height: 400 }}
                 format={cropKind === "logo" ? "original" : "webp"}
+                sourceType={cropMime || undefined}
                 onDone={onCropDone}
               />
             ) : null}
@@ -420,7 +429,7 @@ export function MenuManager({
           />
         </div>
       }
-      preview={<CartaPhonePreview slug={liveSlug} appearance={{ ...appearance, logoUrl: media.logoUrl, bannerUrl: media.bannerUrl }} categories={cats} products={products} currency={currency ?? null} hours={hours ?? ""} restaurantName={restName || appearance.restaurantName} schedule={schedule} fallbackName={commercialName} reloadSignal={previewTick} linkBase={copy.linkBase} menuNounCap={copy.menuNounCap} variant={copy.linkBase === "catalogo" ? "catalog" : "restaurant"} />}
+      preview={<CartaPhonePreview slug={liveSlug} appearance={{ ...appearance, logoUrl: media.logoUrl, bannerUrl: media.bannerUrl }} categories={cats} products={products} currency={currency ?? null} hours={hours ?? ""} restaurantName={restName || appearance.restaurantName} schedule={schedule} fallbackName={commercialName} reloadSignal={previewTick} draft={dirty} linkBase={copy.linkBase} menuNounCap={copy.menuNounCap} variant={copy.linkBase === "catalogo" ? "catalog" : "restaurant"} />}
     />
   );
 }
