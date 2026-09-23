@@ -25,6 +25,7 @@ import {
   LOGIN_IP_THROTTLE,
   REGISTER_THROTTLE,
   FORGOT_THROTTLE,
+  FORGOT_IP_THROTTLE,
 } from "@/lib/auth/rate-limit";
 
 type ActionResult = { ok: true } | { ok: false; error: string };
@@ -62,6 +63,7 @@ export async function loginAction(email: string, password: string): Promise<Acti
   try {
     await signIn("credentials", { email, password, redirect: false });
     recordSuccess(key);
+    recordSuccess(ipKey);
     return { ok: true };
   } catch (error) {
     if (error instanceof AuthError) {
@@ -112,17 +114,20 @@ export async function forgotPasswordAction(input: unknown): Promise<ActionResult
   }
   const ip = await clientIp();
   const key = `forgot:${parsed.data.email.trim().toLowerCase()}:${ip}`;
+  const ipKey = `forgot-ip:${ip}`;
   // Bloqueado o no, la respuesta es siempre ok:true para no revelar si el
   // email existe; si hay throttle simplemente no se reenvía el correo.
-  if (checkThrottle(key, FORGOT_THROTTLE).blocked) {
+  if (checkThrottle(key, FORGOT_THROTTLE).blocked || checkThrottle(ipKey, FORGOT_IP_THROTTLE).blocked) {
     return { ok: true };
   }
   try {
     await requestPasswordReset(parsed.data.email);
     recordSuccess(key);
+    recordSuccess(ipKey);
     return { ok: true };
   } catch {
     recordFailure(key, FORGOT_THROTTLE);
+    recordFailure(ipKey, FORGOT_IP_THROTTLE);
     return { ok: true };
   }
 }
@@ -132,10 +137,18 @@ export async function resetPasswordAction(input: unknown): Promise<ActionResult>
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
   }
+  // Throttle por IP (el token rota por intento, así que solo el tope agregado sirve).
+  const ip = await clientIp();
+  const ipKey = `forgot-ip:${ip}`;
+  if (checkThrottle(ipKey, FORGOT_IP_THROTTLE).blocked) {
+    return { ok: false, error: "Demasiados intentos. Probá de nuevo más tarde." };
+  }
   try {
     await confirmPasswordReset(parsed.data.token, parsed.data.password);
+    recordSuccess(ipKey);
     return { ok: true };
   } catch (error) {
+    recordFailure(ipKey, FORGOT_IP_THROTTLE);
     return { ok: false, error: error instanceof Error ? error.message : "Token inválido" };
   }
 }

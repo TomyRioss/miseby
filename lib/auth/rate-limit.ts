@@ -64,6 +64,14 @@ export const FORGOT_THROTTLE: ThrottleParams = {
   maxLockoutMs: 30 * 60_000,
 };
 
+/** Tope agregado por IP para forgot/reset: frena barridos que rotan email o token. */
+export const FORGOT_IP_THROTTLE: ThrottleParams = {
+  maxAttempts: 20,
+  windowMs: 10 * 60_000,
+  baseLockoutMs: 5 * 60_000,
+  maxLockoutMs: 30 * 60_000,
+};
+
 function getFresh(key: string, params: ThrottleParams, now: number): Entry | undefined {
   const entry = store.get(key);
   if (!entry) return undefined;
