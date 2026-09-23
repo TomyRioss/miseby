@@ -373,6 +373,7 @@ model Order {
   payMethod       OrderPayMethod   @map("pay_method")
   customerName    String           @map("customer_name")
   customerPhone   String           @map("customer_phone")
+  customerEmail   String?          @map("customer_email")
   customerAddress String?          @map("customer_address")
   status          OrderStatus      @default(pendiente)
 
@@ -382,5 +383,7 @@ model Order {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@index([organizationId, status])
+  @@index([organizationId, customerPhone])
+  @@index([organizationId, customerEmail])
   @@map("orders")
 }

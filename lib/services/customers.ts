@@ -1,64 +1,94 @@
 import { prisma } from "@/lib/prisma";
 
-export type ClientEntry = {
+export interface ClientEntry {
   name: string;
   phone: string;
-  email: string;
+  email: string | null;
   ordersCount: number;
+  /** ISO string del último pedido del cliente. */
   lastOrderAt: string;
   totalSpent: number;
-};
+}
 
-function digits(v: string): string {
-  return v.replace(/\D+/g, "");
+/** Nombre: trim + lowercase colapsando espacios internos. */
+export function normalizeClientName(value: string | null | undefined): string {
+  if (!value) return "";
+  return value.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+/** Teléfono: solo dígitos (quita +, espacios, guiones, paréntesis). */
+export function normalizeClientPhone(value: string | null | undefined): string {
+  if (!value) return "";
+  return value.replace(/\D/g, "");
+}
+
+/** Mail: trim + lowercase. Vacío → null. */
+export function normalizeClientEmail(value: string | null | undefined): string | null {
+  if (value == null) return null;
+  const normalized = value.trim().toLowerCase();
+  return normalized === "" ? null : normalized;
+}
+
+function isValidOrgId(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
+function clientKey(o: { customerName: string; customerPhone: string; customerEmail: string | null }): string | null {
+  const phone = normalizeClientPhone(o.customerPhone);
+  if (phone) return `phone:${phone}`;
+  const email = normalizeClientEmail(o.customerEmail);
+  if (email) return `email:${email}`;
+  const name = normalizeClientName(o.customerName);
+  if (name) return `name:${name}`;
+  return null;
 }
 
 /**
- * Clientes derivados de los pedidos de la organización.
- * Agrupa por teléfono normalizado (solo dígitos): 3 pedidos
- * (2 de tomy + 1 de juanita con el mismo teléfono) = 1 cliente.
- * Sin teléfono agrupa por nombre normalizado como fallback.
- * Ordenado por última compra descendente.
+ * Lee los pedidos de UNA org (scoping estricto por organizationId, nunca
+ * cruza datos entre orgs) y agrupa por cliente con prioridad de clave:
+ * teléfono (dígitos) → email → nombre normalizado.
+ * Ordenado por lastOrderAt desc.
  */
 export async function getClientsByOrg(organizationId: string): Promise<ClientEntry[]> {
+  if (!isValidOrgId(organizationId)) {
+    throw new Error("organizationId inválido");
+  }
+
   const orders = await prisma.order.findMany({
     where: { organizationId },
-    orderBy: { createdAt: "desc" },
     select: {
       customerName: true,
       customerPhone: true,
+      customerEmail: true,
       total: true,
       createdAt: true,
     },
+    orderBy: { createdAt: "desc" },
   });
 
-  // customerEmail lo cablea el BE (columna nueva): lectura defensiva
-  // para no romper antes del merge.
-  type WithMail = { customerEmail?: unknown };
-  const full = orders as (typeof orders[number] & WithMail)[];
-
   const byKey = new Map<string, ClientEntry>();
-  for (const o of full) {
-    const phone = (o.customerPhone ?? "").trim();
-    const key = digits(phone) || `nombre:${(o.customerName ?? "").trim().toLowerCase()}`;
-    if (!key || key === "nombre:") continue;
-    const mail = typeof o.customerEmail === "string" ? o.customerEmail.trim() : "";
-    const prev = byKey.get(key);
-    if (!prev) {
-      byKey.set(key, {
-        name: (o.customerName ?? "").trim() || "Sin nombre",
-        phone,
-        email: mail,
-        ordersCount: 1,
-        lastOrderAt: o.createdAt.toISOString(),
-        totalSpent: o.total ?? 0,
-      });
-    } else {
-      prev.ordersCount += 1;
-      prev.totalSpent += o.total ?? 0;
-      if (!prev.email && mail) prev.email = mail;
-      // orders viene desc: el primero visto es el más reciente (nombre última compra).
+
+  for (const o of orders) {
+    const key = clientKey(o);
+    if (!key) continue;
+    const existing = byKey.get(key);
+    if (existing) {
+      existing.ordersCount += 1;
+      existing.totalSpent += o.total;
+      if (!existing.name && o.customerName.trim()) existing.name = o.customerName.trim();
+      if (!existing.phone && o.customerPhone.trim()) existing.phone = o.customerPhone.trim();
+      if (!existing.email) existing.email = normalizeClientEmail(o.customerEmail);
+      continue;
     }
+    byKey.set(key, {
+      name: o.customerName.trim(),
+      phone: o.customerPhone.trim(),
+      email: normalizeClientEmail(o.customerEmail),
+      ordersCount: 1,
+      lastOrderAt: o.createdAt.toISOString(),
+      totalSpent: o.total,
+    });
   }
-  return [...byKey.values()];
+
+  return [...byKey.values()].sort((a, b) => (a.lastOrderAt < b.lastOrderAt ? 1 : -1));
 }
