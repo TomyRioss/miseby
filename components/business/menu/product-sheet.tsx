@@ -160,7 +160,7 @@ export function ProductSheet({
     if (uploading) return toast.error("Esperá a que termine de subir la foto.");
     const n = name.trim();
     if (!n) return toast.error(`Poné nombre al ${copy.itemSingular}: ej. ${copy.itemExample}.`);
-    if (!categoryId) return toast.error(`Elegí la sección del ${copy.itemSingular}.`);
+    if (!categoryId) return toast.error(`Elegí la categoría del ${copy.itemSingular}.`);
     if (price.trim() === "") return toast.error("Poné el precio base: es obligatorio.");
     const base = Number(price);
     if (!Number.isFinite(base) || base <= 0) return toast.error("El precio base tiene que ser mayor a $0.");
@@ -252,7 +252,7 @@ export function ProductSheet({
             <div><Label htmlFor="ps-name">Nombre *</Label>
               <Input id="ps-name" value={name} onChange={(e) => setName(e.target.value)} maxLength={80} placeholder={copy.itemExample} className="mt-1.5 min-h-10" /></div>
             <div className="grid grid-cols-2 gap-3">
-              <div><Label htmlFor="ps-cat">Sección *</Label>
+              <div><Label htmlFor="ps-cat">Categoría *</Label>
                 <select id="ps-cat" value={categoryId} onChange={(e) => setCategoryId(e.target.value)}
                   className="mt-1.5 min-h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
                   <option value="">Elegir...</option>

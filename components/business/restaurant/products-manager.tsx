@@ -42,7 +42,7 @@ export function ProductsManager({
 
   const visible = useMemo(() => (filter === "all" ? items : items.filter((p) => p.categoryId === filter)), [items, filter]);
   const countFor = (id: string) => items.filter((p) => p.categoryId === id).length;
-  const catName = (id: string) => categories.find((c) => c.id === id)?.name ?? "Sin sección";
+  const catName = (id: string) => categories.find((c) => c.id === id)?.name ?? "Sin categoría";
   const availableCount = items.filter((p) => p.available).length;
 
   function touch(next: RestaurantProduct[]) {
@@ -67,7 +67,7 @@ export function ProductsManager({
   function submit() {
     const name = draft.name.trim();
     if (!name) return toast.error("Poné nombre al plato: ej. Bandeja paisa.");
-    if (!draft.categoryId) return toast.error("Elegí la sección del plato.");
+    if (!draft.categoryId) return toast.error("Elegí la categoría del plato.");
     if (categories.length === 0) return toast.error("Creá una categoría primero.");
     if (!Number.isFinite(draft.price) || draft.price < 0) return toast.error("Precio inválido.");
     if (editingId) {
@@ -109,7 +109,7 @@ export function ProductsManager({
           <div className="flex flex-col gap-4">
             <section aria-labelledby="prod-list" className="rounded-2xl border border-border bg-card p-6">
           <h2 id="prod-list" className="mt-1 text-base font-semibold tracking-tight">Tu carta</h2>
-          <div className="mt-3 flex flex-wrap gap-1.5" role="tablist" aria-label="Filtrar por sección">
+          <div className="mt-3 flex flex-wrap gap-1.5" role="tablist" aria-label="Filtrar por categoría">
             <button role="tab" aria-selected={filter === "all"} onClick={() => setFilter("all")} className={`min-h-8 rounded-full border px-3 py-1 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6D28D9] ${filter === "all" ? "border-[#0A2540] bg-[#0A2540] text-white" : "border-border text-muted-foreground hover:bg-muted"}`}>Todos · {items.length}</button>
             {categories.map((c) => (
               <button key={c.id} role="tab" aria-selected={filter === c.id} onClick={() => setFilter(c.id)} className={`min-h-8 rounded-full border px-3 py-1 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6D28D9] ${filter === c.id ? "border-[#0A2540] bg-[#0A2540] text-white" : "border-border text-muted-foreground hover:bg-muted"}`}>{c.name} · {countFor(c.id)}</button>
@@ -118,7 +118,7 @@ export function ProductsManager({
           <div className="mt-4 space-y-2">
             {visible.length === 0 && (
               <div className="rounded-xl border border-dashed border-border px-4 py-8 text-center">
-                <p className="text-sm font-semibold">{categories.length === 0 ? "Primero las secciones" : "Nada por acá todavía"}</p>
+                <p className="text-sm font-semibold">{categories.length === 0 ? "Primero las categorías" : "Nada por acá todavía"}</p>
                 <p className="mx-auto mt-1 max-w-65 text-[13px] text-muted-foreground">{categories.length === 0 ? "Andá a Categorías y creá Entradas, Fuertes..." : "Agregá el primer plato con el formulario."}</p>
               </div>
             )}
@@ -140,15 +140,15 @@ export function ProductsManager({
 
         <section aria-labelledby="prod-form" className="h-fit rounded-2xl border border-border bg-card p-6">
           <h2 id="prod-form" className="mt-1 text-base font-semibold tracking-tight">{editingId ? "Editar plato" : "Nuevo plato"}</h2>
-          <p className="mb-4 mt-1 text-[13px] text-muted-foreground">Nombre corto, sección correcta y precio final.</p>
+          <p className="mb-4 mt-1 text-[13px] text-muted-foreground">Nombre corto, categoría correcta y precio final.</p>
           {categories.length === 0 ? (
-            <p className="rounded-xl bg-muted p-3 text-[13px] text-muted-foreground">Creá una sección primero en Categorías.</p>
+            <p className="rounded-xl bg-muted p-3 text-[13px] text-muted-foreground">Creá una categoría primero en Categorías.</p>
           ) : (
             <div className="space-y-4">
               <div><Label htmlFor="prd-name">Nombre *</Label><Input id="prd-name" value={draft.name} onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))} maxLength={80} placeholder="Bandeja paisa" className="mt-1.5 min-h-10" /></div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label htmlFor="prd-cat">Sección *</Label>
+                  <Label htmlFor="prd-cat">Categoría *</Label>
                   <select id="prd-cat" value={draft.categoryId} onChange={(e) => setDraft((d) => ({ ...d, categoryId: e.target.value }))} className="mt-1.5 min-h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6D28D9]">
                     <option value="">Elegir...</option>
                     {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}

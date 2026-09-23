@@ -32,7 +32,7 @@ export default async function CatalogoPage() {
         <BusinessSidebar account={<SidebarAccount />} hasMiseLink={false} planCode={data.membership?.plan.code} orgRole={data.role} />
         <main className="min-h-0 flex-1 overflow-y-auto p-6 lg:p-10">
           <h1 className="font-display text-2xl font-semibold">Catálogo</h1>
-          <p className="mb-6 mt-1 text-sm text-muted-foreground">Secciones, productos con variantes y agregados opcionales, todo en un lugar.</p>
+          <p className="mb-6 mt-1 text-sm text-muted-foreground">Categorías, productos con variantes y agregados opcionales, todo en un lugar.</p>
           <CatalogManager
             initialCategories={rest.categories ?? []}
             initialProducts={rest.products ?? []}

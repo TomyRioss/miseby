@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Clock, Copy, Info, Package, Plus, Search, Share, ShoppingBag, UtensilsCrossed, X } from "lucide-react";
+import { Clock, Copy, Info, Package, Plus, Search, Share2, ShoppingBag, UtensilsCrossed, X } from "lucide-react";
 import { toast } from "sonner";
 import { usePedido } from "@/components/menu/use-pedido";
 import {
@@ -82,7 +82,7 @@ function UtilityBar({ onInfoClick, onShareClick, rewardsAvailable }: { onInfoCli
         )}
         {onShareClick && (
           <button type="button" onClick={onShareClick} className="min-h-[36px] min-w-[36px] cursor-pointer rounded-full p-2 transition-colors hover:bg-black/5 dark:hover:bg-white/10" aria-label="Compartir">
-            <Share className="h-4 w-4 opacity-60" />
+            <Share2 className="h-4 w-4 opacity-60" />
           </button>
         )}
       </div>

@@ -55,8 +55,8 @@ export const MENU_COPY_RESTAURANT: MenuCopy = {
     { name: "Bebidas", desc: "Líquidos y cócteles" },
   ],
   steps: [
-    { num: 1, title: "Creá una sección", desc: "Ej: Entradas, Fuertes, Postres… Organizá tu carta en grupos." },
-    { num: 2, title: "Agregá platos con precios", desc: "Dale nombre, precio y descripción a cada plato de la sección." },
+    { num: 1, title: "Creá una categoría", desc: "Ej: Entradas, Fuertes, Postres… Organizá tu carta en grupos." },
+    { num: 2, title: "Agregá platos con precios", desc: "Dale nombre, precio y descripción a cada plato de la categoría." },
     { num: 3, title: "Publicá tu carta", desc: "Cuando estén listos, publicala y compartila con tus clientes." },
   ],
 };
@@ -88,8 +88,8 @@ export const MENU_COPY_CATALOG: MenuCopy = {
     { name: "Servicios", desc: "Lo que ofrecés" },
   ],
   steps: [
-    { num: 1, title: "Creá una sección", desc: "Ej: Destacados, Novedades, Promos… Organizá tu catálogo en grupos." },
-    { num: 2, title: "Agregá productos con precios", desc: "Dale nombre, precio y descripción a cada producto de la sección." },
+    { num: 1, title: "Creá una categoría", desc: "Ej: Destacados, Novedades, Promos… Organizá tu catálogo en grupos." },
+    { num: 2, title: "Agregá productos con precios", desc: "Dale nombre, precio y descripción a cada producto de la categoría." },
     { num: 3, title: "Publicá tu catálogo", desc: "Cuando estén listos, publicalo y compartilo con tus clientes." },
   ],
 };

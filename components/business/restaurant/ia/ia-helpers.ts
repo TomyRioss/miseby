@@ -46,6 +46,6 @@ export function fakeReply(q: string, menu: string, focus: string) {
     return `Liviano y rico: ${dishes}.${focus ? ` Hoy te impulso: ${focus}.` : ""} ¿Te armo algo sin fritura?`;
   if (s.includes("precio") || s.includes("barato") || s.includes("promo") || s.includes("somos 2") || s.includes("qué pedimos"))
     return `Para 2, lo que más conviene: ${dishes}. Pidan variado y comparten.`;
-  if (s.includes("postre") || s.includes("dulce")) return `De postre, lo de la casa: mirá la sección Postres. ${dishes}.`;
+  if (s.includes("postre") || s.includes("dulce")) return `De postre, lo de la casa: mirá la categoría Postres. ${dishes}.`;
   return `Con gusto. Hoy sale mucho: ${dishes}. ¿Antojo contundente o liviano?`;
 }

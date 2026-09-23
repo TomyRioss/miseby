@@ -116,12 +116,6 @@ export default async function AnalyticsPage() {
       detail: visibleProducts.length > 0 ? `${withDescription}/${visibleProducts.length} con texto` : "Contá qué lleva cada plato",
       href: "/dashboard/productos",
     },
-    {
-      done: rest.menuPublished === true,
-      label: "Carta publicada",
-      detail: rest.menuPublished === true ? "Visible para clientes" : "Sigue en borrador",
-      href: "/dashboard/catalogo",
-    },
   ];
 
   return (

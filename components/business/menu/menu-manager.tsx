@@ -95,8 +95,8 @@ export function MenuManager({
   function addCategory() {
     const n = newCat.trim();
     if (!n) return toast.error(`Escribí un nombre: ej. ${copy.sectionExample}.`);
-    if (cats.some((c) => c.name.toLowerCase() === n.toLowerCase())) return toast.error("Esa sección ya existe.");
-    if (cats.length >= 100) return toast.error("Máximo 100 secciones.");
+    if (cats.some((c) => c.name.toLowerCase() === n.toLowerCase())) return toast.error("Esa categoría ya existe.");
+    if (cats.length >= 100) return toast.error("Máximo 100 categorías.");
     touchCats([...cats, { id: newId("cat"), name: n, order: cats.length }]);
     setNewCat("");
   }
@@ -122,7 +122,7 @@ export function MenuManager({
   }
 
   async function save() {
-    if (cats.length === 0) return toast.error("Creá al menos una sección.");
+    if (cats.length === 0) return toast.error("Creá al menos una categoría.");
     setSaving(true);
     try {
       const nextName = restName.trim().slice(0, 120);
@@ -327,7 +327,7 @@ export function MenuManager({
           <section id="menu-secciones" className="scroll-mt-24 rounded-2xl border border-border bg-card p-5 sm:p-6">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
-                <h2 className="text-base font-semibold tracking-tight">Secciones</h2>
+                <h2 className="text-base font-semibold tracking-tight">Categorías</h2>
                 {dirty && <Badge className="bg-[#0A2540]">Sin guardar</Badge>}
               </div>
               <DropdownMenu>
@@ -345,8 +345,8 @@ export function MenuManager({
                 placeholder={copy.sectionPlaceholder} maxLength={60} disabled={cats.length >= 100}
                 onFocus={() => setInputFocused(true)} onBlur={() => setInputFocused(false)}
                 onKeyDown={(e) => { if (e.key === "Enter") addCategory(); }}
-                aria-label="Nueva sección" className={inputCls} />
-              <Button onClick={addCategory} disabled={!newCat.trim() || cats.length >= 100} className={btnPrimary} aria-label="Agregar sección">
+                aria-label="Nueva categoría" className={inputCls} />
+              <Button onClick={addCategory} disabled={!newCat.trim() || cats.length >= 100} className={btnPrimary} aria-label="Agregar categoría">
                 <Plus className="h-4 w-4" /><span className="hidden sm:inline">Agregar</span>
               </Button>
             </div>
@@ -381,7 +381,7 @@ export function MenuManager({
                       onRename={(name) => touchCats(cats.map((x) => (x.id === c.id ? { ...x, name: name.trim() } : x)))}
                       onDelete={() => {
                         if (byCat(c.id).length > 0) return toast.error(`Mové o borrá sus ${copy.itemPlural} primero.`);
-                        if (!window.confirm(`¿Borrar la sección "${c.name}"? Esta acción no se puede deshacer.`)) return;
+                        if (!window.confirm(`¿Borrar la categoría "${c.name}"? Esta acción no se puede deshacer.`)) return;
                         touchCats(cats.filter((x) => x.id !== c.id).map((x, idx) => ({ ...x, order: idx })));
                       }}
                       onAddProduct={() => setSheet({ mode: "create", categoryId: c.id })}

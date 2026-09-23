@@ -87,7 +87,7 @@ export function CategoriesManager({
       left={
         <div className="flex flex-col gap-4">
           <section aria-labelledby="cat-new" className="rounded-2xl border border-border bg-card p-6">
-        <h2 id="cat-new" className="mt-1 text-base font-semibold tracking-tight">Nueva sección</h2>
+        <h2 id="cat-new" className="mt-1 text-base font-semibold tracking-tight">Nueva categoría</h2>
         <p className="mb-4 mt-1 text-[13px] leading-relaxed text-muted-foreground">Entradas, Fuertes, Postres, Bebidas. El orden de acá es el orden de la carta.</p>
         <div className="flex gap-2">
           <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ej: Postres..." maxLength={60} onKeyDown={(e) => e.key === "Enter" && add()} aria-label="Nombre de categoría" className="min-h-10" />
@@ -99,13 +99,13 @@ export function CategoriesManager({
           ))}
         </div>
         <div className="mt-5 rounded-xl bg-muted p-3 text-xs leading-relaxed text-muted-foreground">
-          Tip de carta: 4 a 7 secciones venden más que 15. Agrupá, no fragmentes.
+          Tip de carta: 4 a 7 categorías venden más que 15. Agrupá, no fragmentes.
         </div>
       </section>
 
       <section aria-labelledby="cat-list" className="rounded-2xl border border-border bg-card p-6">
         <div className="flex items-center gap-2">
-          <h2 id="cat-list" className="mt-1 text-base font-semibold tracking-tight">Tus secciones</h2>
+          <h2 id="cat-list" className="mt-1 text-base font-semibold tracking-tight">Tus categorías</h2>
           <Badge variant="secondary" className="tabular-nums">{items.length}</Badge>
           {dirty && <Badge className="bg-[#6D28D9]">Sin guardar</Badge>}
         </div>
@@ -113,7 +113,7 @@ export function CategoriesManager({
           {items.length === 0 && (
             <div className="rounded-xl border border-dashed border-border px-4 py-8 text-center">
               <p className="text-sm font-semibold">Empezá con “Entradas”</p>
-              <p className="mx-auto mt-1 max-w-65 text-[13px] leading-relaxed text-muted-foreground">Sin secciones no hay carta. Creá la primera a la izquierda.</p>
+              <p className="mx-auto mt-1 max-w-65 text-[13px] leading-relaxed text-muted-foreground">Sin categorías no hay carta. Creá la primera a la izquierda.</p>
             </div>
           )}
           {items.map((c, idx) => (

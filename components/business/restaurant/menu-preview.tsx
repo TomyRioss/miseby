@@ -19,14 +19,14 @@ export function MenuPreview({ data, currency, slug }: { data: RestaurantData; cu
   const ap = data.appearance!;
 
   const checks = [
-    { ok: cats.length > 0, label: cats.length > 0 ? `${cats.length} secciones` : "Creá 1 sección" },
+    { ok: cats.length > 0, label: cats.length > 0 ? `${cats.length} categorías` : "Creá 1 categoría" },
     { ok: available.length > 0, label: available.length > 0 ? `${available.length} platos visibles` : "Activá 1 plato" },
     { ok: available.some((p) => p.price > 0), label: "Precios cargados" },
   ];
   const ready = checks.every((c) => c.ok);
 
   async function toggle() {
-    if (!published && !ready) return toast.error("Completá secciones, platos y precios antes de publicar.");
+    if (!published && !ready) return toast.error("Completá categorías, platos y precios antes de publicar.");
     setSaving(true);
     try {
       const res = await setMenuPublishedAction(!published);

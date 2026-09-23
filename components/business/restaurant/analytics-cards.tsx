@@ -43,12 +43,6 @@ export function AnalyticsCards({
       detail: "con foto y precio para vender.",
       href: "/dashboard/productos",
     },
-    {
-      done: menuPublished,
-      label: "Carta publicada",
-      detail: "para que la vean tus clientes.",
-      href: "/dashboard/catalogo",
-    },
   ];
 
   return (
