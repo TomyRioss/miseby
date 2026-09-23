@@ -6,10 +6,6 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-// Contrato TOM-203: lib/actions/account.ts lo implementa el pool BE en esta
-// misma task (branch fix/TOM-203-cuenta-billing-ajustes-back).
-// Remover el @ts-expect-error al integrar ambas ramas.
-// @ts-expect-error: módulo pendiente del BE
 import { updateProfileNameAction } from "@/lib/actions/account";
 import type { AccountActionResult } from "./types";
 
