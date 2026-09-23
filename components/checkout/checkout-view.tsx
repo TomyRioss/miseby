@@ -61,6 +61,7 @@ export function CheckoutView({
   const { items, setQty, clear, total, count } = usePedido(slug);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
   const [fulfillment, setFulfillment] = useState<Fulfillment>("retiro");
   const [pay, setPay] = useState<PayMethod>("efectivo");
@@ -75,6 +76,10 @@ export function CheckoutView({
   async function confirm() {
     if (items.length === 0) return toast.error("Tu pedido está vacío.");
     if (!phone.trim()) return toast.error("Ingresá tu teléfono.");
+    const mail = email.trim();
+    if (!mail) return toast.error("Ingresá tu email.");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(mail))
+      return toast.error("Revisá el formato de tu email.");
     if (fulfillment === "delivery" && !address.trim())
       return toast.error("Ingresá tu dirección para el delivery.");
     setSending(true);
@@ -89,6 +94,7 @@ export function CheckoutView({
           payMethod: pay,
           customerName: name.trim(),
           customerPhone: phone.trim(),
+          customerEmail: mail,
           customerAddress: fulfillment === "delivery" ? address.trim() : "",
         }),
       });
@@ -290,6 +296,21 @@ export function CheckoutView({
                       className="mt-1.5 min-h-11"
                     />
                   </div>
+                </div>
+                <div className="mt-4">
+                  <Label htmlFor="ck-email">Email *</Label>
+                  <Input
+                    id="ck-email"
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="tu@email.com"
+                    inputMode="email"
+                    autoComplete="email"
+                    maxLength={120}
+                    className="mt-1.5 min-h-11"
+                  />
                 </div>
 
                 <fieldset className="mt-5">
