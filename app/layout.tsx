@@ -29,7 +29,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="flex h-[100dvh] flex-col overflow-hidden">
         <AuthSessionProvider>
           <TooltipProvider>{children}</TooltipProvider>
-          <Toaster />
+          <Toaster position="top-center" />
         </AuthSessionProvider>
       </body>
     </html>

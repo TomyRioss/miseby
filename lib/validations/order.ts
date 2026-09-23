@@ -11,7 +11,7 @@ export const createOrderSchema = z.object({
   slug: z.string().trim().min(1).max(120),
   items: z.array(orderItemSchema).min(1).max(100),
   fulfillment: z.enum(["retiro", "delivery"]),
-  payMethod: z.enum(["efectivo", "mp"]),
+  payMethod: z.enum(["efectivo", "transferencia"]),
   customerName: z.string().trim().min(1).max(60),
   customerPhone: z.string().trim().min(6).max(30),
   customerAddress: z.string().trim().max(200).optional(),

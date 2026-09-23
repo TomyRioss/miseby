@@ -11,10 +11,19 @@ import { getOrCreateMiseLinkPage } from "@/lib/services/miselink";
 import { getRestaurantData } from "@/lib/restaurant-theme";
 import {
   OnboardingForm,
-  onboardingTitle,
   type OnboardingInitial,
   type OnboardingPlanCode,
 } from "@/components/auth/onboarding-form";
+
+const PLAN_TITLE: Record<OnboardingPlanCode, string> = {
+  mise_link: "Configurá tu Mise Link",
+  mise: "Configurá tu negocio",
+  mise_restaurant: "Configurá tu restaurante",
+};
+
+function onboardingTitle(planCode: OnboardingPlanCode) {
+  return PLAN_TITLE[planCode] ?? PLAN_TITLE.mise;
+}
 
 export const metadata: Metadata = {
   title: "Configurá tu negocio | MISE BY",

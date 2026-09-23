@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Loader2 } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +21,8 @@ export function LoginForm() {
   const {
     register,
     handleSubmit,
+    setValue,
+    setFocus,
     formState: { errors, isSubmitting },
   } = useForm<LoginInput>({ resolver: zodResolver(loginSchema) });
 
@@ -31,14 +33,22 @@ export function LoginForm() {
       if (!result.ok) {
         setServerError(result.error);
         toast.error(result.error);
+        // Dejá el email, limpiá solo la contraseña y devolvé el foco ahí.
+        setValue("password", "");
+        setFocus("password");
         return;
       }
+      toast.success("Sesión iniciada. Te llevamos a tu panel…");
       router.push("/onboarding");
       router.refresh();
     } catch (err) {
-      console.error(err);
-      setServerError("No fue posible iniciar sesión.");
-      toast.error("No fue posible iniciar sesión.");
+      console.error("[login]", err);
+      const message =
+        err instanceof Error && err.message ? err.message : "Ocurrió un error al iniciar sesión. Intentá de nuevo en unos segundos.";
+      setServerError(message);
+      toast.error(message);
+      setValue("password", "");
+      setFocus("password");
     }
   };
 
@@ -86,9 +96,23 @@ export function LoginForm() {
       </FieldGroup>
 
       {serverError ? (
-        <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {serverError}
-        </p>
+        <div
+          role="alert"
+          aria-live="assertive"
+          className="flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+        >
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+          <div className="space-y-1">
+            <p className="font-medium">{serverError}</p>
+            <p className="text-xs text-red-600">
+              Si no recordás tu contraseña,{" "}
+              <Link href="/forgot-password" className="font-semibold underline underline-offset-2 hover:text-red-800">
+                recuperala acá
+              </Link>
+              .
+            </p>
+          </div>
+        </div>
       ) : null}
 
       <Button

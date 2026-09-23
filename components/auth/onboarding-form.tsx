@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Loader2 } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,12 +36,6 @@ interface OnboardingFormProps {
 const inputCls =
   "rounded-xl border-input bg-card px-4 py-3 focus-visible:border-[#0E88E2] focus-visible:ring-[#1FD0FF]/40";
 
-const PLAN_TITLE: Record<OnboardingPlanCode, string> = {
-  mise_link: "Configurá tu Mise Link",
-  mise: "Configurá tu negocio",
-  mise_restaurant: "Configurá tu restaurante",
-};
-
 export function OnboardingForm({ planCode, initial }: OnboardingFormProps) {
   const router = useRouter();
   const [serverError, setServerError] = useState("");
@@ -63,8 +57,9 @@ export function OnboardingForm({ planCode, initial }: OnboardingFormProps) {
         country: values.country.trim(),
       });
       if (!base.ok) {
-        setServerError(base.error);
-        toast.error(base.error);
+        const msg = `No se pudo guardar los datos del negocio: ${base.error}`;
+        setServerError(msg);
+        toast.error(msg);
         return;
       }
 
@@ -73,15 +68,17 @@ export function OnboardingForm({ planCode, initial }: OnboardingFormProps) {
         if (username && username !== initial.username) {
           const r = await updateUsernameAction(username);
           if (!r.ok) {
-            setServerError(r.error);
-            toast.error(r.error);
+            const msg = `No se pudo guardar tu nombre de usuario: ${r.error}`;
+            setServerError(msg);
+            toast.error(msg);
             return;
           }
         }
         const r2 = await updateProfileAction({ bio: values.bio.trim() });
         if (!r2.ok) {
-          setServerError(r2.error);
-          toast.error(r2.error);
+          const msg = `No se pudo guardar tu bio: ${r2.error}`;
+          setServerError(msg);
+          toast.error(msg);
           return;
         }
       }
@@ -92,8 +89,9 @@ export function OnboardingForm({ planCode, initial }: OnboardingFormProps) {
           whatsapp: values.whatsapp.trim(),
         });
         if (!r3.ok) {
-          setServerError(r3.error);
-          toast.error(r3.error);
+          const msg = `No se pudo guardar el contacto: ${r3.error}`;
+          setServerError(msg);
+          toast.error(msg);
           return;
         }
       }
@@ -102,9 +100,11 @@ export function OnboardingForm({ planCode, initial }: OnboardingFormProps) {
       router.push("/dashboard");
       router.refresh();
     } catch (err) {
-      console.error(err);
-      setServerError("No se pudo guardar. Intentá de nuevo.");
-      toast.error("No se pudo guardar. Intentá de nuevo.");
+      console.error("[onboarding]", err);
+      const detail = err instanceof Error && err.message ? `: ${err.message}` : ".";
+      const msg = `Ocurrió un error inesperado al guardar${detail} Revisá tu conexión e intentá de nuevo.`;
+      setServerError(msg);
+      toast.error(msg);
     }
   };
 
@@ -121,30 +121,56 @@ export function OnboardingForm({ planCode, initial }: OnboardingFormProps) {
 
         <div className="grid gap-5 sm:grid-cols-2">
           <Field data-invalid={Boolean(errors.phone)}>
-            <FieldLabel htmlFor="phone">Teléfono / WhatsApp</FieldLabel>
-            <Input id="phone" autoComplete="tel" placeholder="+57 300 123 4567" className={inputCls} {...register("phone", { required: "Requerido" })} />
+            <FieldLabel htmlFor="phone">
+              Teléfono / WhatsApp <span className="font-normal text-muted-foreground">(opcional)</span>
+            </FieldLabel>
+            <Input id="phone" autoComplete="tel" placeholder="+57 300 123 4567" className={inputCls} {...register("phone")} />
             {errors.phone && <FieldError errors={[{ message: errors.phone.message }]} />}
           </Field>
 
-          <Field>
-            <FieldLabel htmlFor="email">Email de contacto</FieldLabel>
-            <Input id="email" type="email" placeholder="hola@minegocio.com" className={inputCls} {...register("email")} />
+          <Field data-invalid={Boolean(errors.email)}>
+            <FieldLabel htmlFor="email">
+              Email de contacto <span className="font-normal text-muted-foreground">(opcional)</span>
+            </FieldLabel>
+            <Input
+              id="email"
+              type="email"
+              autoComplete="email"
+              placeholder="hola@minegocio.com"
+              className={inputCls}
+              {...register("email", {
+                pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Email inválido (ej: nombre@mail.com)" },
+              })}
+            />
+            {errors.email && <FieldError errors={[{ message: errors.email.message }]} />}
           </Field>
         </div>
 
         <div className="grid gap-5 sm:grid-cols-2">
           <Field data-invalid={Boolean(errors.city)}>
-            <FieldLabel htmlFor="city">Ciudad</FieldLabel>
-            <Input id="city" autoComplete="address-level2" className={inputCls} {...register("city", { required: "Requerido" })} />
+            <FieldLabel htmlFor="city">
+              Ciudad <span className="font-normal text-muted-foreground">(opcional)</span>
+            </FieldLabel>
+            <Input id="city" autoComplete="address-level2" placeholder="Bogotá" className={inputCls} {...register("city")} />
             {errors.city && <FieldError errors={[{ message: errors.city.message }]} />}
           </Field>
 
           <Field data-invalid={Boolean(errors.address)}>
-            <FieldLabel htmlFor="address">Dirección</FieldLabel>
-            <Input id="address" autoComplete="street-address" placeholder="Calle 123 #45-67" className={inputCls} {...register("address", { required: "Requerido" })} />
+            <FieldLabel htmlFor="address">
+              Dirección <span className="font-normal text-muted-foreground">(opcional)</span>
+            </FieldLabel>
+            <Input id="address" autoComplete="street-address" placeholder="Calle 123 #45-67" className={inputCls} {...register("address")} />
             {errors.address && <FieldError errors={[{ message: errors.address.message }]} />}
           </Field>
         </div>
+
+        <Field data-invalid={Boolean(errors.country)}>
+          <FieldLabel htmlFor="country">
+            País <span className="font-normal text-muted-foreground">(opcional)</span>
+          </FieldLabel>
+          <Input id="country" autoComplete="country-name" placeholder="Colombia" className={inputCls} {...register("country")} />
+          {errors.country && <FieldError errors={[{ message: errors.country.message }]} />}
+        </Field>
       </FieldGroup>
 
       {planCode === "mise_link" && (
@@ -225,7 +251,14 @@ export function OnboardingForm({ planCode, initial }: OnboardingFormProps) {
       )}
 
       {serverError && (
-        <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{serverError}</p>
+        <div
+          role="alert"
+          aria-live="assertive"
+          className="flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+        >
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+          <p className="font-medium">{serverError}</p>
+        </div>
       )}
 
       <Button
@@ -234,12 +267,9 @@ export function OnboardingForm({ planCode, initial }: OnboardingFormProps) {
         className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#075296] px-4 py-3 text-sm font-semibold text-white hover:bg-[#0E88E2]"
       >
         {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-        Guardar y entrar al panel
+        {isSubmitting ? "Guardando…" : "Guardar y entrar al panel"}
       </Button>
     </form>
   );
 }
 
-export function onboardingTitle(planCode: OnboardingPlanCode) {
-  return PLAN_TITLE[planCode] ?? PLAN_TITLE.mise;
-}

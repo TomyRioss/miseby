@@ -19,10 +19,15 @@ import { requireUser } from "@/lib/auth/guards";
 type ActionResult = { ok: true } | { ok: false; error: string };
 
 export async function loginAction(email: string, password: string): Promise<ActionResult> {
+  const cleanEmail = email.trim().toLowerCase();
+  if (!cleanEmail || !password) {
+    return { ok: false, error: "Ingresá tu email y contraseña para continuar." };
+  }
   try {
-    await signIn("credentials", { email, password, redirect: false });
+    await signIn("credentials", { email: cleanEmail, password, redirect: false });
     return { ok: true };
   } catch (error) {
+    console.error("[auth] login", error);
     if (error instanceof AuthError) {
       const cause =
         ((error.cause as unknown as { err?: { message?: string } })?.err?.message ??
@@ -30,11 +35,17 @@ export async function loginAction(email: string, password: string): Promise<Acti
           error.message ??
           "") as string;
       if (/suspend/i.test(cause)) {
-        return { ok: false, error: "Tu cuenta fue suspendida. Contactá a soporte." };
+        return { ok: false, error: "Tu cuenta fue suspendida. Escribinos a soporte para revisarla." };
       }
-      return { ok: false, error: "Email o contraseña incorrectos" };
+      if (error.type === "CredentialsSignin" || /credential|password|user|email|not found|invalid/i.test(cause)) {
+        return { ok: false, error: "Email o contraseña incorrectos. Revisá los datos e intentá de nuevo." };
+      }
+      return { ok: false, error: "Email o contraseña incorrectos. Revisá los datos e intentá de nuevo." };
     }
-    return { ok: false, error: "Error al iniciar sesión" };
+    if (error instanceof Error && /fetch|network|prisma|connect|timeout/i.test(error.message)) {
+      return { ok: false, error: "No pudimos conectar con el servidor. Revisá tu conexión e intentá de nuevo." };
+    }
+    return { ok: false, error: "Ocurrió un error al iniciar sesión. Intentá de nuevo en unos segundos." };
   }
 }
 

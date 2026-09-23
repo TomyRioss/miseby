@@ -359,6 +359,8 @@ enum OrderFulfillment {
 
 enum OrderPayMethod {
   efectivo
+  transferencia
+  // @deprecated: valor legacy (antes "Mercado Pago"), se conserva para no romper pedidos viejos
   mp
 }
 

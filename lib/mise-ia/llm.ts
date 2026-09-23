@@ -1,9 +1,37 @@
 import type { RestaurantCategory, RestaurantProduct } from "@/lib/restaurant-theme";
+import fs from "node:fs";
+import path from "node:path";
+import tls from "node:tls";
+import { Agent, request } from "undici";
 
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 /** Modelo del mesero. Overridable con MISE_IA_MODEL. */
 export const MISE_IA_MODEL = process.env.MISE_IA_MODEL ?? "xiaomi/mimo-v2.5";
+
+type ChatCompletion = { choices?: Array<{ message?: { content?: unknown } }> };
+
+let cachedDispatcher: Agent | undefined;
+let dispatcherResolved = false;
+
+/**
+ * Dispatcher con el CA raíz del antivirus local agregado. Algunos antivirus
+ * (p. ej. Kaspersky) interceptan el TLS firmando con un root propio que Node
+ * no trae, y el fetch a OpenRouter muere con "self-signed certificate in
+ * certificate chain". El PEM de certs/kaspersky-root.pem se SUMA a los CA
+ * estándar: sin ese archivo (prod / otras máquinas) todo sigue como antes.
+ */
+function getDispatcher(): Agent | undefined {
+  if (dispatcherResolved) return cachedDispatcher;
+  dispatcherResolved = true;
+  try {
+    const extraCa = fs.readFileSync(path.join(process.cwd(), "certs", "kaspersky-root.pem"), "utf8");
+    cachedDispatcher = new Agent({ connect: { ca: [...tls.rootCertificates, extraCa] } });
+  } catch {
+    cachedDispatcher = undefined;
+  }
+  return cachedDispatcher;
+}
 
 export type LlmReason =
   | "ok"
@@ -88,12 +116,12 @@ export async function getMeseroReply(ctx: MeseroContext): Promise<MeseroResult> 
     { role: "user", content: ctx.message },
   ];
 
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 120_000);
   try {
-    const res = await fetch(OPENROUTER_URL, {
+    const res = await request(OPENROUTER_URL, {
       method: "POST",
-      signal: ctrl.signal,
+      dispatcher: getDispatcher(),
+      headersTimeout: 115_000,
+      bodyTimeout: 20_000,
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
@@ -107,12 +135,13 @@ export async function getMeseroReply(ctx: MeseroContext): Promise<MeseroResult> 
         messages,
       }),
     });
-    if (!res.ok) {
-      console.error("[mise-ia llm] http", res.status, (await res.text()).slice(0, 200));
-      return { text: null, reason: "http", httpStatus: res.status };
+    if (res.statusCode < 200 || res.statusCode >= 300) {
+      console.error("[mise-ia llm] mesero http", res.statusCode, (await res.body.text()).slice(0, 200));
+      return { text: null, reason: "http", httpStatus: res.statusCode };
     }
-    const data = await res.json().catch(() => null);
-    const text = data?.choices?.[0]?.message?.content?.trim();
+    const data = (await res.body.json().catch(() => null)) as ChatCompletion | null;
+    const raw = data?.choices?.[0]?.message?.content;
+    const text = typeof raw === "string" ? raw.trim() : "";
     if (!text) {
       console.error("[mise-ia llm] respuesta sin contenido", JSON.stringify(data)?.slice(0, 300));
       return { text: null, reason: "empty_content" };
@@ -120,12 +149,11 @@ export async function getMeseroReply(ctx: MeseroContext): Promise<MeseroResult> 
     return { text: text.slice(0, 1200), reason: "ok" };
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
-    const tls = /certificate|self-signed|SELF_SIGNED/i.test(msg);
-    const timeout = e instanceof DOMException && e.name === "AbortError";
-    console.error("[mise-ia llm]", timeout ? "timeout 120s" : msg);
-    return { text: null, reason: timeout ? "timeout" : tls ? "tls" : "error" };
-  } finally {
-    clearTimeout(timer);
+    const causeMsg = e instanceof Error ? String((e as { cause?: unknown }).cause ?? "") : "";
+    const tlsErr = /certificate|self-signed|SELF_SIGNED/i.test(`${msg} ${causeMsg}`);
+    const timeout = /timeout|timed out/i.test(`${e instanceof Error ? e.name : ""} ${msg} ${causeMsg}`);
+    console.error("[mise-ia llm] mesero", timeout ? "timeout 120s" : msg, "cause:", causeMsg);
+    return { text: null, reason: timeout ? "timeout" : tlsErr ? "tls" : "error" };
   }
 }
 
@@ -148,12 +176,12 @@ export async function generateProductDescription(input: {
   ]
     .filter(Boolean)
     .join("\n");
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 60_000);
   try {
-    const res = await fetch(OPENROUTER_URL, {
+    const res = await request(OPENROUTER_URL, {
       method: "POST",
-      signal: ctrl.signal,
+      dispatcher: getDispatcher(),
+      headersTimeout: 55_000,
+      bodyTimeout: 20_000,
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
@@ -170,12 +198,13 @@ export async function generateProductDescription(input: {
         ],
       }),
     });
-    if (!res.ok) {
-      console.error("[mise-ia llm] http", res.status, (await res.text()).slice(0, 200));
-      return { text: null, reason: "http", httpStatus: res.status };
+    if (res.statusCode < 200 || res.statusCode >= 300) {
+      console.error("[mise-ia llm] describe http", res.statusCode, (await res.body.text()).slice(0, 200));
+      return { text: null, reason: "http", httpStatus: res.statusCode };
     }
-    const data = await res.json().catch(() => null);
-    const text = data?.choices?.[0]?.message?.content?.trim();
+    const data = (await res.body.json().catch(() => null)) as ChatCompletion | null;
+    const raw = data?.choices?.[0]?.message?.content;
+    const text = typeof raw === "string" ? raw.trim() : "";
     if (!text) {
       console.error("[mise-ia llm] respuesta sin contenido", JSON.stringify(data)?.slice(0, 300));
       return { text: null, reason: "empty_content" };
@@ -183,11 +212,10 @@ export async function generateProductDescription(input: {
     return { text: text.replace(/\s+/g, " ").slice(0, 240), reason: "ok" };
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
-    const tls = /certificate|self-signed|SELF_SIGNED/i.test(msg);
-    const timeout = e instanceof DOMException && e.name === "AbortError";
-    console.error("[mise-ia llm]", timeout ? "timeout 60s" : msg);
-    return { text: null, reason: timeout ? "timeout" : tls ? "tls" : "error" };
-  } finally {
-    clearTimeout(timer);
+    const causeMsg = e instanceof Error ? String((e as { cause?: unknown }).cause ?? "") : "";
+    const tlsErr = /certificate|self-signed|SELF_SIGNED/i.test(`${msg} ${causeMsg}`);
+    const timeout = /timeout|timed out/i.test(`${e instanceof Error ? e.name : ""} ${msg} ${causeMsg}`);
+    console.error("[mise-ia llm] describe", timeout ? "timeout 60s" : msg, "cause:", causeMsg);
+    return { text: null, reason: timeout ? "timeout" : tlsErr ? "tls" : "error" };
   }
 }
