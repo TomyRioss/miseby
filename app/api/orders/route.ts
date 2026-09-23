@@ -59,6 +59,7 @@ export async function POST(req: Request) {
         payMethod: data.payMethod,
         customerName: data.customerName.trim(),
         customerPhone: data.customerPhone.trim(),
+        customerEmail: data.customerEmail?.trim().toLowerCase() || null,
         customerAddress: data.customerAddress?.trim() || null,
       },
       select: { id: true },
