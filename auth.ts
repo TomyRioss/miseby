@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import Google from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import type { UserRole, UserStatus } from "@prisma/client";
@@ -26,6 +27,14 @@ declare module "next-auth/jwt" {
     status: UserStatus;
   }
 }
+
+// Google OAuth solo si están las credenciales (TOM-203). Sin adapter y sin
+// cambios de DB: linkea por email con cuentas credentials existentes.
+// Señal para el FE: process.env.NEXT_PUBLIC_GOOGLE_ENABLED === "1"
+// (inyectado en next.config.ts solo cuando el provider está activo).
+export const isGoogleAuthEnabled = Boolean(
+  process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+);
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
@@ -61,12 +70,44 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         };
       },
     }),
+    ...(isGoogleAuthEnabled
+      ? [Google({ allowDangerousEmailAccountLinking: true })]
+      : []),
   ],
   callbacks: {
-    jwt({ token, user }) {
+    async signIn({ user, account }) {
+      // Google solo entra si ya existe una cuenta credentials con ese email.
+      if (account?.provider === "google") {
+        const email = user.email?.toLowerCase();
+        if (!email) return false;
+        const profile = await prisma.userProfile.findUnique({
+          where: { email },
+          select: { status: true },
+        });
+        if (!profile || profile.status === "suspended") return false;
+      }
+      return true;
+    },
+    async jwt({ token, user }) {
       if (user) {
-        token.role = user.role;
-        token.status = user.status;
+        // Credentials trae role/status en user; Google no → hidratar desde DB.
+        const maybe = user as Partial<{
+          role: UserRole;
+          status: UserStatus;
+        }>;
+        if (maybe.role && maybe.status) {
+          token.role = maybe.role;
+          token.status = maybe.status;
+        } else if (user.email) {
+          const profile = await prisma.userProfile.findUnique({
+            where: { email: user.email.toLowerCase() },
+            select: { role: true, status: true },
+          });
+          if (profile) {
+            token.role = profile.role;
+            token.status = profile.status;
+          }
+        }
       }
       return token;
     },
