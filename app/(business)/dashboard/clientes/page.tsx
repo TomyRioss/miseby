@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getOrganizationForMember } from "@/lib/services/organizations";
+import { getClientsByOrg, type ClientEntry } from "@/lib/services/customers";
 import { PLAN_LABELS } from "@/lib/mise-labels";
 import { BusinessHeader, BusinessSidebar } from "@/components/business/business-header";
 import { SidebarAccount } from "@/components/business/sidebar-account";
-import { ClientesManager } from "@/components/business/restaurant/clientes-manager";
+import { ClientesAutoView } from "@/components/business/restaurant/clientes-auto-view";
 
 export const metadata: Metadata = { title: "Clientes | MISE BY" };
 
@@ -14,11 +15,18 @@ export default async function ClientesPage() {
   let planCode: string | undefined;
   let planName: string | undefined;
   let orgRole: string | null | undefined;
+  let clients: ClientEntry[] = [];
   try {
     const data = await getOrganizationForMember(user.id);
     planCode = data?.membership?.plan.code;
     orgRole = data?.role;
     planName = data?.membership ? (PLAN_LABELS[data.membership.plan.code] ?? data.membership.plan.name) : undefined;
+    if (data?.organization?.id) {
+      clients = await getClientsByOrg(data.organization.id).catch((e) => {
+        console.error("[clientes load]", e);
+        return [];
+      });
+    }
   } catch (e) {
     console.error("[clientes page]", e);
   }
@@ -31,9 +39,9 @@ export default async function ClientesPage() {
           <div className="mx-auto w-full max-w-6xl">
             <h1 className="font-display text-2xl font-semibold">Clientes</h1>
             <p className="mb-6 mt-1 text-sm text-muted-foreground">
-              Libreta local de tu negocio: se guarda en este dispositivo, sin fricción.
+              Se arman solos con tus pedidos; también podés agendar manuales en este dispositivo.
             </p>
-            <ClientesManager />
+            <ClientesAutoView initialClients={clients} />
           </div>
         </main>
       </div>
