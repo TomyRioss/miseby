@@ -1,0 +1,13 @@
+export function isHttpUrl(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+export function safeHttpUrl(value: unknown): string | null {
+  return isHttpUrl(value) ? value : null;
+}

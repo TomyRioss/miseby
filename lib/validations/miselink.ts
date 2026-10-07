@@ -1,5 +1,8 @@
 import { z } from "zod";
+import { isHttpUrl } from "@/lib/safe-url";
 import { RESERVED_USERNAMES } from "@/lib/miselink/reserved-usernames";
+
+const httpUrl = z.string().trim().url("URL inválida").max(2000).refine(isHttpUrl, "Usá una URL HTTP o HTTPS.");
 
 export const usernameSchema = z
   .string()
@@ -13,7 +16,7 @@ export const usernameSchema = z
 export const profileSchema = z.object({
   displayName: z.string().trim().max(60, "Máximo 60 caracteres").optional(),
   bio: z.string().trim().max(200, "Máximo 200 caracteres").optional(),
-  avatarUrl: z.string().trim().url("URL inválida").max(2000).optional().or(z.literal("")),
+  avatarUrl: httpUrl.optional().or(z.literal("")),
   showFollowers: z.boolean().optional(),
 });
 export type ProfileInput = z.infer<typeof profileSchema>;
@@ -36,7 +39,7 @@ export type MiseLinkItemKind = (typeof MISELINK_ITEM_TYPES)[number];
 
 export const linkDataSchema = z
   .object({
-    thumbnail: z.string().trim().url("URL inválida").max(2000).optional().or(z.literal("")),
+    thumbnail: httpUrl.optional().or(z.literal("")),
     highlight: z.boolean().optional(),
     locked: z.boolean().optional(),
   })
@@ -45,13 +48,7 @@ export type LinkData = z.infer<typeof linkDataSchema>;
 
 export const linkItemSchema = z.object({
   title: z.string().trim().min(1, "Título requerido").max(100, "Máximo 100 caracteres"),
-  url: z
-    .string()
-    .trim()
-    .url("URL inválida")
-    .max(2000)
-    .optional()
-    .or(z.literal("")),
+  url: httpUrl.optional().or(z.literal("")),
   active: z.boolean().optional(),
   type: z.enum(MISELINK_ITEM_TYPES).optional(),
   parentId: z.string().uuid().nullable().optional(),
@@ -63,7 +60,7 @@ export type LinkItemInput = z.infer<typeof linkItemSchema>;
 
 export const socialSchema = z.object({
   network: z.enum(SOCIAL_NETWORKS),
-  url: z.string().trim().url("URL inválida").max(2000),
+  url: httpUrl,
 });
 export type SocialInput = z.infer<typeof socialSchema>;
 
@@ -91,8 +88,7 @@ export const themeSchema = z.object({
   footerVisible: z.boolean().optional(),
   footerText: z.string().trim().max(120).optional(),
   bannerVisible: z.boolean().optional(),
-  bannerImage: z.string().trim().url("URL inválida").max(2000).optional().or(z.literal("")),
+  bannerImage: httpUrl.optional().or(z.literal("")),
   bannerFade: z.number().min(0).max(100).optional(),
-  restaurant: z.record(z.string(), z.unknown()).optional(),
 });
 export type ThemeInput = z.infer<typeof themeSchema>;

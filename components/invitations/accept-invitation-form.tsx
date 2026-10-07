@@ -87,11 +87,12 @@ export function AcceptInvitationForm({
         )}
 
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium">{userExists ? "Nueva contraseña (opcional)" : "Contraseña"}</label>
+          <label className="text-sm font-medium">{userExists ? "Tu contraseña actual" : "Contraseña"}</label>
           <PasswordInput
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            required={!userExists}
+            required
+            maxLength={72}
             className={inp}
           />
         </div>

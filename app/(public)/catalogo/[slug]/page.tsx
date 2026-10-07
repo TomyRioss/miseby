@@ -67,7 +67,7 @@ export default async function PublicCatalogPage({ params }: Params) {
     <div className="min-h-[100dvh] bg-background">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd(catalog)) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd(catalog)).replace(/</g, "\\u003c") }}
       />
       <CatalogPublicView
         appearance={catalog.data.appearance!}

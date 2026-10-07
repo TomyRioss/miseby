@@ -19,7 +19,7 @@ const ROLE_LABELS: Record<string, string> = {
 };
 const STATUS_COLORS: Record<string, string> = { active: "green", pending: "amber", suspended: "red" };
 
-export function UsersTable({ users }: { users: UserProfile[] }) {
+export function UsersTable({ users }: { users: Pick<UserProfile, "id" | "name" | "email" | "role" | "status" | "createdAt">[] }) {
   const router = useRouter();
   const [busyId, setBusyId] = useState<string | null>(null);
 

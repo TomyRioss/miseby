@@ -1,5 +1,7 @@
 "use server";
 
+import { publicError } from "@/lib/security/public-error";
+
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
@@ -12,7 +14,7 @@ type ActionResult = { ok: true } | { ok: false; error: string };
 
 function fail(e: unknown, fallback: string): ActionResult {
   console.error("[members]", e);
-  return { ok: false, error: e instanceof Error ? e.message : fallback };
+  return { ok: false, error: publicError(e, fallback) };
 }
 
 const orgIdSchema = z.string().uuid();

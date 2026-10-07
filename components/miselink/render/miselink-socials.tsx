@@ -1,4 +1,5 @@
 import type { RenderSocial } from "./types";
+import { isHttpUrl } from "@/lib/safe-url";
 import { MISELINK_SOCIAL_NETWORKS } from "@/lib/miselink/social-networks";
 import type { SocialNetwork } from "@/lib/validations/miselink";
 import type { MiseLinkTheme } from "@/lib/miselink/theme";
@@ -9,7 +10,7 @@ export function MiseLinkSocials({ socials, theme }: { socials: RenderSocial[]; t
     <nav aria-label="Redes sociales" className="flex flex-wrap items-center justify-center gap-5 pt-1">
       {socials.map((s) => {
         const meta = MISELINK_SOCIAL_NETWORKS[s.network as SocialNetwork];
-        if (!meta) return null;
+        if (!meta || !isHttpUrl(s.url)) return null;
         const Icon = meta.icon;
         return (
           <a

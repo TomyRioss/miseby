@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/lib/auth/session";
 import { getOrganizationForMember } from "@/lib/services/organizations";
 import { getRestaurantData } from "@/lib/restaurant-theme";
 import { cache } from "react";
+import { publicRestaurantData } from "@/lib/public-restaurant-data";
 
 /**
  * Menú público por slug de organización. Solo lectura, sin cambios de DB.
@@ -29,7 +30,7 @@ export const getPublicMenuBySlug = cache(async function getPublicMenuBySlug(slug
       if (!own?.organization || own.organization.id !== organization.id) return null;
       preview = true;
     }
-    return { organization, rest, preview };
+    return { organization, rest: publicRestaurantData(rest), preview };
   } catch (e) {
     console.error("[public menu]", e);
     return null;

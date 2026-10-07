@@ -3,6 +3,8 @@
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth/guards";
+import { issueVerificationToken } from "@/lib/services/auth";
+import { allowRequest } from "@/lib/security/rate-limit";
 import {
   updateEmailSchema,
   updateProfileNameSchema,
@@ -47,6 +49,9 @@ export async function updateEmailAction(
   }
   const newEmail = parsed.data.email;
   try {
+    if (!(await allowRequest("change-email", user.id, 5, 900))) {
+      return { ok: false, error: "Demasiados intentos. Esperá unos minutos." };
+    }
     const profile = await prisma.userProfile.findUniqueOrThrow({
       where: { id: user.id },
     });
@@ -73,8 +78,9 @@ export async function updateEmailAction(
 
     await prisma.userProfile.update({
       where: { id: user.id },
-      data: { email: newEmail },
+      data: { email: newEmail, status: "pending" },
     });
+    await issueVerificationToken(user.id, newEmail);
     // Sin audit log: el enum AuditAction no tiene evento de email
     // y no se puede migrar (TOM-203).
     // El JWT de la sesión queda con el mail viejo → el FE debe forzar relogin.

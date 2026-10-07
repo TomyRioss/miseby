@@ -38,7 +38,7 @@ export function EmailForm({ currentEmail }: { currentEmail: string }) {
         toast.error(result.error ?? "No pudimos actualizar tu email.");
         return;
       }
-      toast.success("Email actualizado.");
+      toast.success("Email actualizado. Verificá el nuevo correo antes de ingresar.");
       if (result.requireRelogin) {
         try {
           await signOut({ redirect: false });

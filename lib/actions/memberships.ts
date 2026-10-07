@@ -1,5 +1,7 @@
 "use server";
 
+import { publicError } from "@/lib/security/public-error";
+
 import { revalidatePath } from "next/cache";
 import { requirePlatformOwner } from "@/lib/auth/guards";
 import { createMembership, updateMembership } from "@/lib/services/memberships";
@@ -32,7 +34,7 @@ export async function createMembershipAction(input: unknown): Promise<ActionResu
     revalidatePath("/control/membresias");
     return { ok: true };
   } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : "Error al crear membresía" };
+    return { ok: false, error: publicError(error, "Error al crear membresía") };
   }
 }
 
@@ -57,6 +59,6 @@ export async function updateMembershipAction(id: string, input: unknown): Promis
     revalidatePath("/control/membresias");
     return { ok: true };
   } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : "Error al actualizar membresía" };
+    return { ok: false, error: publicError(error, "Error al actualizar membresía") };
   }
 }

@@ -16,7 +16,7 @@ export const getCurrentUser = cache(async () => {
       select: { role: true, status: true },
     })
     .catch(() => null);
-  if (!profile || profile.status === "suspended") return null;
+  if (!profile || profile.status !== "active") return null;
   return { ...sessionUser, role: profile.role, status: profile.status };
 });
 

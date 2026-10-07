@@ -2,6 +2,7 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { getRestaurantData, type RestaurantData } from "@/lib/restaurant-theme";
 import { cache } from "react";
+import { publicRestaurantData } from "@/lib/public-restaurant-data";
 
 export type PublicCatalog = {
   slug: string;
@@ -40,7 +41,7 @@ export const getPublicCatalogBySlug = cache(async function getPublicCatalogBySlu
       slug: org.slug,
       commercialName: org.commercialName,
       currency: org.currency,
-      data,
+      data: publicRestaurantData(data),
       preview: false,
     };
   } catch (e) {

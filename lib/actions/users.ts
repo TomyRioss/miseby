@@ -1,5 +1,7 @@
 "use server";
 
+import { publicError } from "@/lib/security/public-error";
+
 import { revalidatePath } from "next/cache";
 import { requirePlatformOwner } from "@/lib/auth/guards";
 import { setUserStatus, deleteUser } from "@/lib/services/users";
@@ -24,7 +26,7 @@ export async function setUserStatusAction(
     return { ok: true };
   } catch (error) {
     console.error("[setUserStatusAction]", error);
-    return { ok: false, error: error instanceof Error ? error.message : "Error al cambiar estado" };
+    return { ok: false, error: publicError(error, "Error al cambiar estado") };
   }
 }
 
@@ -40,6 +42,6 @@ export async function deleteUserAction(userId: string): Promise<ActionResult> {
     return { ok: true };
   } catch (error) {
     console.error("[deleteUserAction]", error);
-    return { ok: false, error: error instanceof Error ? error.message : "Error al eliminar usuario" };
+    return { ok: false, error: publicError(error, "Error al eliminar usuario") };
   }
 }

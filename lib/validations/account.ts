@@ -16,6 +16,7 @@ export const updateEmailSchema = z.object({
     .toLowerCase()
     .email("Email inválido (ej: nombre@mail.com)")
     .max(254, "Email muy largo"),
-  currentPassword: z.string().min(1, "Ingresá tu contraseña actual"),
+  currentPassword: z.string().min(1, "Ingresá tu contraseña actual").max(72)
+    .refine((value) => new TextEncoder().encode(value).length <= 72, "La contraseña supera 72 bytes"),
 });
 export type UpdateEmailInput = z.infer<typeof updateEmailSchema>;

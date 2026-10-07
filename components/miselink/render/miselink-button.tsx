@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { isHttpUrl } from "@/lib/safe-url";
 import { FiMoreVertical } from "react-icons/fi";
 import { toast } from "sonner";
 import type { RenderItem } from "./types";
@@ -18,7 +19,7 @@ export function MiseLinkButton({
 }) {
   const [open, setOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
-  if (!item.url || !item.title) return null;
+  if (!isHttpUrl(item.url) || !item.title) return null;
 
   const style = theme?.buttonStyle ?? "fill";
   const btnBg = theme?.colors.button ?? "#ffffff";

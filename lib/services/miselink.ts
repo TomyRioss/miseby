@@ -173,8 +173,24 @@ export async function setPublished(userId: string, published: boolean): Promise<
   await prisma.miseLinkPage.update({ where: { id: page.id }, data: { published } });
 }
 
+async function validateParent(pageId: string, parentId: string | null | undefined, itemId?: string) {
+  const seen = new Set<string>();
+  let cursor = parentId;
+  while (cursor) {
+    if (cursor === itemId || seen.has(cursor)) throw new Error("Colección inválida.");
+    seen.add(cursor);
+    const parent = await prisma.miseLinkItem.findFirst({
+      where: { id: cursor, pageId },
+      select: { type: true, parentId: true },
+    });
+    if (!parent || parent.type !== "collection") throw new Error("Colección inválida.");
+    cursor = parent.parentId;
+  }
+}
+
 export async function createLink(userId: string, data: LinkItemInput): Promise<string> {
   const page = await resolvePageForUser(userId);
+  await validateParent(page.id, data.parentId);
   const last = await prisma.miseLinkItem.findFirst({
     where: { pageId: page.id },
     orderBy: { position: "desc" },
@@ -203,10 +219,12 @@ export async function updateLink(
   data: Partial<LinkItemInput>,
 ): Promise<void> {
   const page = await resolvePageForUser(userId);
+  if (data.parentId !== undefined) await validateParent(page.id, data.parentId, itemId);
   const { count } = await prisma.miseLinkItem.updateMany({
     where: { id: itemId, pageId: page.id },
     data: {
       ...(data.title !== undefined ? { title: data.title } : {}),
+      ...(data.parentId !== undefined ? { parentId: data.parentId } : {}),
       ...(data.url !== undefined ? { url: data.url ? data.url : null } : {}),
       ...(data.active !== undefined ? { active: data.active } : {}),
       ...(data.data !== undefined ? { data: data.data ?? {} } : {}),
@@ -232,7 +250,7 @@ export async function reorderLinks(userId: string, ids: string[]): Promise<void>
     select: { id: true },
   });
   const ownedSet = new Set(owned.map((i) => i.id));
-  if (ids.length !== ownedSet.size || ids.some((id) => !ownedSet.has(id))) {
+  if (ids.length !== ownedSet.size || new Set(ids).size !== ids.length || ids.some((id) => !ownedSet.has(id))) {
     throw new Error("Lista de orden inválida.");
   }
   await prisma.$transaction(

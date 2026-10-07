@@ -1,7 +1,10 @@
 "use server";
 
+import { publicError } from "@/lib/security/public-error";
+
 import { randomUUID } from "crypto";
-import { requireBusinessUser } from "@/lib/auth/guards";
+import { requireActiveBusinessOrganization } from "@/lib/auth/business-organization";
+import { normalizeUploadedImage } from "@/lib/image-upload";
 import { getOrCreateMiseLinkPage } from "@/lib/services/miselink";
 import { getSupabaseAdmin, AVATARS_BUCKET, ensureAvatarsBucket } from "@/lib/supabase/server";
 
@@ -16,7 +19,7 @@ type Result = { ok: true; url: string } | { ok: false; error: string };
 
 export async function uploadAvatarAction(formData: FormData): Promise<Result> {
   try {
-    const user = await requireBusinessUser();
+    const { user } = await requireActiveBusinessOrganization();
     const file = formData.get("file");
     if (!(file instanceof File) || file.size === 0) {
       return { ok: false, error: "Elegí una imagen." };
@@ -28,11 +31,14 @@ export async function uploadAvatarAction(formData: FormData): Promise<Result> {
     if (file.size > MAX_BYTES) {
       return { ok: false, error: "Máximo 20 MB." };
     }
+    const bytes = await normalizeUploadedImage(new Uint8Array(await file.arrayBuffer()), file.type);
+    if (!bytes) {
+      return { ok: false, error: "El archivo no es una imagen válida o supera el límite de píxeles." };
+    }
     const page = await getOrCreateMiseLinkPage(user.id);
     const supabase = getSupabaseAdmin();
     await ensureAvatarsBucket(supabase);
     const path = `${page.organizationId}/${randomUUID()}.${ext}`;
-    const bytes = new Uint8Array(await file.arrayBuffer());
     const { error } = await supabase.storage
       .from(AVATARS_BUCKET)
       .upload(path, bytes, { contentType: file.type, upsert: false });
@@ -47,14 +53,14 @@ export async function uploadAvatarAction(formData: FormData): Promise<Result> {
     return { ok: true, url: data.publicUrl };
   } catch (e) {
     console.error("[avatar upload]", e);
-    const message = e instanceof Error ? e.message : "No se pudo subir.";
+    const message = publicError(e, "No se pudo subir.");
     return { ok: false, error: message };
   }
 }
 
 export async function uploadBannerAction(formData: FormData): Promise<Result> {
   try {
-    const user = await requireBusinessUser();
+    const { user } = await requireActiveBusinessOrganization();
     const file = formData.get("file");
     if (!(file instanceof File) || file.size === 0) {
       return { ok: false, error: "Elegí una imagen." };
@@ -66,11 +72,14 @@ export async function uploadBannerAction(formData: FormData): Promise<Result> {
     if (file.size > MAX_BYTES) {
       return { ok: false, error: "Máximo 20 MB." };
     }
+    const bytes = await normalizeUploadedImage(new Uint8Array(await file.arrayBuffer()), file.type);
+    if (!bytes) {
+      return { ok: false, error: "El archivo no es una imagen válida o supera el límite de píxeles." };
+    }
     const page = await getOrCreateMiseLinkPage(user.id);
     const supabase = getSupabaseAdmin();
     await ensureAvatarsBucket(supabase);
     const path = `${page.organizationId}/banner-${randomUUID()}.${ext}`;
-    const bytes = new Uint8Array(await file.arrayBuffer());
     const { error } = await supabase.storage
       .from(AVATARS_BUCKET)
       .upload(path, bytes, { contentType: file.type, upsert: false });
@@ -85,7 +94,7 @@ export async function uploadBannerAction(formData: FormData): Promise<Result> {
     return { ok: true, url: data.publicUrl };
   } catch (e) {
     console.error("[banner upload]", e);
-    const message = e instanceof Error ? e.message : "No se pudo subir.";
+    const message = publicError(e, "No se pudo subir.");
     return { ok: false, error: message };
   }
 }

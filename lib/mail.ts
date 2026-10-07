@@ -19,8 +19,11 @@ const transporter = smtpConfigured
 
 export async function sendMail(to: string, subject: string, html: string) {
   if (!transporter) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("Servicio de correo no configurado");
+    }
     // ponytail: sin SMTP configurado, logueamos el link en vez de fallar.
-    console.log(`[mail:dev] to=${to} subject="${subject}"\n${html}`);
+    console.info("[mail:dev] Correo omitido: configurá SMTP para recibir enlaces.");
     return;
   }
 

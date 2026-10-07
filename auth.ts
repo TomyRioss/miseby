@@ -5,6 +5,8 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import type { UserRole, UserStatus } from "@prisma/client";
 import "next-auth/jwt";
+import { allowRequest, trustedClientIp } from "@/lib/security/rate-limit";
+import { credentialVersion } from "@/lib/security/credentials";
 
 declare module "next-auth" {
   interface User {
@@ -25,6 +27,7 @@ declare module "next-auth/jwt" {
   interface JWT {
     role: UserRole;
     status: UserStatus;
+    credentialVersion?: string;
   }
 }
 
@@ -45,15 +48,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
-        const email = credentials?.email as string | undefined;
-        const password = credentials?.password as string | undefined;
-        if (!email || !password) return null;
+      async authorize(credentials, request) {
+        const email = typeof credentials?.email === "string" ? credentials.email.trim().toLowerCase() : "";
+        const password = typeof credentials?.password === "string" ? credentials.password : "";
+        if (!email || email.length > 254 || !password || Buffer.byteLength(password) > 72) return null;
+        const ip = trustedClientIp(request.headers);
+        if (!(await allowRequest("login-global", "all", 200, 60)) ||
+            !(await allowRequest("login-account", email, 10, 900)) ||
+            (ip && !(await allowRequest("login-ip", ip, 30, 60)))) return null;
 
         const profile = await prisma.userProfile.findUnique({
           where: { email: email.toLowerCase() },
         });
-        if (!profile) return null;
+        const isValid = await bcrypt.compare(password, profile?.passwordHash ?? "$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi");
+        if (!profile || !isValid) return null;
 
         if (profile.status === "suspended") {
           throw new Error("Tu cuenta fue suspendida. Contactá a soporte.");
@@ -62,9 +70,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (profile.status !== "active") {
           throw new Error("EMAIL_UNVERIFIED: la cuenta aún no verificó su email.");
         }
-
-        const isValid = await bcrypt.compare(password, profile.passwordHash);
-        if (!isValid) return null;
 
         return {
           id: profile.id,
@@ -75,13 +80,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
     ...(isGoogleAuthEnabled
-      ? [Google({ allowDangerousEmailAccountLinking: true })]
+      ? [Google({})]
       : []),
   ],
   callbacks: {
-    async signIn({ user, account }) {
+    async signIn({ user, account, profile: oauthProfile }) {
       // Google solo entra si ya existe una cuenta credentials con ese email.
       if (account?.provider === "google") {
+        if (oauthProfile?.email_verified !== true) return false;
         const email = user.email?.toLowerCase();
         if (!email) return false;
         const profile = await prisma.userProfile.findUnique({
@@ -93,26 +99,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return true;
     },
     async jwt({ token, user }) {
-      if (user) {
-        // Credentials trae role/status en user; Google no → hidratar desde DB.
-        const maybe = user as Partial<{
-          role: UserRole;
-          status: UserStatus;
-        }>;
-        if (maybe.role && maybe.status) {
-          token.role = maybe.role;
-          token.status = maybe.status;
-        } else if (user.email) {
-          const profile = await prisma.userProfile.findUnique({
-            where: { email: user.email.toLowerCase() },
-            select: { role: true, status: true },
-          });
-          if (profile) {
-            token.role = profile.role;
-            token.status = profile.status;
-          }
-        }
-      }
+      // Resolve OAuth identities to the local account and revoke stale credentials.
+      const profile = await prisma.userProfile.findUnique({
+        where: user?.email ? { email: user.email.toLowerCase() } : { id: token.sub ?? "" },
+        select: { id: true, email: true, role: true, status: true, passwordHash: true },
+      });
+      if (!profile || profile.status !== "active") return null;
+      const version = credentialVersion(profile.passwordHash, profile.email);
+      if (!user && token.credentialVersion !== version) return null;
+      token.sub = profile.id;
+      token.email = profile.email;
+      token.role = profile.role;
+      token.status = profile.status;
+      token.credentialVersion = version;
       return token;
     },
     session({ session, token }) {

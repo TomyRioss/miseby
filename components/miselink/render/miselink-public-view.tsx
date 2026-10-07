@@ -1,3 +1,4 @@
+import { safeHttpUrl } from "@/lib/safe-url";
 import { MiseLinkHeader } from "./miselink-header";
 import { MiseLinkSocials } from "./miselink-socials";
 import { MiseLinkButton } from "./miselink-button";
@@ -7,7 +8,7 @@ import type { RenderPage, RenderItem, RenderSocial } from "./types";
 import { normalizeTheme, themeBackground, themeFontClass, type MiseLinkTheme } from "@/lib/miselink/theme";
 
 export function MiseLinkPublicView({
-  page,
+  page: pageRaw,
   items,
   socials,
   theme: themeRaw,
@@ -22,6 +23,8 @@ export function MiseLinkPublicView({
   showOptions?: boolean;
 }) {
   const theme: MiseLinkTheme = normalizeTheme(themeRaw);
+  theme.bannerImage = safeHttpUrl(theme.bannerImage) ?? "";
+  const page = { ...pageRaw, avatarUrl: safeHttpUrl(pageRaw.avatarUrl) };
   const hasBanner = theme.bannerVisible === true && !!theme.bannerImage;
 
   if (hasBanner) {

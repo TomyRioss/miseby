@@ -1,5 +1,7 @@
 "use server";
 
+import { publicError } from "@/lib/security/public-error";
+
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requirePlatformOwner } from "@/lib/auth/guards";
@@ -16,7 +18,7 @@ const statusEnum = z.enum(["active", "inactive"]);
 
 function fail(e: unknown, fallback: string): ActionResult {
   console.error("[organization-members]", e);
-  return { ok: false, error: e instanceof Error ? e.message : fallback };
+  return { ok: false, error: publicError(e, fallback) };
 }
 
 function revalidateOrg(organizationId: string) {

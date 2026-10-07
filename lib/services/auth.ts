@@ -6,6 +6,7 @@ import { sendMail } from "@/lib/mail";
 import { generateUniqueSlug } from "@/lib/services/organizations";
 import { logAudit } from "@/lib/services/audit";
 import type { BusinessType, PlanCode } from "@prisma/client";
+import { passwordSchema, securityTokenSchema } from "@/lib/validations/auth";
 
 const RESET_TOKEN_TTL_MINUTES = 60;
 const VERIFY_TOKEN_TTL_HOURS = 24;
@@ -151,22 +152,24 @@ export async function issueVerificationToken(userId: string, email: string) {
 
 /** Confirma el token: activa la cuenta. Idempotente si ya estaba activa. */
 export async function confirmEmailVerification(rawToken: string) {
+  securityTokenSchema.parse(rawToken);
   const record = await prisma.emailVerificationToken.findUnique({
     where: { token: hashToken(rawToken.trim()) },
   });
   if (!record || record.usedAt || record.expiresAt < new Date()) {
     throw new Error("Token inválido o expirado");
   }
-  await prisma.$transaction([
-    prisma.userProfile.updateMany({
+  await prisma.$transaction(async (tx) => {
+    const consumed = await tx.emailVerificationToken.updateMany({
+      where: { id: record.id, usedAt: null, expiresAt: { gt: new Date() } },
+      data: { usedAt: new Date() },
+    });
+    if (consumed.count !== 1) throw new Error("Token inválido o expirado");
+    await tx.userProfile.updateMany({
       where: { id: record.userId, status: "pending" },
       data: { status: "active" },
-    }),
-    prisma.emailVerificationToken.update({
-      where: { id: record.id },
-      data: { usedAt: new Date() },
-    }),
-  ]);
+    });
+  });
 }
 
 /** Reenvía verificación solo a cuentas pendientes; genérico para no oracular. */
@@ -184,7 +187,7 @@ export async function requestPasswordReset(email: string) {
   const expiresAt = new Date(Date.now() + RESET_TOKEN_TTL_MINUTES * 60 * 1000);
 
   await prisma.passwordResetToken.create({
-    data: { userId: user.id, token, expiresAt },
+    data: { userId: user.id, token: hashToken(token), expiresAt },
   });
 
   const domain = process.env.WEBSITE_DOMAIN || "http://localhost:3000";
@@ -197,23 +200,30 @@ export async function requestPasswordReset(email: string) {
 }
 
 export async function confirmPasswordReset(token: string, newPassword: string) {
-  const resetToken = await prisma.passwordResetToken.findUnique({ where: { token } });
+  securityTokenSchema.parse(token);
+  passwordSchema.parse(newPassword);
+  const resetToken = await prisma.passwordResetToken.findUnique({ where: { token: hashToken(token) } });
   if (!resetToken || resetToken.usedAt || resetToken.expiresAt < new Date()) {
     throw new Error("Token inválido o expirado");
   }
 
   const passwordHash = await bcrypt.hash(newPassword, 10);
 
-  await prisma.$transaction([
-    prisma.userProfile.update({
+  await prisma.$transaction(async (tx) => {
+    const consumed = await tx.passwordResetToken.updateMany({
+      where: { id: resetToken.id, usedAt: null, expiresAt: { gt: new Date() } },
+      data: { usedAt: new Date() },
+    });
+    if (consumed.count !== 1) throw new Error("Token inválido o expirado");
+    await tx.userProfile.update({
       where: { id: resetToken.userId },
       data: { passwordHash },
-    }),
-    prisma.passwordResetToken.update({
-      where: { id: resetToken.id },
+    });
+    await tx.passwordResetToken.updateMany({
+      where: { userId: resetToken.userId, usedAt: null },
       data: { usedAt: new Date() },
-    }),
-  ]);
+    });
+  });
 }
 
 export async function changePassword(userId: string, currentPassword: string, newPassword: string) {

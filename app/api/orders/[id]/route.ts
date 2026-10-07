@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getOrganizationForMember } from "@/lib/services/organizations";
 import { updateOrderStatusSchema } from "@/lib/validations/order";
+import { isSameOriginRequest, readJsonBody } from "@/lib/security/request-body";
 
 const TERMINAL_STATES = new Set(["entregado", "cancelado"]);
 
@@ -12,12 +13,13 @@ const TERMINAL_STATES = new Set(["entregado", "cancelado"]);
  */
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    if (!isSameOriginRequest(req)) return NextResponse.json({ ok: false, error: "Origen no permitido" }, { status: 403 });
     const user = await getCurrentUser();
     if (!user) {
       return NextResponse.json({ ok: false, error: "No autenticado" }, { status: 401 });
     }
     const own = await getOrganizationForMember(user.id);
-    if (!own?.organization) {
+    if (!own?.organization || own.organization.status !== "active") {
       return NextResponse.json({ ok: false, error: "Sin organización" }, { status: 403 });
     }
     if (own.role === "business_member") {
@@ -28,7 +30,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
       return NextResponse.json({ ok: false, error: "Pedido no encontrado" }, { status: 404 });
     }
-    const body = await req.json().catch(() => null);
+    const body = await readJsonBody(req, 1024).catch(() => null);
     const parsed = updateOrderStatusSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json({ ok: false, error: "Estado inválido" }, { status: 400 });

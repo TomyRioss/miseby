@@ -3,6 +3,8 @@ import { z } from "zod";
 import { getPublicMenuBySlug } from "@/lib/services/public-menu";
 import { getMeseroReply } from "@/lib/mise-ia/llm";
 import { recommendDishes } from "@/lib/mise-ia/recommender";
+import { allowPublicRequest } from "@/lib/security/rate-limit";
+import { isSameOriginRequest, readJsonBody } from "@/lib/security/request-body";
 
 const ChatSchema = z.object({
   message: z.string().trim().min(1).max(300),
@@ -13,18 +15,6 @@ const ChatSchema = z.object({
 });
 
 /** Rate limit en memoria: 8 msg/min por IP+slug. Suficiente para una instancia; con múltiples instancias usar Redis/Upstash. */
-const hits = new Map<string, number[]>();
-const WINDOW_MS = 60_000;
-const MAX_HITS = 8;
-
-function limited(key: string): boolean {
-  const now = Date.now();
-  const arr = (hits.get(key) ?? []).filter((t) => now - t < WINDOW_MS);
-  arr.push(now);
-  hits.set(key, arr);
-  if (hits.size > 2000) hits.clear();
-  return arr.length > MAX_HITS;
-}
 
 /**
  * Mesero público: el cliente chatea desde la carta con QR, sin login.
@@ -33,6 +23,10 @@ function limited(key: string): boolean {
 export async function POST(req: Request, { params }: { params: Promise<{ slug: string }> }) {
   try {
     const { slug } = await params;
+    if (!isSameOriginRequest(req)) return NextResponse.json({ ok: false, error: "Origen no permitido" }, { status: 403 });
+    if (slug.length > 100 || !(await allowPublicRequest(req, "mesero", slug.toLowerCase(), 120, 8))) {
+      return NextResponse.json({ ok: false, error: "Muchos mensajes seguidos, esperá un minuto" }, { status: 429 });
+    }
     const data = await getPublicMenuBySlug(slug);
     if (!data) return NextResponse.json({ ok: false, error: "Menú no disponible" }, { status: 404 });
     const { organization: org, rest } = data;
@@ -41,15 +35,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ slug: s
       return NextResponse.json({ ok: false, error: "El mesero no está disponible ahora" }, { status: 403 });
     }
 
-    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
-    if (limited(`${ip}:${org.slug}`)) {
-      return NextResponse.json(
-        { ok: false, error: "Muchos mensajes seguidos, esperá un minuto" },
-        { status: 429 },
-      );
-    }
-
-    const body = await req.json().catch(() => null);
+    const body = await readJsonBody(req).catch(() => null);
     const parsed = ChatSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json({ ok: false, error: "Mensaje inválido" }, { status: 400 });

@@ -1,5 +1,7 @@
 "use server";
 
+import { publicError } from "@/lib/security/public-error";
+
 import { AuthError } from "next-auth";
 import { signIn } from "@/auth";
 import {
@@ -15,16 +17,27 @@ import {
   forgotPasswordSchema,
   resetPasswordSchema,
   changePasswordSchema,
+  loginSchema,
+  securityTokenSchema,
 } from "@/lib/validations/auth";
 import { requireUser } from "@/lib/auth/guards";
+import { allowRequest } from "@/lib/security/rate-limit";
+
+const TOO_MANY_ATTEMPTS = "Demasiados intentos. Esperá unos minutos.";
+
+async function allowAuthAction(scope: string, key: string, points = 5) {
+  return await allowRequest(`${scope}-global`, "all", 100, 60) &&
+    await allowRequest(scope, key, points, 900);
+}
 
 type ActionResult = { ok: true; code?: "verify_email" } | { ok: false; error: string; code?: "email_unverified" };
 
 export async function loginAction(email: string, password: string): Promise<ActionResult> {
-  const cleanEmail = email.trim().toLowerCase();
-  if (!cleanEmail || !password) {
+  const parsed = loginSchema.safeParse({ email, password });
+  if (!parsed.success) {
     return { ok: false, error: "Ingresá tu email y contraseña para continuar." };
   }
+  const cleanEmail = parsed.data.email;
   try {
     await signIn("credentials", { email: cleanEmail, password, redirect: false });
     return { ok: true };
@@ -64,26 +77,31 @@ export async function registerAction(input: unknown): Promise<ActionResult> {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
   }
   try {
+    if (!(await allowAuthAction("register", parsed.data.email, 3))) return { ok: false, error: TOO_MANY_ATTEMPTS };
     await registerBusinessOwner(parsed.data);
     return { ok: true, code: "verify_email" as const };
   } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : "Error al registrar" };
+    return { ok: false, error: publicError(error, "Error al registrar") };
   }
 }
 
 export async function confirmEmailAction(token: string): Promise<ActionResult> {
+  if (!securityTokenSchema.safeParse(token).success) return { ok: false, error: "Token inválido" };
   try {
+    if (!(await allowAuthAction("verify-email", token))) return { ok: false, error: TOO_MANY_ATTEMPTS };
     await confirmEmailVerification(token);
     return { ok: true };
   } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : "Token inválido" };
+    return { ok: false, error: publicError(error, "Token inválido") };
   }
 }
 
 export async function resendVerificationAction(email: string): Promise<ActionResult> {
-  const clean = email.trim().toLowerCase();
-  if (!clean) return { ok: false, error: "Ingresá tu email." };
+  const parsed = forgotPasswordSchema.safeParse({ email });
+  if (!parsed.success) return { ok: false, error: "Ingresá un email válido." };
+  const clean = parsed.data.email;
   try {
+    if (!(await allowAuthAction("resend-verification", clean, 3))) return { ok: false, error: TOO_MANY_ATTEMPTS };
     await resendVerificationEmail(clean);
     return { ok: true };
   } catch {
@@ -97,6 +115,7 @@ export async function forgotPasswordAction(input: unknown): Promise<ActionResult
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
   }
   try {
+    if (!(await allowAuthAction("forgot-password", parsed.data.email, 3))) return { ok: false, error: TOO_MANY_ATTEMPTS };
     await requestPasswordReset(parsed.data.email);
     return { ok: true };
   } catch {
@@ -110,10 +129,11 @@ export async function resetPasswordAction(input: unknown): Promise<ActionResult>
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
   }
   try {
+    if (!(await allowAuthAction("reset-password", parsed.data.token))) return { ok: false, error: TOO_MANY_ATTEMPTS };
     await confirmPasswordReset(parsed.data.token, parsed.data.password);
     return { ok: true };
   } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : "Token inválido" };
+    return { ok: false, error: publicError(error, "Token inválido") };
   }
 }
 
@@ -124,9 +144,10 @@ export async function changePasswordAction(input: unknown): Promise<ActionResult
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
   }
   try {
+    if (!(await allowAuthAction("change-password", user.id))) return { ok: false, error: TOO_MANY_ATTEMPTS };
     await changePassword(user.id, parsed.data.currentPassword, parsed.data.newPassword);
     return { ok: true };
   } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : "Error al cambiar contraseña" };
+    return { ok: false, error: publicError(error, "Error al cambiar contraseña") };
   }
 }

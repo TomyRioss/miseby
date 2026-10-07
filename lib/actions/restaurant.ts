@@ -1,9 +1,12 @@
 "use server";
 
+import { publicError } from "@/lib/security/public-error";
+
 import { revalidatePath } from "next/cache";
-import { requireBusinessUser } from "@/lib/auth/guards";
+import { requireActiveBusinessOrganization } from "@/lib/auth/business-organization";
+import { normalizeUploadedImage } from "@/lib/image-upload";
 import { getOrgRole } from "@/lib/auth/org-role";
-import { getOrganizationForMember, updateOrganization, generateUniqueSlug } from "@/lib/services/organizations";
+import { updateOrganization, generateUniqueSlug } from "@/lib/services/organizations";
 import { getOrCreateMiseLinkPage, updateTheme } from "@/lib/services/miselink";
 import {
   businessProfileSchema,
@@ -20,14 +23,11 @@ type ActionResult = { ok: true } | { ok: false; error: string };
 
 function fail(e: unknown, fallback: string): ActionResult {
   console.error("[restaurant]", e);
-  return { ok: false, error: e instanceof Error ? e.message : fallback };
+  return { ok: false, error: publicError(e, fallback) };
 }
 
 async function currentOrg() {
-  const user = await requireBusinessUser();
-  const data = await getOrganizationForMember(user.id);
-  if (!data?.organization) throw new Error("No estás asociado a ningún negocio.");
-  return { user, org: data.organization };
+  return requireActiveBusinessOrganization();
 }
 
 export async function updateBusinessProfileAction(input: unknown): Promise<ActionResult & { slug?: string }> {
@@ -215,17 +215,20 @@ export async function uploadProductImageAction(formData: FormData): Promise<{ ok
   try {
     const { randomUUID } = await import("crypto");
     const { getSupabaseAdmin, AVATARS_BUCKET, ensureAvatarsBucket } = await import("@/lib/supabase/server");
-    const user = await requireBusinessUser();
+    const { user } = await requireActiveBusinessOrganization();
     const file = formData.get("file");
     if (!(file instanceof File) || file.size === 0) return { ok: false, error: "Elegí una imagen." };
     const ext = PRODUCT_IMAGE_TYPES.get(file.type);
     if (!ext) return { ok: false, error: "Solo JPG, PNG o WebP." };
     if (file.size > PRODUCT_IMAGE_MAX) return { ok: false, error: "Máximo 20 MB." };
+    const bytes = await normalizeUploadedImage(new Uint8Array(await file.arrayBuffer()), file.type);
+    if (!bytes) {
+      return { ok: false, error: "El archivo no es una imagen válida o supera el límite de píxeles." };
+    }
     const page = await getOrCreateMiseLinkPage(user.id);
     const supabase = getSupabaseAdmin();
     await ensureAvatarsBucket(supabase);
     const path = `${page.organizationId}/prd-${randomUUID()}.${ext}`;
-    const bytes = new Uint8Array(await file.arrayBuffer());
     const { error } = await supabase.storage.from(AVATARS_BUCKET).upload(path, bytes, { contentType: file.type, upsert: false });
     if (error) {
       console.error("[product image]", error);

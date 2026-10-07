@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { securityTokenSchema } from "@/lib/validations/auth";
 
 export const businessTypeEnum = z.enum(["restaurant", "commerce", "services", "other"]);
 export const organizationStatusEnum = z.enum(["pending", "active", "suspended", "cancelled"]);
@@ -55,7 +56,7 @@ export const invitationSchema = z.object({
 export type InvitationInput = z.infer<typeof invitationSchema>;
 
 export const acceptInvitationSchema = z.object({
-  token: z.string().min(1),
-  name: z.string().min(2).optional(),
-  password: z.string().min(8).optional(),
+  token: securityTokenSchema,
+  name: z.string().trim().min(2).max(80).optional(),
+  password: z.string().min(8).max(72).optional(),
 });

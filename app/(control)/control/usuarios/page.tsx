@@ -7,6 +7,7 @@ export const metadata: Metadata = { title: "Usuarios | MISE BY Control Center" }
 export default async function UsersPage() {
   const users = await prisma.userProfile.findMany({
     where: { role: { not: "platform_owner" } },
+    select: { id: true, name: true, email: true, role: true, status: true, createdAt: true },
     orderBy: { createdAt: "desc" },
   });
 

@@ -51,3 +51,6 @@ next-env.d.ts
 .swarm/
 
 .playwright-mcp/
+
+# Local agent configuration may contain credentials
+/.codex/

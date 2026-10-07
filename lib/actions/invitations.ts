@@ -1,5 +1,7 @@
 "use server";
 
+import { publicError } from "@/lib/security/public-error";
+
 import { revalidatePath } from "next/cache";
 import { requirePlatformOwner } from "@/lib/auth/guards";
 import {
@@ -9,6 +11,8 @@ import {
   acceptInvitation,
 } from "@/lib/services/invitations";
 import { invitationSchema, acceptInvitationSchema } from "@/lib/validations/mise";
+import { getCurrentUser } from "@/lib/auth/session";
+import { allowRequest } from "@/lib/security/rate-limit";
 
 type ActionResult = { ok: true } | { ok: false; error: string };
 
@@ -24,7 +28,7 @@ export async function createInvitationAction(input: unknown): Promise<ActionResu
     revalidatePath(`/control/negocios/${parsed.data.organizationId}`);
     return { ok: true };
   } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : "Error al invitar" };
+    return { ok: false, error: publicError(error, "Error al invitar") };
   }
 }
 
@@ -35,7 +39,7 @@ export async function resendInvitationAction(id: string): Promise<ActionResult> 
     revalidatePath("/control/invitaciones");
     return { ok: true };
   } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : "Error al reenviar" };
+    return { ok: false, error: publicError(error, "Error al reenviar") };
   }
 }
 
@@ -46,7 +50,7 @@ export async function cancelInvitationAction(id: string): Promise<ActionResult> 
     revalidatePath("/control/invitaciones");
     return { ok: true };
   } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : "Error al cancelar" };
+    return { ok: false, error: publicError(error, "Error al cancelar") };
   }
 }
 
@@ -56,9 +60,14 @@ export async function acceptInvitationAction(input: unknown): Promise<ActionResu
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
   }
   try {
-    await acceptInvitation(parsed.data.token, parsed.data.password, parsed.data.name);
+    if (!(await allowRequest("invite-accept-global", "all", 100, 60)) ||
+        !(await allowRequest("invite-accept-token", parsed.data.token, 5, 900))) {
+      return { ok: false, error: "Demasiados intentos. Esperá unos minutos." };
+    }
+    const currentUser = await getCurrentUser();
+    await acceptInvitation(parsed.data.token, parsed.data.password, parsed.data.name, currentUser?.id);
     return { ok: true };
   } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : "Error al aceptar invitación" };
+    return { ok: false, error: publicError(error, "Error al aceptar invitación") };
   }
 }

@@ -1,5 +1,7 @@
 "use server";
 
+import { publicError } from "@/lib/security/public-error";
+
 import { revalidatePath } from "next/cache";
 import { requirePlatformOwner } from "@/lib/auth/guards";
 import {
@@ -22,7 +24,7 @@ export async function createOrganizationAction(input: unknown): Promise<ActionRe
     revalidatePath("/control/negocios");
     return { ok: true };
   } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : "Error al crear negocio" };
+    return { ok: false, error: publicError(error, "Error al crear negocio") };
   }
 }
 
@@ -37,7 +39,7 @@ export async function updateOrganizationAction(id: string, input: unknown): Prom
     revalidatePath(`/control/negocios/${id}`);
     return { ok: true };
   } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : "Error al actualizar" };
+    return { ok: false, error: publicError(error, "Error al actualizar") };
   }
 }
 
@@ -53,6 +55,6 @@ export async function setOrganizationStatusAction(id: string, input: unknown): P
     revalidatePath("/control/negocios");
     return { ok: true };
   } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : "Error al cambiar estado" };
+    return { ok: false, error: publicError(error, "Error al cambiar estado") };
   }
 }

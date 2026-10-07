@@ -38,6 +38,7 @@ export default auth((request) => {
   if (
     (pathname.startsWith(BUSINESS_PREFIX) || isOnboarding) &&
     user?.role !== "business_owner" &&
+    user?.role !== "business_admin" &&
     user?.role !== "business_member"
   ) {
     const url = request.nextUrl.clone();
@@ -52,6 +53,7 @@ export default auth((request) => {
 // en lib/miselink/reserved-usernames.ts al reclamar el username.
 export const config = {
   matcher: [
-    "/((?!api/auth|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/control/:path*", "/dashboard/:path*", "/onboarding/:path*",
+    "/login", "/register", "/forgot-password", "/reset-password",
   ],
 };

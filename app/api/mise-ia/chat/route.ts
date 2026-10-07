@@ -6,6 +6,8 @@ import { getOrCreateMiseLinkPage } from "@/lib/services/miselink";
 import { getRestaurantData } from "@/lib/restaurant-theme";
 import { getMeseroReply } from "@/lib/mise-ia/llm";
 import { recommendDishes } from "@/lib/mise-ia/recommender";
+import { allowRequest } from "@/lib/security/rate-limit";
+import { isSameOriginRequest, readJsonBody } from "@/lib/security/request-body";
 
 const ChatSchema = z.object({
   message: z.string().min(1).max(300),
@@ -17,20 +19,23 @@ const ChatSchema = z.object({
 
 export async function POST(req: Request) {
   try {
+    if (!isSameOriginRequest(req)) return NextResponse.json({ ok: false, error: "Origen no permitido" }, { status: 403 });
     const user = await getCurrentUser();
     if (!user) {
       return NextResponse.json({ ok: false, error: "No autenticado" }, { status: 401 });
     }
-    const body = await req.json().catch(() => null);
+    if (!(await allowRequest("ai-chat", user.id, 100, 3600))) return NextResponse.json({ ok: false, error: "Límite de solicitudes alcanzado. Probá más tarde." }, { status: 429 });
+    const body = await readJsonBody(req).catch(() => null);
     const parsed = ChatSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json({ ok: false, error: "Mensaje inválido" }, { status: 400 });
     }
 
-    const [orgData, page] = await Promise.all([
-      getOrganizationForMember(user.id),
-      getOrCreateMiseLinkPage(user.id),
-    ]);
+    const orgData = await getOrganizationForMember(user.id);
+    if (!orgData?.membership || orgData.organization.status !== "active" || !["mise", "mise_restaurant"].includes(orgData.membership.plan.code)) {
+      return NextResponse.json({ ok: false, error: "Sin permiso para usar la IA" }, { status: 403 });
+    }
+    const page = await getOrCreateMiseLinkPage(user.id);
     const menuSlug = orgData?.organization?.slug;
     if (!menuSlug) {
       return NextResponse.json({ ok: false, error: "Negocio sin menú público" }, { status: 404 });
