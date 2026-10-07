@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/slug";
 import { RESERVED_USERNAMES } from "@/lib/miselink/reserved-usernames";
@@ -75,7 +76,7 @@ export async function getOrCreateMiseLinkPage(
   });
 }
 
-export async function getPublicPageByUsername(
+export const getPublicPageByUsername = cache(async function getPublicPageByUsername(
   username: string,
 ): Promise<MiseLinkPageWithRelations | null> {
   const page = await prisma.miseLinkPage.findUnique({
@@ -87,9 +88,9 @@ export async function getPublicPageByUsername(
   });
   if (!page || !page.published) return null;
   return page;
-}
+});
 
-export async function getOwnPageByUsername(
+export const getOwnPageByUsername = cache(async function getOwnPageByUsername(
   userId: string,
   username: string,
 ): Promise<MiseLinkPageWithRelations | null> {
@@ -101,7 +102,7 @@ export async function getOwnPageByUsername(
   });
   if (!page || page.organizationId !== data.organization.id) return null;
   return page;
-}
+});
 
 export async function updateUsername(userId: string, username: string): Promise<void> {
   const page = await resolvePageForUser(userId);

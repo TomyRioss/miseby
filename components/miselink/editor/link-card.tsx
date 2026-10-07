@@ -9,6 +9,7 @@ import {
   FaTrash,
   FaCheck,
 } from "react-icons/fa6";
+import { toast } from "sonner";
 import type { MiseLinkItem } from "@prisma/client";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -67,22 +68,23 @@ export function LinkCard({
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch (e) {
-      console.error("No se pudo copiar el enlace", e);
+      console.error("[miselink] No se pudo copiar el enlace", e);
+      toast.error("No se pudo copiar el enlace. Probá de nuevo.");
     }
   };
 
   return (
     <div
       className={cn(
-        "rounded-2xl border bg-card p-4 shadow-sm",
-        data.highlight ? "border-emerald-300" : "border-border",
+        "rounded-2xl border bg-white px-4 py-3.5 shadow-[0_1px_2px_rgba(10,37,64,0.04)] transition-colors motion-reduce:transition-none",
+        data.highlight ? "border-[#0A2540]/50" : "border-[#E2E8F0] hover:border-[#94A3B8]",
       )}
     >
       <div className="flex items-start gap-2">
         <button
           type="button"
           aria-label="Reordenar"
-          className="mt-1 cursor-grab touch-none text-muted-foreground"
+          className="mt-1 flex size-8 shrink-0 cursor-grab touch-none items-center justify-center rounded-lg text-[#475569] transition-colors hover:bg-[#F1F5F9] hover:text-[#0A2540] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0A2540] active:cursor-grabbing"
           {...dragHandleProps}
         >
           <FaGripVertical className="h-4 w-4" />
@@ -116,17 +118,17 @@ export function LinkCard({
               onClick={() => setEditing(true)}
               className="cursor-pointer group flex items-center gap-2 text-left"
             >
-              <span className="truncate text-sm font-semibold text-foreground">
+              <span className="truncate text-sm font-semibold text-[#0A2540]">
                 {item.title || "Sin título"}
               </span>
-              <FaPencil className="h-3 w-3 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+              <FaPencil className="h-3 w-3 shrink-0 text-[#0A2540] opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100" />
             </button>
           )}
           {!editing && !isCollection && item.url && (
-            <p className="mt-0.5 truncate text-xs text-muted-foreground">{item.url}</p>
+            <p className="mt-1 truncate font-mono text-[11px] text-[#475569]">{item.url}</p>
           )}
           {isCollection && (
-            <span className="mt-1 inline-block rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+            <span className="mt-1 inline-block rounded-full bg-[#F1F5F9] px-2 py-0.5 text-[10px] font-medium text-[#475569]">
               Colección
             </span>
           )}
@@ -139,10 +141,10 @@ export function LinkCard({
             disabled={!item.url}
             aria-label="Compartir enlace"
             title="Compartir enlace"
-            className="cursor-pointer disabled:cursor-not-allowed text-muted-foreground transition-colors hover:text-foreground disabled:opacity-30"
+            className="flex size-8 cursor-pointer items-center justify-center rounded-lg text-[#475569] transition-colors hover:bg-[#F1F5F9] hover:text-[#0A2540] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0A2540] disabled:cursor-not-allowed disabled:opacity-30"
           >
             {copied ? (
-              <FaCheck className="h-4 w-4 text-emerald-600" />
+              <FaCheck className="h-4 w-4 text-[#0A2540]" />
             ) : (
               <FaShareNodes className="h-4 w-4" />
             )}
@@ -151,21 +153,21 @@ export function LinkCard({
             checked={item.active}
             onCheckedChange={(v) => onEdit({ active: v })}
             aria-label="Activar enlace"
-            className="data-[state=checked]:bg-emerald-500"
+            className="data-[state=checked]:bg-[#0A2540] focus-visible:ring-[#0A2540]"
           />
         </div>
       </div>
 
-      <div className="mt-3 flex items-center gap-1 border-t border-border/60 pt-2">
-        <span className="ml-1 flex items-center gap-1 text-xs text-muted-foreground">
-          <FaChartSimple className="h-3.5 w-3.5" />
+      <div className="mt-2 flex items-center gap-1">
+        <span className="ml-1 flex items-center gap-1.5 text-[11px] tabular-nums text-[#475569]">
+          <FaChartSimple className="h-3 w-3" />
           {item.clickCount} clics
         </span>
 
         <AlertDialog>
           <AlertDialogTrigger
             aria-label="Eliminar enlace"
-            className="ml-auto text-muted-foreground transition-colors hover:text-red-600"
+            className="ml-auto flex size-8 cursor-pointer items-center justify-center rounded-lg text-[#475569] transition-colors hover:bg-[#FFF0EC] hover:text-[#B34634] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F17A60]"
           >
             <FaTrash className="h-4 w-4" />
           </AlertDialogTrigger>

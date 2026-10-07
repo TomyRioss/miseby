@@ -12,26 +12,46 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Field, FieldLabel, FieldError, FieldGroup } from "@/components/ui/field";
 import { loginSchema, type LoginInput } from "@/lib/validations/auth";
-import { loginAction } from "@/lib/actions/auth";
+import { loginAction, resendVerificationAction } from "@/lib/actions/auth";
 import { GoogleButton } from "@/components/auth/google-button";
 
 export function LoginForm() {
   const router = useRouter();
   const [serverError, setServerError] = useState("");
+  const [unverified, setUnverified] = useState(false);
+  const [resending, setResending] = useState(false);
   const {
     register,
     handleSubmit,
     setValue,
     setFocus,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<LoginInput>({ resolver: zodResolver(loginSchema) });
 
+  const resend = async () => {
+    const mail = (watch("email") ?? "").trim().toLowerCase();
+    if (!mail) return;
+    setResending(true);
+    try {
+      await resendVerificationAction(mail);
+      toast.success("Si la cuenta está pendiente, te reenviamos el enlace.");
+    } catch (err) {
+      console.error("[login resend]", err);
+      toast.error("No se pudo reenviar. Probá de nuevo.");
+    } finally {
+      setResending(false);
+    }
+  };
+
   const onSubmit = async (values: LoginInput) => {
     setServerError("");
+    setUnverified(false);
     try {
       const result = await loginAction(values.email, values.password);
       if (!result.ok) {
         setServerError(result.error);
+        setUnverified(result.code === "email_unverified");
         toast.error(result.error);
         // Dejá el email, limpiá solo la contraseña y devolvé el foco ahí.
         setValue("password", "");
@@ -113,6 +133,19 @@ export function LoginForm() {
             </p>
           </div>
         </div>
+      ) : null}
+
+      {unverified ? (
+        <Button
+          type="button"
+          variant="outline"
+          disabled={resending}
+          onClick={resend}
+          className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold"
+        >
+          {resending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+          Reenviar email de verificación
+        </Button>
       ) : null}
 
       <Button

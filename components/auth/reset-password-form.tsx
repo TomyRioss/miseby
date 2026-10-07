@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -50,6 +51,19 @@ export function ResetPasswordForm() {
     }
   };
 
+  if (!token) {
+    return (
+      <div className="mt-6 space-y-4">
+        <p role="alert" className="border-y border-amber-300 bg-amber-50 px-4 py-4 text-sm leading-relaxed text-amber-950">
+          Este enlace no es válido o venció. Solicitá uno nuevo para cambiar tu contraseña.
+        </p>
+        <Button asChild className="w-full bg-[#075296] text-white hover:bg-[#0E88E2]">
+          <Link href="/forgot-password">Solicitar nuevo enlace</Link>
+        </Button>
+      </div>
+    );
+  }
+
   if (done) {
     return (
       <div className="mt-6 flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm text-emerald-800">
@@ -64,12 +78,14 @@ export function ResetPasswordForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
+      <input type="text" name="username" autoComplete="username" tabIndex={-1} aria-hidden="true" className="sr-only" />
       <Field data-invalid={Boolean(errors.password)}>
         <FieldLabel htmlFor="password">Nueva contraseña</FieldLabel>
         <div className="relative">
           <Input
             id="password"
             type={show ? "text" : "password"}
+            autoComplete="new-password"
             className="w-full rounded-xl border-input bg-card px-4 py-3 pr-11 focus-visible:border-[#0E88E2] focus-visible:ring-[#1FD0FF]/40"
             {...register("password")}
           />
@@ -91,6 +107,7 @@ export function ResetPasswordForm() {
         <Input
           id="confirmPassword"
           type={show ? "text" : "password"}
+          autoComplete="new-password"
           className="w-full rounded-xl border-input bg-card px-4 py-3 focus-visible:border-[#0E88E2] focus-visible:ring-[#1FD0FF]/40"
           {...register("confirmPassword")}
         />

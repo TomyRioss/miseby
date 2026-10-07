@@ -1,6 +1,7 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import { getRestaurantData, type RestaurantData } from "@/lib/restaurant-theme";
+import { cache } from "react";
 
 export type PublicCatalog = {
   slug: string;
@@ -16,7 +17,9 @@ export type PublicCatalog = {
  * Reutiliza el mismo JSON `theme.restaurant` del editor (sin cambios de DB).
  * El catálogo es público siempre: solo exige org activa con página.
  */
-export async function getPublicCatalogBySlug(slug: string): Promise<PublicCatalog | null> {
+export const getPublicCatalogBySlug = cache(async function getPublicCatalogBySlug(
+  slug: string,
+): Promise<PublicCatalog | null> {
   try {
     const normalized = decodeURIComponent(slug).trim().toLowerCase();
     if (!normalized) return null;
@@ -44,4 +47,4 @@ export async function getPublicCatalogBySlug(slug: string): Promise<PublicCatalo
     console.error("[public catalog]", e);
     return null;
   }
-}
+});

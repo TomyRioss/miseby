@@ -13,28 +13,28 @@ export default async function InvitationPage({ params }: PageProps<"/invitacione
   const result = await getInvitationByToken(token);
 
   return (
-    <div className="flex min-h-[100dvh] flex-col items-center justify-center bg-background px-4 py-16">
-      <div className="w-full max-w-md">
+    <main className="flex min-h-[100dvh] flex-col items-center justify-center bg-[#eff5fa] px-5 py-12 sm:px-8">
+      <div className="w-full max-w-lg">
         <div className="mb-8 text-center">
           <MiseMark className="text-2xl text-[#075296]" />
         </div>
 
         {!result ? (
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center">
-            <h1 className="font-display mb-2 text-xl font-semibold text-red-700">Invitación no válida</h1>
-            <p className="text-sm text-red-600">No encontramos esta invitación.</p>
-          </div>
+          <section className="border-y border-red-200 bg-background px-6 py-8 text-center sm:px-10">
+            <h1 className="font-display mb-3 text-3xl font-semibold tracking-tight text-foreground">Invitación no válida</h1>
+            <p className="text-sm leading-relaxed text-muted-foreground">No encontramos esta invitación.</p>
+          </section>
         ) : result.invitation.status !== "pending" ? (
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center">
-            <h1 className="font-display mb-2 text-xl font-semibold text-red-700">Invitación no válida</h1>
-            <p className="text-sm text-red-600">
+          <section className="border-y border-red-200 bg-background px-6 py-8 text-center sm:px-10">
+            <h1 className="font-display mb-3 text-3xl font-semibold tracking-tight text-foreground">Invitación no válida</h1>
+            <p className="text-sm leading-relaxed text-muted-foreground">
               {result.invitation.status === "accepted"
                 ? "Esta invitación ya fue aceptada."
                 : result.invitation.status === "expired"
                   ? "Esta invitación ha expirado."
                   : "Esta invitación fue cancelada."}
             </p>
-          </div>
+          </section>
         ) : (
           <AcceptInvitationForm
             token={token}
@@ -51,6 +51,6 @@ export default async function InvitationPage({ params }: PageProps<"/invitacione
           Mar Digital Business
         </a>
       </p>
-    </div>
+    </main>
   );
 }

@@ -189,12 +189,12 @@ export function DesignEditor({
   const iconCls = "h-4 w-4";
 
   return (
-    <div className="grid w-full gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
+    <div className="grid w-full gap-8 rounded-2xl border border-slate-200 bg-white bg-[linear-gradient(to_right,rgba(10,37,64,0.012)_1px,transparent_1px),linear-gradient(to_bottom,rgba(10,37,64,0.012)_1px,transparent_1px)] bg-[length:56px_56px] p-4 sm:p-6 lg:grid-cols-[minmax(0,1fr)_360px]">
       <div className="flex min-w-0 flex-col gap-3">
         {section === null ? (
           <>
             <div className="flex items-center justify-between px-1">
-              <h1 className="text-2xl font-semibold">Diseño</h1>
+              <h1 className="font-display text-2xl font-semibold tracking-tight text-[#0A2540]">Diseño</h1>
               <span className="text-xs text-muted-foreground">
                 {pending ? "Guardando…" : dirtyCount > 0 ? `Sin guardar (${dirtyCount})` : savedAt ? `Guardado ${savedAt}` : ""}
               </span>
@@ -210,9 +210,9 @@ export function DesignEditor({
         ) : (
           <div className="flex flex-col gap-5">
             <div className="flex items-center justify-between gap-2">
-              <button type="button" onClick={() => setSection(null)} className="cursor-pointer flex items-center gap-2 text-left">
+              <button type="button" onClick={() => setSection(null)} className="cursor-pointer flex items-center gap-2 text-left text-[#0A2540] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0A2540] focus-visible:ring-offset-2">
                 <ArrowLeft className="h-4 w-4" />
-                <span className="text-lg font-bold">{TITLES[section]}</span>
+                <span className="font-display text-lg font-bold text-[#0A2540]">{TITLES[section]}</span>
               </button>
               <span className={`text-xs font-medium ${currentDirty ? "text-amber-600" : "text-muted-foreground"}`}>
                 {pending ? "Guardando…" : currentDirty ? "Sin guardar" : "Al día"}
@@ -227,13 +227,13 @@ export function DesignEditor({
             {section === "text" ? <TextDetail theme={draft} patch={updateDraft} /> : null}
             {section === "colors" ? <ColorsDetail theme={draft} patch={updateDraft} /> : null}
 
-            <div className="sticky bottom-0 -mx-1 flex flex-col gap-2 border-t border-border bg-background/95 px-1 py-3 backdrop-blur sm:flex-row sm:items-center">
+            <div className="sticky bottom-0 -mx-1 flex flex-col gap-2 border-t border-slate-200 bg-white/95 px-1 py-3 backdrop-blur sm:flex-row sm:items-center">
               <p className="flex-1 text-xs text-muted-foreground">Probá tranquilo: la vista previa es instantánea y solo se guarda al confirmar.</p>
               <div className="flex gap-2">
-                <Button type="button" variant="ghost" disabled={!currentDirty || pending} onClick={() => discardSection(section)}>
+                <Button type="button" variant="ghost" className="text-[#0A2540] hover:bg-slate-50 hover:text-[#0A2540]" disabled={!currentDirty || pending} onClick={() => discardSection(section)}>
                   Descartar
                 </Button>
-                <Button type="button" disabled={!currentDirty || pending} onClick={() => saveSection(section)}>
+                <Button type="button" className="bg-[#0A2540] text-white hover:bg-[#0A2540/90] focus-visible:ring-[#0A2540]" disabled={!currentDirty || pending} onClick={() => saveSection(section)}>
                   {pending ? "Guardando…" : "Guardar"}
                 </Button>
               </div>

@@ -59,6 +59,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           throw new Error("Tu cuenta fue suspendida. Contactá a soporte.");
         }
 
+        if (profile.status !== "active") {
+          throw new Error("EMAIL_UNVERIFIED: la cuenta aún no verificó su email.");
+        }
+
         const isValid = await bcrypt.compare(password, profile.passwordHash);
         if (!isValid) return null;
 
@@ -84,7 +88,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           where: { email },
           select: { status: true },
         });
-        if (!profile || profile.status === "suspended") return false;
+        if (!profile || profile.status !== "active") return false;
       }
       return true;
     },

@@ -33,24 +33,26 @@ const sections = [
 
 export default function PrivacidadPage() {
   return (
-    <main className="mx-auto w-full max-w-3xl px-6 py-14">
+    <main className="mx-auto w-full max-w-6xl px-5 py-10 sm:px-8 sm:py-16">
       <Link
         href="/register"
-        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+        className="inline-flex min-h-10 items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <ArrowLeft className="h-4 w-4" /> Volver
       </Link>
-      <h1 className="mt-6 text-3xl font-semibold text-foreground">
-        Política de Privacidad
-      </h1>
-      <p className="mt-2 text-sm text-muted-foreground">
-        Última actualización: septiembre 2026.
-      </p>
-      <div className="mt-8 space-y-8">
+      <div className="mt-10 grid gap-8 border-b border-border pb-9 sm:mt-14 sm:grid-cols-[1fr_0.55fr] sm:items-end sm:pb-12">
+        <h1 className="font-display max-w-2xl text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl">
+          Política de Privacidad
+        </h1>
+        <p className="text-sm text-muted-foreground sm:justify-self-end">
+          Última actualización: septiembre 2026.
+        </p>
+      </div>
+      <div className="mt-4 divide-y divide-border">
         {sections.map((s) => (
-          <section key={s.title}>
-            <h2 className="text-lg font-semibold text-foreground">{s.title}</h2>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+          <section key={s.title} className="grid gap-2 py-6 sm:grid-cols-[0.5fr_1.5fr] sm:gap-10 sm:py-8">
+            <h2 className="font-display text-lg font-semibold text-foreground">{s.title}</h2>
+            <p className="max-w-3xl text-sm leading-7 text-muted-foreground">
               {s.body}
             </p>
           </section>

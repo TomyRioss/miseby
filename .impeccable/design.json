@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-07",
+  "title": "Design System: MISE BY MiseLink",
+  "extensions": {
+    "colorMeta": {
+      "brand-navy": {
+        "role": "primary",
+        "displayName": "Mar Digital navy",
+        "canonical": "#0A2540"
+      },
+      "white": {
+        "role": "surface",
+        "displayName": "Mar Digital white",
+        "canonical": "#FFFFFF"
+      },
+      "neutral-border": {
+        "role": "structure",
+        "displayName": "Tailwind slate-200"
+      },
+      "neutral-copy": {
+        "role": "secondary text",
+        "displayName": "Tailwind slate-600"
+      },
+      "pixel-grid": {
+        "role": "brand texture",
+        "displayName": "Low-opacity Tailwind rendition in navy #0A2540"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Geist Sans",
+        "purpose": "Inherited MISE BY display headings via font-display."
+      },
+      "body": {
+        "displayName": "Geist Sans",
+        "purpose": "Inherited MISE BY interface copy."
+      },
+      "utility": {
+        "displayName": "Geist Mono",
+        "purpose": "URLs and numeric destination order via font-mono."
+      }
+    },
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Action",
+      "kind": "button",
+      "description": "Mar Digital navy #0A2540 with white text, used for primary actions."
+    },
+    {
+      "name": "Destination Card",
+      "kind": "editor row",
+      "description": "White, slate-200 outline, navy text, restrained radius, and existing reorder controls."
+    },
+    {
+      "name": "Public Order Pixel",
+      "kind": "status marker",
+      "description": "Square navy marker with a zero-padded index for active public links; collections and inactive rows show a dash."
+    },
+    {
+      "name": "Pixel Reticula",
+      "kind": "canvas texture",
+      "description": "Low-opacity Tailwind reticula derived from the existing MISE BY grid motif, shown subtly over white editor canvases."
+    },
+    {
+      "name": "Live Preview",
+      "kind": "preview",
+      "description": "Sticky desktop preview and existing mobile preview dialog; public-page theme remains unchanged."
+    }
+  ],
+  "overview": "MiseLink uses the Mar Digital palette: exact brand navy #0A2540 and white #FFFFFF, with slate neutrals. A subtle navy pixel reticula and square status marks express the pixel system. Geist typography and the shared dashboard shell are preserved. The editor is responsive and does not change public rendering or data behavior.",
+  "principles": [
+    "Use only #0A2540 and #FFFFFF as the defined Mar Digital principal colors.",
+    "Use navy #0A2540 for primary actions, selected states, status, and focus; use white and slate neutrals for surfaces.",
+    "Use the low-opacity Tailwind reticula derived from the existing MISE BY grid motif; do not add global CSS.",
+    "Keep labels, controls, and spacing clear, balanced, and responsive.",
+    "Preserve profile, destination, ordering, preview, publication, and sharing functionality."
+  ]
+}

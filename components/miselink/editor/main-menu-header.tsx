@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-
 import { FaUser, FaPencil } from "react-icons/fa6";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -25,35 +24,101 @@ export function MainMenuHeader({ state }: { state: State }) {
   const { page } = state;
 
   return (
-    <header className="flex flex-col gap-3">
-      <div className="flex items-start justify-between gap-4">
+    <header className="flex flex-col gap-6">
+      <div className="flex flex-wrap items-end justify-between gap-4 border-b border-[#E2E8F0] pb-5">
+        <div className="min-w-0">
+          <h1 className="font-display text-3xl font-semibold tracking-[-0.035em] text-[#0A2540] sm:text-[2.15rem]">
+            Tu MiseLink
+          </h1>
+          <p className="mt-2 flex min-w-0 items-center gap-2 text-sm text-[#475569]">
+            <span className="size-2 shrink-0 rounded-none bg-[#0A2540]" aria-hidden="true" />
+            <span className="truncate font-mono text-xs sm:text-[13px]">
+              miseby.com/{page.username}
+            </span>
+          </p>
+        </div>
+
+        <div className="flex w-full flex-wrap items-center justify-between gap-3 sm:w-auto sm:justify-end">
+          <span
+            className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium ${
+              page.published
+                ? "border-slate-200 bg-slate-50 text-[#0A2540/90]"
+                : "border-[#CBD5E1] bg-white/80 text-[#475569]"
+            }`}
+          >
+            <span
+              className={`size-1.5 rounded-none ${page.published ? "bg-[#0A2540]" : "bg-slate-400"}`}
+              aria-hidden="true"
+            />
+            {page.published ? "Publicada" : "Borrador"}
+          </span>
+          <EditorHeaderActions state={state} />
+        </div>
+      </div>
+
+      <section
+        className="flex items-center gap-4 rounded-2xl border border-[#E2E8F0] bg-white/75 px-4 py-4 sm:px-5"
+        aria-label="Perfil de la página"
+      >
+        <AvatarEditDialog state={state}>
+          <button
+            type="button"
+            aria-label="Editar foto de perfil"
+            className="group relative shrink-0 cursor-pointer rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0A2540] focus-visible:ring-offset-2"
+          >
+            <Avatar className="size-[68px] shrink-0 ring-1 ring-[#E2E8F0] transition group-hover:ring-2 group-hover:ring-[#0A2540] motion-reduce:transition-none sm:size-[76px]">
+              {page.avatarUrl ? <AvatarImage src={page.avatarUrl} alt="" /> : null}
+              <AvatarFallback className="bg-[#E2E8F0] text-[#0A2540]">
+                <FaUser className="h-7 w-7" />
+              </AvatarFallback>
+            </Avatar>
+            <span className="absolute bottom-0 right-0 flex size-6 items-center justify-center rounded-full border-2 border-white bg-[#0A2540] text-white opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100">
+              <FaPencil className="h-2.5 w-2.5" />
+            </span>
+          </button>
+        </AvatarEditDialog>
+
         <div className="min-w-0 flex-1">
           <ProfileEditPopover state={state}>
             <button
               type="button"
-              className="group -ml-1 flex cursor-pointer items-center gap-1.5 rounded-md px-1 py-1 text-left transition-all duration-200 hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              aria-label="Editar nombre y biografía"
+              className="group flex max-w-full cursor-pointer items-center gap-2 rounded-md text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0A2540] focus-visible:ring-offset-2"
             >
-              <span className="text-lg font-bold text-foreground group-hover:underline group-hover:underline-offset-4">@{page.username}</span>
-              <FaPencil className="h-3 w-3 text-muted-foreground opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
+              <span className="truncate font-display text-lg font-semibold text-[#0A2540] sm:text-xl">
+                {page.displayName || `@${page.username}`}
+              </span>
+              <FaPencil className="h-3 w-3 shrink-0 text-[#0A2540] opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100" />
             </button>
           </ProfileEditPopover>
 
           <ProfileEditPopover state={state}>
             <button
               type="button"
-              className="mt-0.5 -ml-1 block cursor-pointer rounded-md px-1 py-1 text-sm text-muted-foreground transition-all duration-200 hover:bg-muted/60 hover:text-foreground hover:underline hover:underline-offset-4"
+              className="mt-0.5 line-clamp-2 block max-w-full cursor-pointer whitespace-normal rounded-md text-left text-sm text-[#475569] hover:text-[#0A2540] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0A2540] focus-visible:ring-offset-2"
             >
               {page.bio || "Agregar biografía"}
             </button>
           </ProfileEditPopover>
 
-          <div className="mt-2 flex items-center gap-2">
-            {state.socials.map((s) => {
-              const Icon = MISELINK_SOCIAL_NETWORKS[s.network as SocialNetwork]?.icon;
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <ProfileEditPopover state={state}>
+              <button
+                type="button"
+                className="cursor-pointer rounded-full border border-[#E2E8F0] bg-[#FFFFFF] px-2.5 py-1 font-mono text-[10px] text-[#475569] hover:border-[#0A2540] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0A2540]"
+              >
+                @{page.username}
+              </button>
+            </ProfileEditPopover>
+            {state.socials.map((social) => {
+              const network = MISELINK_SOCIAL_NETWORKS[social.network as SocialNetwork];
+              const Icon = network?.icon;
               return Icon ? (
                 <span
-                  key={s.id}
-                  className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-foreground transition-all duration-200 hover:bg-muted/80 hover:shadow-sm"
+                  key={social.id}
+                  role="img"
+                  aria-label={network.label}
+                  className="flex size-7 items-center justify-center rounded-full bg-[#F1F5F9] text-[#0A2540]"
                 >
                   <Icon className="h-3.5 w-3.5" />
                 </span>
@@ -61,27 +126,8 @@ export function MainMenuHeader({ state }: { state: State }) {
             })}
             <SocialsEditPopover state={state} />
           </div>
-
         </div>
-
-        <AvatarEditDialog state={state}>
-          <button type="button" aria-label="Editar foto de perfil" className="group relative cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-full">
-            <Avatar className="size-16 shrink-0 transition-all duration-200 group-hover:brightness-95 group-hover:ring-2 group-hover:ring-foreground/30 sm:size-20">
-              {page.avatarUrl ? <AvatarImage src={page.avatarUrl} alt="" /> : null}
-              <AvatarFallback>
-                <FaUser className="h-7 w-7 sm:h-8 sm:w-8" />
-              </AvatarFallback>
-            </Avatar>
-            <span className="absolute right-0 bottom-0 flex h-6 w-6 items-center justify-center rounded-full bg-muted text-muted-foreground opacity-0 shadow-sm transition-all duration-200 group-hover:opacity-100 group-hover:shadow-md">
-              <FaPencil className="h-3 w-3" />
-            </span>
-          </button>
-        </AvatarEditDialog>
-      </div>
-
-      <div className="mt-3 flex items-center justify-end gap-2">
-        <EditorHeaderActions state={state} />
-      </div>
+      </section>
     </header>
   );
 }
@@ -97,9 +143,11 @@ function ProfileEditPopover({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="w-[calc(100%-2rem)] rounded-2xl p-6 sm:max-w-md">
+      <DialogContent className="w-[calc(100%-2rem)] rounded-2xl border-[#E2E8F0] bg-[#FFFFFF] p-6 sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-center">Título y biografía</DialogTitle>
+          <DialogTitle className="font-display text-[#0A2540]">
+            Título y biografía
+          </DialogTitle>
         </DialogHeader>
         <ProfileTab state={state} onSaved={() => setOpen(false)} />
       </DialogContent>

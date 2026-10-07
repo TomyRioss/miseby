@@ -43,7 +43,7 @@ export async function updateMembershipAction(id: string, input: unknown): Promis
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
   }
   try {
-    await updateMembership(
+    const membership = await updateMembership(
       id,
       {
         ...parsed.data,
@@ -53,6 +53,7 @@ export async function updateMembershipAction(id: string, input: unknown): Promis
       },
       user.id
     );
+    revalidatePath(`/control/negocios/${membership.organizationId}`);
     revalidatePath("/control/membresias");
     return { ok: true };
   } catch (error) {

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { FaUser } from "react-icons/fa6";
 import type { RenderPage } from "./types";
 import type { MiseLinkTheme } from "@/lib/miselink/theme";
@@ -14,10 +15,9 @@ function Avatar({
   iconClass: string;
 }) {
   return (
-    <div className={`flex items-center justify-center overflow-hidden bg-black/15 ${className}`}>
+    <div className={`relative flex items-center justify-center overflow-hidden bg-black/15 ${className}`}>
       {url ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={url} alt={handle} className="h-full w-full object-cover" />
+        <Image src={url} alt={handle} fill sizes="96px" className="object-cover" unoptimized />
       ) : (
         <FaUser className={`text-white ${iconClass}`} aria-hidden />
       )}
@@ -45,11 +45,12 @@ export function MiseLinkHeader({ page, theme }: { page: RenderPage; theme?: Mise
   const bannerBlock = (
     <div className="relative aspect-[3/1] w-full overflow-hidden sm:rounded-t-[24px]">
       {bannerVisible ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
+        <Image
           src={bannerSrc}
           alt=""
-          className="h-full w-full object-cover object-center"
+          fill
+          sizes="(max-width: 640px) 100vw, 640px"
+          className="object-cover object-center"
         />
       ) : (
         <div className="h-full w-full" style={{ background: "rgba(0,0,0,0.18)" }} />

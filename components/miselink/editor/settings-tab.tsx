@@ -101,13 +101,13 @@ export function SettingsTab({ state, baseUrl = "miseby.com" }: { state: State; b
               id="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="rounded-xl"
+              className="rounded-xl border-[#E2E8F0] bg-white focus-visible:ring-[#0A2540]"
             />
             <Button
               onClick={saveUsername}
               disabled={!canSave}
               variant="outline"
-              className="shrink-0 rounded-xl"
+              className="shrink-0 rounded-xl border-[#CBD5E1] text-[#0A2540] hover:bg-[#F1F5F9] focus-visible:ring-[#0A2540]"
             >
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar"}
             </Button>
@@ -116,7 +116,7 @@ export function SettingsTab({ state, baseUrl = "miseby.com" }: { state: State; b
           {error && <FieldError errors={[{ message: error }]} />}
         </Field>
 
-        <div className="flex items-center justify-between rounded-2xl border border-border bg-card p-4">
+        <div className="flex items-center justify-between rounded-xl border border-[#E2E8F0] bg-white p-4">
           <div>
             <p className="text-sm font-medium">Publicar página</p>
             <p className="text-xs text-muted-foreground">
@@ -130,7 +130,7 @@ export function SettingsTab({ state, baseUrl = "miseby.com" }: { state: State; b
           />
         </div>
 
-        <div className="flex items-center gap-2 rounded-2xl border border-border bg-muted/40 p-3">
+        <div className="flex items-center gap-2 rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] p-3">
           <span className="flex-1 truncate text-sm">{publicUrl}</span>
           <Button onClick={copy} variant="ghost" size="sm" className="gap-1">
             {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
@@ -157,7 +157,7 @@ function AvailabilityHint({ availability }: { availability: Availability }) {
   }
   if (availability.status === "ok") {
     return (
-      <p className="flex items-center gap-1.5 text-xs text-emerald-600">
+      <p className="flex items-center gap-1.5 text-xs text-[#0A2540]">
         <Check className="h-3 w-3" /> Disponible
       </p>
     );

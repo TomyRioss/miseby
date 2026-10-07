@@ -1,10 +1,24 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 
 const prisma = new PrismaClient();
 
-// ponytail: demo credentials, plain constant. Mirror any change in docs/CREDENTIALS.md.
-const DEMO_PASSWORD = "Miseby2026!";
+/**
+ * Credenciales demo SOLO para dev local. Nunca hardcodear passwords:
+ * - Si existen SEED_DEMO_PASSWORD / SEED_TOMY_PASSWORD se usan.
+ * - Si no, se generan aleatorias por corrida y se muestran UNA vez por consola.
+ * Los upserts de usuarios usan `update: {}`: jamás pisan hash/rol/estado
+ * existentes (no reviven cuentas ni resetean passwords en corridas repetidas).
+ */
+function demoPassword(envName: string): { value: string; generated: boolean } {
+  const fromEnv = process.env[envName]?.trim();
+  if (fromEnv) return { value: fromEnv, generated: false };
+  return { value: crypto.randomBytes(12).toString("hex"), generated: true };
+}
+
+const demoCreds = demoPassword("SEED_DEMO_PASSWORD");
+const tomyCreds = demoPassword("SEED_TOMY_PASSWORD");
 
 async function main() {
   const plans = [
@@ -21,11 +35,11 @@ async function main() {
     });
   }
 
-  const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 10);
+  const passwordHash = await bcrypt.hash(demoCreds.value, 10);
 
   const platformOwner = await prisma.userProfile.upsert({
     where: { email: "owner@miseby.com" },
-    update: { passwordHash, role: "platform_owner", status: "active" },
+    update: {},
     create: {
       name: "Platform Owner",
       email: "owner@miseby.com",
@@ -37,7 +51,7 @@ async function main() {
 
   const businessOwner = await prisma.userProfile.upsert({
     where: { email: "negocio@miseby.com" },
-    update: { passwordHash, role: "business_owner", status: "active" },
+    update: {},
     create: {
       name: "Business Owner",
       email: "negocio@miseby.com",
@@ -49,7 +63,7 @@ async function main() {
 
   const businessMember = await prisma.userProfile.upsert({
     where: { email: "equipo@miseby.com" },
-    update: { passwordHash, role: "business_member", status: "active" },
+    update: {},
     create: {
       name: "Business Member",
       email: "equipo@miseby.com",
@@ -94,10 +108,10 @@ async function main() {
   });
 
   // Cuenta demo con plan MISE LINK
-  const tomyPasswordHash = await bcrypt.hash("tomy1234", 10);
+  const tomyPasswordHash = await bcrypt.hash(tomyCreds.value, 10);
   const tomyOwner = await prisma.userProfile.upsert({
     where: { email: "tomy@gmail.com" },
-    update: { passwordHash: tomyPasswordHash, role: "business_owner", status: "active" },
+    update: {},
     create: {
       name: "Tomy",
       email: "tomy@gmail.com",
@@ -163,6 +177,17 @@ async function main() {
       },
     });
   }
+
+  console.log("[seed] demo lista (solo dev local).");
+  console.log(
+    `[seed] owner@miseby.com / negocio@miseby.com / equipo@miseby.com → ` +
+      (demoCreds.generated ? `password generado: ${demoCreds.value}` : "password de SEED_DEMO_PASSWORD (cuentas nuevas)"),
+  );
+  console.log(
+    `[seed] tomy@gmail.com → ` +
+      (tomyCreds.generated ? `password generado: ${tomyCreds.value}` : "password de SEED_TOMY_PASSWORD (cuentas nuevas)"),
+  );
+  console.log("[seed] Las cuentas existentes NO se modifican (update vacío en usuarios).");
 }
 
 main()

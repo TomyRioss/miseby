@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { ImagePlus, Loader2, Plus, Sparkles, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -226,8 +227,7 @@ export function ProductSheet({
               className="cursor-pointer disabled:cursor-not-allowed flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-muted"
             >
               {imageUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={imageUrl} alt={name || copy.itemSingular} className="h-full w-full object-cover" />
+                <Image src={imageUrl} alt={name || copy.itemSingular} width={80} height={80} className="h-full w-full object-cover" />
               ) : uploading ? (
                 <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
               ) : (

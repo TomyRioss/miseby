@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -90,13 +91,12 @@ export function ProductDetailView({
   return (
     <main className="min-h-screen pb-28" style={{ background: ap.background || "#fff", color: text }}>
       <div className="mx-auto max-w-2xl px-4 pt-4">
-        <Link href={`/menu/${slug}`} className="inline-flex items-center gap-1.5 text-sm font-medium opacity-70">
+        <Link href={`/menu/${slug}`} className="inline-flex min-h-10 items-center gap-1.5 text-sm font-medium opacity-70 transition-opacity hover:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
           <ArrowLeft className="h-4 w-4" /> Volver al menú
         </Link>
       </div>
       {p.imageUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={p.imageUrl} alt={p.name} className="mx-auto mt-3 max-h-72 w-full max-w-2xl rounded-xl object-cover px-4" />
+        <Image src={p.imageUrl} alt={p.name} width={672} height={288} className="mx-auto mt-4 max-h-80 w-full max-w-2xl rounded-2xl object-cover px-4" style={{ objectFit: "cover" }} />
       ) : null}
       <div className="mx-auto max-w-2xl px-4 pt-4">
         {!p.available ? (
@@ -104,9 +104,9 @@ export function ProductDetailView({
             No disponible por el momento
           </p>
         ) : null}
-        <h1 className="text-2xl font-bold">{p.name}</h1>
-        {p.description ? <p className="mt-1 text-sm opacity-70">{p.description}</p> : null}
-        <p className="mt-2 text-lg font-bold" style={{ color: secondary }}>
+        <h1 className="text-3xl font-bold leading-tight tracking-tight sm:text-4xl">{p.name}</h1>
+        {p.description ? <p className="mt-3 max-w-prose text-base leading-relaxed opacity-70">{p.description}</p> : null}
+        <p className="mt-3 text-xl font-bold tabular-nums" style={{ color: secondary }}>
           {formatPrice(productPrice(p), cur)}
         </p>
 
@@ -117,7 +117,7 @@ export function ProductDetailView({
               {variants.map((v) => (
                 <label
                   key={v.id}
-                  className="flex cursor-pointer items-center gap-2.5 rounded-lg border p-3"
+                  className="flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border p-4 transition-colors hover:bg-black/[0.025]"
                   style={{ borderColor: variantId === v.id ? primary : border }}
                 >
                   <input
@@ -125,7 +125,7 @@ export function ProductDetailView({
                     name="variant"
                     checked={variantId === v.id}
                     onChange={() => setVariantId(v.id)}
-                    className="h-4 w-4 accent-current"
+                    className="h-4 w-4 accent-current focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
                     style={{ accentColor: primary }}
                   />
                   <span className="flex-1 font-medium">{v.name}</span>
@@ -150,7 +150,7 @@ export function ProductDetailView({
                 return (
                   <label
                     key={m.id}
-                    className="flex cursor-pointer items-center gap-2.5 rounded-lg border p-3"
+                    className="flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border p-4 transition-colors hover:bg-black/[0.025]"
                     style={{ borderColor: checked ? primary : border }}
                   >
                     <input
@@ -158,7 +158,7 @@ export function ProductDetailView({
                       name={g.multiple ? undefined : `grp-${g.id}`}
                       checked={checked}
                       onChange={() => toggle(g.id, m.id, g.multiple)}
-                      className="h-4 w-4"
+                      className="h-4 w-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
                       style={{ accentColor: primary }}
                     />
                     <span className="flex-1">{m.name}</span>
@@ -178,7 +178,7 @@ export function ProductDetailView({
               aria-label="Quitar uno"
               onClick={() => setQty((q) => Math.max(1, q - 1))}
               disabled={qty <= 1}
-              className="flex h-9 w-9 items-center justify-center rounded-full border disabled:opacity-40"
+              className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border transition-colors hover:bg-black/[0.04] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-40"
               style={{ borderColor: border }}
             >
               <Minus className="h-4 w-4" />
@@ -188,7 +188,7 @@ export function ProductDetailView({
               type="button"
               aria-label="Agregar uno"
               onClick={() => setQty((q) => q + 1)}
-              className="flex h-9 w-9 items-center justify-center rounded-full border"
+              className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border transition-colors hover:bg-black/[0.04] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
               style={{ borderColor: border }}
             >
               <Plus className="h-4 w-4" />
@@ -197,11 +197,11 @@ export function ProductDetailView({
         </section>
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 mx-auto max-w-2xl border-t bg-white p-4" style={{ borderColor: border }}>
+      <div className="fixed inset-x-0 bottom-0 mx-auto max-w-2xl border-t bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 shadow-[0_-8px_24px_rgba(0,0,0,0.06)]" style={{ borderColor: border }}>
         <button
           type="button"
           onClick={handleAdd}
-          className="w-full rounded-lg px-4 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+          className="min-h-12 w-full rounded-xl px-4 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
           style={{ background: primary }}
         >
           Agregar a mi pedido · {formatPrice(total, cur)}

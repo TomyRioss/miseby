@@ -62,7 +62,7 @@ export default async function MiseLinkPublicPage({ params }: Params) {
   const activeItems = preview ? page.items.filter((i) => i.active) : page.items;
 
   return (
-    <div className="flex h-[100dvh] flex-col items-center overflow-hidden bg-[#e8eaed] sm:bg-[#a3a3a3] sm:px-6 sm:pt-6">
+    <div className="flex h-[100dvh] flex-col items-center overflow-y-auto bg-[#e8eaed] sm:bg-[#a3a3a3] sm:px-6 sm:pt-6">
       <MiseLinkPublicView
         showOptions={false}
         page={{

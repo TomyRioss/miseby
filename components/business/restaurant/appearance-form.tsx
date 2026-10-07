@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRef, useState } from "react";
 import { Check, ImagePlus, Palette } from "lucide-react";
 import { toast } from "sonner";
@@ -164,8 +165,7 @@ export function AppearanceForm({
             aria-label="Subir portada"
           >
             {form.bannerUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={form.bannerUrl} alt="" className="h-full w-full object-cover" />
+              <Image src={form.bannerUrl} alt="" fill sizes="(max-width: 640px) 100vw, 560px" className="object-cover" />
             ) : (
               <span className="flex h-full w-full items-center justify-center text-white/40">
                 <ImagePlus className="h-7 w-7" />
@@ -184,8 +184,7 @@ export function AppearanceForm({
               aria-label="Subir logo"
             >
               {form.logoUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={form.logoUrl} alt="" className="h-16 w-16 object-cover" />
+                <Image src={form.logoUrl} alt="" width={64} height={64} className="h-16 w-16 object-cover" />
               ) : (
                 <span className="flex h-16 w-16 items-center justify-center bg-[#6D28D9] text-2xl font-extrabold text-white">
                   {logoInitial}

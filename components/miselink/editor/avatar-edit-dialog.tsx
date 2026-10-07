@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 import { FaUser } from "react-icons/fa6";
@@ -266,8 +267,7 @@ export function AvatarEditDialog({
             >
               <div className="relative aspect-[3/1] w-full overflow-hidden bg-gradient-to-r from-[#0a2540] via-[#134e7a] to-[#00b4d8]">
                 {bannerImage ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={bannerImage} alt="" className="h-full w-full object-cover object-center" />
+                  <Image src={bannerImage} alt="" fill sizes="(max-width: 640px) 100vw, 560px" className="object-cover object-center" unoptimized />
                 ) : null}
                 <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/25 via-black/5 to-transparent" />
                 <div

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { AuthSessionProvider } from "@/components/providers/session-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -27,10 +26,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex h-[100dvh] flex-col overflow-hidden">
-        <AuthSessionProvider>
-          <TooltipProvider>{children}</TooltipProvider>
-          <Toaster position="top-center" />
-        </AuthSessionProvider>
+        <TooltipProvider>{children}</TooltipProvider>
+        <Toaster position="top-center" />
       </body>
     </html>
   );

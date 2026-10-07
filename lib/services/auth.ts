@@ -8,6 +8,7 @@ import { logAudit } from "@/lib/services/audit";
 import type { BusinessType, PlanCode } from "@prisma/client";
 
 const RESET_TOKEN_TTL_MINUTES = 60;
+const VERIFY_TOKEN_TTL_HOURS = 24;
 const TRIAL_DAYS = 14;
 
 const PLAN_NAMES: Record<PlanCode, string> = {
@@ -31,8 +32,22 @@ export async function registerBusinessOwner(input: {
   planCode?: PlanCode;
 }) {
   const planCode: PlanCode = input.planCode ?? "mise";
-  const existing = await prisma.userProfile.findUnique({ where: { email: input.email } });
-  if (existing) throw new Error("El email ya está en uso");
+  const email = input.email.toLowerCase();
+  const existing = await prisma.userProfile.findUnique({ where: { email } });
+  if (existing) {
+    if (existing.status === "pending") {
+      await issueVerificationToken(existing.id, email);
+    } else {
+      const domain = process.env.WEBSITE_DOMAIN || "http://localhost:3000";
+      await sendMail(
+        email,
+        "Ya tenés cuenta en MISE BY",
+        `<p>Alguien intentó registrarse con este email. Si fuiste vos, <a href="${domain}/login">iniciá sesión</a> o recuperá tu contraseña.</p>`,
+      );
+    }
+    // Respuesta ambigua a propósito: no revela si el email ya existe.
+    return { email, alreadyExists: true };
+  }
 
   const slug = await generateUniqueSlug(input.businessName);
   const passwordHash = await bcrypt.hash(input.password, 10);
@@ -47,10 +62,10 @@ export async function registerBusinessOwner(input: {
     const user = await tx.userProfile.create({
       data: {
         name: input.name,
-        email: input.email,
+        email,
         passwordHash,
         role: "business_owner",
-        status: "active",
+        status: "pending",
       },
     });
 
@@ -108,7 +123,57 @@ export async function registerBusinessOwner(input: {
     metadata: { source: "trial", planCode, planId: result.plan.id },
   });
 
-  return result;
+  await issueVerificationToken(result.user.id, email);
+
+  return { email, alreadyExists: false };
+}
+
+function hashToken(raw: string): string {
+  return crypto.createHash("sha256").update(raw).digest("hex");
+}
+
+/** Emite (rotando anteriores) el token de verificación y lo manda por mail. */
+export async function issueVerificationToken(userId: string, email: string) {
+  await prisma.emailVerificationToken.deleteMany({ where: { userId, usedAt: null } });
+  const raw = crypto.randomBytes(32).toString("hex");
+  const expiresAt = new Date(Date.now() + VERIFY_TOKEN_TTL_HOURS * 60 * 60 * 1000);
+  await prisma.emailVerificationToken.create({
+    data: { userId, token: hashToken(raw), expiresAt },
+  });
+  const domain = process.env.WEBSITE_DOMAIN || "http://localhost:3000";
+  const link = `${domain}/verificar-email?token=${raw}`;
+  await sendMail(
+    email,
+    "Verificá tu email | MISE BY",
+    `<p>Confirmá tu cuenta haciendo clic acá: <a href="${link}">Verificar email</a> (expira en ${VERIFY_TOKEN_TTL_HOURS} horas).</p>`,
+  );
+}
+
+/** Confirma el token: activa la cuenta. Idempotente si ya estaba activa. */
+export async function confirmEmailVerification(rawToken: string) {
+  const record = await prisma.emailVerificationToken.findUnique({
+    where: { token: hashToken(rawToken.trim()) },
+  });
+  if (!record || record.usedAt || record.expiresAt < new Date()) {
+    throw new Error("Token inválido o expirado");
+  }
+  await prisma.$transaction([
+    prisma.userProfile.updateMany({
+      where: { id: record.userId, status: "pending" },
+      data: { status: "active" },
+    }),
+    prisma.emailVerificationToken.update({
+      where: { id: record.id },
+      data: { usedAt: new Date() },
+    }),
+  ]);
+}
+
+/** Reenvía verificación solo a cuentas pendientes; genérico para no oracular. */
+export async function resendVerificationEmail(email: string) {
+  const user = await prisma.userProfile.findUnique({ where: { email: email.toLowerCase() } });
+  if (!user || user.status !== "pending") return;
+  await issueVerificationToken(user.id, user.email);
 }
 
 export async function requestPasswordReset(email: string) {

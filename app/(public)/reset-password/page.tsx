@@ -11,26 +11,25 @@ export const metadata: Metadata = {
 
 export default function ResetPasswordPage() {
   return (
-    <div className="mise-grid-bg relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden bg-background px-6">
-      <div className="pointer-events-none absolute -bottom-40 -left-24 h-96 w-96 rounded-full bg-[#0E88E2]/10 blur-3xl" />
-      <div className="relative w-full max-w-sm">
+    <main className="flex min-h-[100dvh] items-center justify-center bg-[#082b4b] px-5 py-12 sm:px-8">
+      <div className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <MiseMark className="text-[#075296]" />
+          <MiseMark tone="white" />
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-6 sm:p-8">
-          <h1 className="font-display text-xl font-semibold text-foreground">Nueva contraseña</h1>
-          <p className="mt-2 text-sm text-muted-foreground">Define una contraseña nueva para tu cuenta.</p>
+        <section className="bg-background p-6 sm:p-9">
+          <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground">Nueva contraseña</h1>
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">Define una contraseña nueva para tu cuenta.</p>
 
           <Suspense fallback={null}>
             <ResetPasswordForm />
           </Suspense>
 
-          <Link href="/login" className="cursor-pointer mt-6 block text-center text-sm text-muted-foreground hover:text-foreground">
+          <Link href="/login" className="cursor-pointer mt-6 flex min-h-10 items-center justify-center text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
             Volver a iniciar sesión
           </Link>
-        </div>
+        </section>
       </div>
-    </div>
+    </main>
   );
 }

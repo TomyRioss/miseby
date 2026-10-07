@@ -1,8 +1,11 @@
 import "server-only";
+import { cache } from "react";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
-export async function getCurrentUser() {
+// cache(): layout + página + guards comparten UNA sola query por request.
+// Sin esto cada llamada repetía auth + findUnique contra Supabase.
+export const getCurrentUser = cache(async () => {
   const session = await auth();
   const sessionUser = session?.user;
   if (!sessionUser) return null;
@@ -15,7 +18,7 @@ export async function getCurrentUser() {
     .catch(() => null);
   if (!profile || profile.status === "suspended") return null;
   return { ...sessionUser, role: profile.role, status: profile.status };
-}
+});
 
 export type CurrentUser = NonNullable<Awaited<ReturnType<typeof getCurrentUser>>>;
 

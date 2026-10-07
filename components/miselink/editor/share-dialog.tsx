@@ -68,25 +68,25 @@ export function ShareDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="gap-5 sm:max-w-md">
+      <DialogContent className="gap-5 border-[#E2E8F0] bg-[#FFFFFF] text-[#0A2540] sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Compartir</DialogTitle>
+          <DialogTitle className="font-display text-[#0A2540]">Compartir</DialogTitle>
           <DialogDescription className="sr-only">
             Compartí tu página pública de MiseLink
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex items-center gap-3 rounded-lg border border-border p-2 pl-3">
+        <div className="flex items-center gap-3 rounded-xl border border-[#E2E8F0] bg-white p-2 pl-3">
           <span className="flex size-5 shrink-0 items-center justify-center rounded bg-foreground text-[11px] font-bold text-background">
             {(displayName ?? username).charAt(0).toUpperCase()}
           </span>
-          <span className="flex-1 truncate text-sm">{publicUrl}</span>
-          <Button size="sm" onClick={copy}>
+          <span className="flex-1 truncate font-mono text-xs text-[#475569]">{publicUrl}</span>
+          <Button size="sm" onClick={copy} className="rounded-lg bg-[#0A2540] text-white hover:bg-[#0A2540]">
             {copied ? "Copiado" : "Copiar"}
           </Button>
         </div>
 
-        <div className="flex flex-col items-center gap-3 rounded-lg border border-border p-5">
+        <div className="flex flex-col items-center gap-3 rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] p-5">
           <QRCodeCanvas value={fullUrl} size={148} marginSize={2} className="rounded" />
           <div className="text-center">
             <p className="font-medium">Agregá el link a tu bio de Instagram</p>
@@ -95,7 +95,7 @@ export function ShareDialog({
         </div>
 
         <div className="min-w-0">
-          <p className="mb-3 text-sm font-medium">Compartir en</p>
+          <p className="mb-3 text-sm font-medium text-[#0A2540]">Compartir en</p>
           <div className="flex gap-4 overflow-x-auto pb-1">
             {/* ponytail: scroll horizontal, evita wrap al crecer la lista */}
             <button

@@ -19,10 +19,10 @@ export function OptionGrid<T extends string>({
             type="button"
             onClick={() => onChange(o.id)}
             aria-pressed={active}
-            className={`cursor-pointer rounded-xl border px-3 py-2.5 text-left transition-colors ${
+            className={`cursor-pointer rounded-xl border px-3 py-2.5 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0A2540] ${
               active
-                ? "border-foreground bg-foreground text-background"
-                : "border-border bg-background hover:bg-muted"
+                ? "border-[#0A2540] bg-[#0A2540] text-white ring-2 ring-[#0A2540]/20"
+                : "border-slate-200 bg-white text-[#0A2540] hover:border-[#0A2540] hover:bg-slate-50"
             }`}
           >
             <span className="block text-sm font-semibold">{o.label}</span>
@@ -44,13 +44,13 @@ export function ColorField({
   onChange: (v: string) => void;
 }) {
   return (
-    <label className="flex items-center gap-3 rounded-xl border border-border px-3 py-2">
+    <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2">
       <input
         type="color"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         aria-label={label}
-        className="h-8 w-10 cursor-pointer border-0 bg-transparent p-0"
+        className="h-8 w-10 cursor-pointer border-0 bg-transparent p-0 accent-[#0A2540]"
       />
       <span className="flex-1 text-sm font-medium">{label}</span>
       <span className="font-mono text-xs uppercase text-muted-foreground">{value}</span>

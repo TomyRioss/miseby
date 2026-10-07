@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronDown, Clock, Menu as MenuIcon, Search, Share2, Sparkles } from "lucide-react";
@@ -160,7 +161,7 @@ export function PlatoMenuView({
             type="button"
             onClick={share}
             aria-label="Compartir"
-            className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-black/[0.06]"
+            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-black/[0.06] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
             style={{ color: sub }}
           >
             <Share2 className="h-4 w-4" />
@@ -171,7 +172,7 @@ export function PlatoMenuView({
             href={`https://wa.me/${whatsapp.replace(/\D+/g, "")}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex h-7 shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-xs font-bold text-white transition-opacity hover:opacity-90"
+            className="flex min-h-10 shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full px-4 text-xs font-bold text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
             style={{ background: "#25D366" }}
           >
             <FaWhatsapp className="h-3.5 w-3.5" />
@@ -205,8 +206,7 @@ export function PlatoMenuView({
         <div className="mx-auto mt-4 max-w-2xl px-4">
           <div className="flex items-center gap-3">
             {logoUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={logoUrl} alt={name} loading="lazy" className="h-20 w-20 shrink-0 rounded-xl object-cover md:h-28 md:w-28" />
+              <Image src={logoUrl} alt={name} width={112} height={112} loading="lazy" className="h-20 w-20 shrink-0 rounded-xl object-cover md:h-28 md:w-28" />
             ) : (
               <div
                 className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl text-3xl font-extrabold text-white md:h-28 md:w-28"
@@ -224,15 +224,15 @@ export function PlatoMenuView({
       </header>
 
       {/* Nav sticky: buscador + píldoras */}
-      <nav className="sticky top-0 z-10 flex flex-col gap-1 border-b px-3 py-1" style={{ background: bg, borderColor: border }}>
-        <div className="mx-auto flex w-full max-w-2xl items-center gap-1.5 rounded-lg bg-black/[0.06] px-2.5 py-1">
+      <nav className="sticky top-0 z-10 flex flex-col gap-2 border-b px-3 py-2" style={{ background: bg, borderColor: border }}>
+        <div className="mx-auto flex min-h-10 w-full max-w-2xl items-center gap-2 rounded-full bg-black/[0.06] px-3">
           <input
             type="text"
             placeholder="Buscar productos..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             aria-label="Buscar productos"
-            className="w-full min-w-0 bg-transparent text-[13px] outline-none placeholder:text-black/40"
+            className="w-full min-w-0 bg-transparent text-sm outline-none placeholder:text-black/45"
             style={{ color: text }}
           />
           <Search className="h-3.5 w-3.5 shrink-0 opacity-50" />
@@ -241,7 +241,7 @@ export function PlatoMenuView({
           <button
             type="button"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="flex h-6 shrink-0 cursor-pointer items-center gap-1.5 rounded-lg border px-2 text-xs font-medium transition-colors hover:bg-black/[0.04]"
+            className="flex min-h-9 shrink-0 cursor-pointer items-center gap-1.5 rounded-full border px-3 text-xs font-medium transition-colors hover:bg-black/[0.04] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
             style={{ borderColor: border }}
           >
             <MenuIcon className="h-3.5 w-3.5" />
@@ -252,7 +252,7 @@ export function PlatoMenuView({
               type="button"
               onClick={() => setMeseroOpen(true)}
               aria-label="Hablar con el mesero IA"
-              className="flex h-6 shrink-0 cursor-pointer items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold text-white transition-opacity hover:opacity-90"
+              className="flex min-h-9 shrink-0 cursor-pointer items-center gap-1 rounded-full px-3 py-1 text-xs font-bold text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
               style={{ background: secondary }}
             >
               <Sparkles className="h-3.5 w-3.5" />
@@ -264,7 +264,7 @@ export function PlatoMenuView({
             <a
               key={c.id}
               href={`#cat-${c.id}`}
-              className="shrink-0 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors hover:bg-black/[0.04]"
+              className="flex min-h-9 shrink-0 items-center rounded-full border px-3 py-1 text-xs font-medium transition-colors hover:bg-black/[0.04] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
               style={{ borderColor: border }}
             >
               {c.name}
@@ -299,13 +299,12 @@ export function PlatoMenuView({
                           pick(p);
                         }
                       }}
-                      className={`w-40 shrink-0 scroll-mt-16 cursor-pointer overflow-hidden rounded-lg border bg-white shadow-sm lg:w-52 ${validSelectedId === p.id ? "ring-2" : ""}`}
+              className={`w-40 shrink-0 scroll-mt-16 cursor-pointer overflow-hidden rounded-xl border bg-white shadow-sm transition-shadow hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 lg:w-52 ${validSelectedId === p.id ? "ring-2" : ""}`}
                       style={{ borderColor: validSelectedId === p.id ? primary : border, ["--tw-ring-color" as string]: primary } as React.CSSProperties}
                     >
                       {ap.showImages && p.imageUrl ? (
                         <div className="relative">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={p.imageUrl} alt={p.name} loading="lazy" className="h-28 w-full bg-black/[0.04] object-cover lg:h-36" />
+                          <Image src={p.imageUrl} alt={p.name} width={208} height={144} loading="lazy" className="h-28 w-full bg-black/[0.04] object-cover lg:h-36" />
                         </div>
                       ) : null}
                       <div className="p-2.5">
@@ -335,7 +334,7 @@ export function PlatoMenuView({
                           pick(p);
                         }
                       }}
-                      className={`flex scroll-mt-16 cursor-pointer items-center gap-3 rounded-lg bg-white p-3 shadow-sm lg:gap-5 lg:p-5 ${validSelectedId === p.id ? "ring-2" : ""}`}
+                      className={`flex scroll-mt-16 cursor-pointer items-center gap-3 rounded-xl bg-white p-3 shadow-sm transition-shadow hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 lg:gap-5 lg:p-5 ${validSelectedId === p.id ? "ring-2" : ""}`}
                       style={{ ["--tw-ring-color" as string]: primary } as React.CSSProperties}
                     >
                       <div className="min-w-0 flex-1">
@@ -349,8 +348,7 @@ export function PlatoMenuView({
                       </div>
                       {ap.showImages && p.imageUrl ? (
                         <div className="relative shrink-0">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={p.imageUrl} alt={p.name} loading="lazy" className="h-20 w-20 rounded-lg bg-black/[0.04] object-cover lg:h-32 lg:w-32" />
+                          <Image src={p.imageUrl} alt={p.name} width={128} height={128} loading="lazy" className="h-20 w-20 rounded-lg bg-black/[0.04] object-cover lg:h-32 lg:w-32" />
                         </div>
                       ) : null}
                     </div>
@@ -374,7 +372,7 @@ export function PlatoMenuView({
             <button
               type="button"
               onClick={() => setSearch("")}
-              className="min-h-[40px] cursor-pointer rounded-full px-5 py-2 text-sm font-bold text-white"
+              className="min-h-11 cursor-pointer rounded-full px-5 py-2 text-sm font-bold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
               style={{ background: primary }}
             >
               Limpiar búsqueda
@@ -385,11 +383,11 @@ export function PlatoMenuView({
 
       {/* Barra inferior: agregar / ver pedido */}
       {selected && count === 0 && (
-        <div className="fixed inset-x-0 bottom-0 mx-auto max-w-2xl border-t p-4" style={{ background: bg, borderColor: border }}>
+        <div className="fixed inset-x-0 bottom-0 mx-auto max-w-2xl border-t px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3" style={{ background: bg, borderColor: border }}>
           <button
             type="button"
             onClick={addSelected}
-            className="w-full cursor-pointer rounded-lg px-4 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+            className="min-h-12 w-full cursor-pointer rounded-xl px-4 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             style={{ background: primary }}
           >
             Agregar a mi pedido · {priceOf(selected)}
@@ -400,7 +398,7 @@ export function PlatoMenuView({
         <a
           href={`/menu/${slug}/checkout`}
           aria-label={`Ver pedido, ${count} producto${count === 1 ? "" : "s"}`}
-          className="fixed inset-x-4 bottom-4 z-10 mx-auto flex max-w-2xl cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-3 font-medium text-white shadow-lg transition-opacity hover:opacity-90"
+          className="fixed inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-10 mx-auto flex min-h-12 max-w-2xl cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-3 font-medium text-white shadow-lg transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
           style={{ background: primary }}
         >
           <svg stroke="currentColor" fill="none" strokeWidth="1.5" viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">

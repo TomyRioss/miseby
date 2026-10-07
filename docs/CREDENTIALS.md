@@ -1,16 +1,23 @@
-# Credenciales demo
+# Cuentas demo (solo dev local)
 
-> Solo entorno local/dev. Generadas por `prisma/seed.ts`.
-> Correr: `npx prisma db seed` (idempotente, upsert por email).
+> Generadas por `prisma/seed.ts`. Correr: `npx prisma db seed` (idempotente;
+> los usuarios existentes **no** se modifican: el seed solo crea lo que falta).
 
-| Rol | Email | Password | Entra a |
-|-----|-------|----------|---------|
-| `platform_owner` | `owner@miseby.com` | `Miseby2026!` | `/control` |
-| `business_owner` | `negocio@miseby.com` | `Miseby2026!` | `/dashboard` |
-| `business_member` | `equipo@miseby.com` | `Miseby2026!` | `/dashboard` |
-| `business_owner` | `tomy@gmail.com` | `tomy1234` | `/dashboard` (org **Tomy Demo**, plan **MISE LINK**) |
-| `business_owner` | `tomy@admin.com` | `tomy1234` | `/dashboard` (org **Tomy Restaurant**, plan **MISE RESTAURANT**) |
+| Rol | Email | Entra a |
+|-----|-------|---------|
+| `platform_owner` | `owner@miseby.com` | `/control` |
+| `business_owner` | `negocio@miseby.com` | `/dashboard` |
+| `business_member` | `equipo@miseby.com` | `/dashboard` |
+| `business_owner` | `tomy@gmail.com` | `/dashboard` (org **Tomy Demo**, plan **MISE LINK**) |
 
 `business_owner` y `business_member` pertenecen a la organización **Negocio Demo** (`slug: negocio-demo`), con membresía plan **MISE** activa.
 
-Cambiar password: editar `DEMO_PASSWORD` en `prisma/seed.ts` y re-correr el seed.
+## Passwords
+
+Nunca commitear passwords. Opciones:
+
+1. Variables de entorno (recomendado para equipo):
+   `SEED_DEMO_PASSWORD` (para owner/negocio/equipo) y `SEED_TOMY_PASSWORD`
+   (para tomy@gmail.com). Solo aplican a cuentas **nuevas**.
+2. Sin variables, el seed genera passwords aleatorios y los muestra **una vez**
+   en la consola al correr. Anotalos ahí.

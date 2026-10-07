@@ -59,7 +59,7 @@ export function ProfileTab({ state, onSaved }: { state: State; onSaved?: () => v
     <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-4">
       <FieldGroup>
         <Field data-invalid={Boolean(errors.username)}>
-          <div className="rounded-xl bg-muted/60 px-3 pb-1.5 pt-2">
+          <div className="rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] px-3 pb-1.5 pt-2">
             <span className="block text-xs text-muted-foreground">Título</span>
             <Input
               id="username"
@@ -76,7 +76,7 @@ export function ProfileTab({ state, onSaved }: { state: State; onSaved?: () => v
         </Field>
 
         <Field data-invalid={Boolean(errors.bio)}>
-          <div className="rounded-xl border border-foreground/80 px-3 pb-1.5 pt-2">
+          <div className="rounded-xl border border-[#94A3B8] bg-white px-3 pb-1.5 pt-2 focus-within:border-[#0A2540]">
             <span className="block text-xs text-muted-foreground">Biografía</span>
             <Textarea
               id="bio"
@@ -94,7 +94,7 @@ export function ProfileTab({ state, onSaved }: { state: State; onSaved?: () => v
       <Button
         type="submit"
         disabled={isSubmitting}
-        className="w-full gap-2 rounded-full bg-[#075296] py-6 text-base font-semibold text-white hover:bg-[#0E88E2]"
+        className="w-full gap-2 rounded-xl bg-[#0A2540] py-5 text-sm font-semibold text-white hover:bg-[#0A2540] focus-visible:ring-[#0A2540]"
       >
         {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
         Guardar

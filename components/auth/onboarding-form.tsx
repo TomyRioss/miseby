@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Field, FieldLabel, FieldError, FieldGroup } from "@/components/ui/field";
 import { updateBusinessProfileAction, saveRestaurantHoursAction } from "@/lib/actions/restaurant";
 import { updateUsernameAction, updateProfileAction } from "@/lib/actions/miselink";
+import { getPlanDashboardPath } from "@/lib/plan-routes";
 
 export type OnboardingPlanCode = "mise_link" | "mise" | "mise_restaurant";
 
@@ -97,7 +98,7 @@ export function OnboardingForm({ planCode, initial }: OnboardingFormProps) {
       }
 
       toast.success("¡Listo! Tu negocio está configurado.");
-      router.push("/dashboard");
+      router.push(getPlanDashboardPath(planCode));
       router.refresh();
     } catch (err) {
       console.error("[onboarding]", err);

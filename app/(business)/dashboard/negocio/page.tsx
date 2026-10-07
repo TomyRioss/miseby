@@ -16,8 +16,12 @@ export default async function NegocioPage() {
   let data: Awaited<ReturnType<typeof getOrganizationForMember>> = null;
   let rest = getRestaurantData(null);
   try {
-    data = await getOrganizationForMember(user.id);
-    const page = await getOrCreateMiseLinkPage(user.id).catch(() => null);
+    // Independientes (solo usan user.id): en paralelo, no en serie.
+    const [d, page] = await Promise.all([
+      getOrganizationForMember(user.id),
+      getOrCreateMiseLinkPage(user.id).catch(() => null),
+    ]);
+    data = d;
     rest = getRestaurantData(page?.theme);
   } catch (e) {
     console.error("[negocio page]", e);

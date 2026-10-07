@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { ChevronDown, ChevronUp, Copy, Eye, EyeOff, FolderInput, GripVertical, MoreVertical, Pencil, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -93,8 +94,7 @@ export function MenuCategoryRow({
                     className="cursor-pointer flex min-w-0 flex-1 items-center gap-3 text-left">
                     <span className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted text-sm font-bold text-muted-foreground">
                       {p.imageUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={p.imageUrl} alt="" className="h-full w-full object-cover" />
+                        <Image src={p.imageUrl} alt="" width={44} height={44} className="h-full w-full object-cover" />
                       ) : (
                         p.name.charAt(0).toUpperCase()
                       )}

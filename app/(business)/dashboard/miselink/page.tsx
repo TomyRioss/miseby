@@ -58,7 +58,11 @@ export default async function MiseLinkDashboardPage() {
       <BusinessHeader markSuffix="LINK" />
       <div className="flex min-h-0 flex-1">
         <BusinessSidebar account={<SidebarAccount />} hasMiseLink={Boolean(page)} planCode={planCode} orgRole={orgRole} />
-        <main className="min-h-0 flex-1 overflow-y-auto">{editor}</main>
+        <main className="min-h-0 flex-1 overflow-y-auto bg-white">
+          <div className="font-sans">
+            {editor}
+          </div>
+        </main>
       </div>
     </div>
   );

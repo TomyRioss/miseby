@@ -4,16 +4,15 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Loader2, Check } from "lucide-react";
+import { Loader2, Check, MailCheck } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Field, FieldLabel, FieldError, FieldGroup } from "@/components/ui/field";
 import { registerSchema } from "@/lib/validations/auth";
-import { registerAction, loginAction } from "@/lib/actions/auth";
+import { registerAction } from "@/lib/actions/auth";
 import { PlanSelector, planSlugToCode } from "@/components/auth/plan-selector";
 import type { PlanSlug } from "@/lib/landing/plans";
 import { GoogleButton } from "@/components/auth/google-button";
@@ -74,8 +73,8 @@ function passwordScore(pw: string): number {
 }
 
 export function RegisterForm({ initialPlan = "mise" }: { initialPlan?: PlanSlug }) {
-  const router = useRouter();
   const [serverError, setServerError] = useState("");
+  const [sentEmail, setSentEmail] = useState<string | null>(null);
   const [plan, setPlan] = useState<PlanSlug>(initialPlan);
   const {
     register,
@@ -111,20 +110,36 @@ export function RegisterForm({ initialPlan = "mise" }: { initialPlan?: PlanSlug 
         return;
       }
 
-      const loginResult = await loginAction(values.email.trim().toLowerCase(), values.password);
-      if (!loginResult.ok) {
-        toast.success("Cuenta creada. Iniciá sesión.");
-        router.push("/login");
-        return;
-      }
-      router.push("/onboarding");
-      router.refresh();
+      // La cuenta queda pendiente hasta verificar el email (ver código).
+      setSentEmail(values.email.trim().toLowerCase());
+      toast.success("Cuenta creada. Revisá tu email para activarla.");
     } catch (err) {
       console.error(err);
       setServerError("No fue posible completar el registro.");
       toast.error("No fue posible completar el registro.");
     }
   };
+
+  if (sentEmail) {
+    return (
+      <div className="mt-8 max-w-sm space-y-5 text-center">
+        <MailCheck className="mx-auto h-12 w-12 text-emerald-500" />
+        <h2 className="font-display text-xl font-semibold text-foreground">
+          Revisá tu email
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Te enviamos un enlace de verificación a <strong>{sentEmail}</strong>.
+          Abrilo para activar tu cuenta (expira en 24 horas).
+        </p>
+        <p className="text-sm text-muted-foreground">
+          ¿Ya verificaste?{" "}
+          <Link href="/login" className="cursor-pointer font-semibold text-[#0E88E2] hover:underline">
+            Iniciar sesión
+          </Link>
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="mt-8 max-w-sm space-y-5">

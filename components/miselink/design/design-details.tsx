@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { THEME_PRESETS, themeButtonClass, type MiseLinkTheme } from "@/lib/miselink/theme";
 import { OptionGrid, ColorField } from "./design-controls";
@@ -7,7 +8,7 @@ import { OptionGrid, ColorField } from "./design-controls";
 export type PatchFn = (next: Partial<MiseLinkTheme>) => void;
 
 function Label({ children }: { children: string }) {
-  return <p className="text-[13px] font-semibold text-foreground">{children}</p>;
+  return <p className="text-[13px] font-semibold text-[#0A2540]">{children}</p>;
 }
 
 function MiniLayout({ id, active }: { id: string; active: boolean }) {
@@ -23,7 +24,7 @@ function MiniLayout({ id, active }: { id: string; active: boolean }) {
             : "rounded-full";
   return (
     <span
-      className={`flex flex-col items-center gap-1.5 rounded-xl border bg-white px-2 py-3 ${active ? "border-foreground ring-2 ring-foreground/15" : "border-border"}`}
+      className={`flex flex-col items-center gap-1.5 rounded-xl border bg-white px-2 py-3 ${active ? "border-[#0A2540] ring-2 ring-[#0A2540]/20" : "border-slate-200"}`}
     >
       {id === "banner" ? <span className="h-5 w-full rounded-t-lg bg-slate-300" /> : null}
       <span className={`flex h-8 w-8 items-center justify-center bg-slate-300 ${avatar}`}>
@@ -63,7 +64,7 @@ export function HeaderDetail({
         <Label>Diseño</Label>
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
           {layouts.map((id) => (
-            <button key={id} type="button" onClick={() => patch({ header: id })} className="cursor-pointer flex flex-col gap-1.5">
+            <button key={id} type="button" onClick={() => patch({ header: id })} className="cursor-pointer flex flex-col gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0A2540] focus-visible:ring-offset-2">
               <MiniLayout id={id} active={theme.header === id} />
               <span className={`text-center text-xs font-medium capitalize ${theme.header === id ? "text-foreground" : "text-muted-foreground"}`}>
                 {layoutLabels[id] ?? id}
@@ -79,8 +80,7 @@ export function HeaderDetail({
         </div>
         <span className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl bg-muted text-xs text-muted-foreground">
           {page.avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={page.avatarUrl} alt="avatar" className="h-full w-full object-cover" />
+            <Image src={page.avatarUrl} alt="avatar" width={56} height={56} className="h-full w-full object-cover" unoptimized />
           ) : (
             "Sin foto"
           )}
@@ -120,7 +120,7 @@ export function HeaderDetail({
               setFadeUI(v);
               patch({ bannerFade: v });
             }}
-            className="w-full accent-foreground"
+        className="w-full accent-[#0A2540]"
             aria-label="Intensidad del fundido del banner"
           />
           <p className="text-[11px] leading-relaxed text-muted-foreground">
@@ -187,11 +187,11 @@ export function ButtonsDetail({ theme, patch }: { theme: MiseLinkTheme; patch: P
         <Label>Forma</Label>
         <div className="grid grid-cols-2 gap-2">
           {styles.map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => patch({ buttonStyle: s })}
-              className={`cursor-pointer rounded-xl border p-3 ${theme.buttonStyle === s ? "border-foreground ring-2 ring-foreground/15" : "border-border"}`}
+              <button
+                key={s}
+                type="button"
+                onClick={() => patch({ buttonStyle: s })}
+                className={`cursor-pointer rounded-xl border p-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0A2540] ${theme.buttonStyle === s ? "border-[#0A2540] ring-2 ring-[#0A2540]/20" : "border-slate-200"}`}
             >
               <span
                 style={
@@ -265,7 +265,7 @@ export function ThemeDetail({ theme, patch }: { theme: MiseLinkTheme; patch: Pat
           onClick={() => patch({ ...p.theme, preset: p.id })}
           aria-pressed={theme.preset === p.id}
           style={{ background: p.theme.colors.background, color: p.theme.colors.text }}
-          className={`cursor-pointer rounded-xl border px-3 py-3 text-left ${theme.preset === p.id ? "border-foreground ring-2 ring-foreground/20" : "border-border"}`}
+          className={`cursor-pointer rounded-xl border px-3 py-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0A2540] ${theme.preset === p.id ? "border-[#0A2540] ring-2 ring-[#0A2540]/20" : "border-slate-200"}`}
         >
           <span className="block text-sm font-bold">{p.label}</span>
           <span

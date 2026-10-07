@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ChevronDown,
@@ -242,8 +243,7 @@ export function MenuManager({
                     <Loader2 className="h-6 w-6 animate-spin" aria-hidden="true" />
                   </span>
                 ) : media.logoUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={media.logoUrl} alt="" className="h-24 w-24 object-cover" />
+                  <Image src={media.logoUrl} alt="" width={96} height={96} className="h-24 w-24 object-cover" />
                 ) : (
                   <span
                     className="flex h-24 w-24 items-center justify-center text-3xl font-extrabold text-white"

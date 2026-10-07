@@ -120,16 +120,16 @@ export function CheckoutView({
   if (done) {
     return (
       <main className="h-[100dvh] overflow-y-auto" style={{ background, color: text }}>
-        <div className="mx-auto w-full max-w-2xl px-4 py-10">
+        <div className="mx-auto w-full max-w-2xl px-4 py-12 sm:px-6 sm:py-16">
           <Card>
-            <CardContent className="py-10 text-center">
+            <CardContent className="px-6 py-12 text-center sm:px-12 sm:py-16">
               <span
                 className="mx-auto flex h-12 w-12 items-center justify-center rounded-full text-white"
                 style={{ background: primary }}
               >
                 <CircleCheck className="h-6 w-6" />
               </span>
-              <h1 className="mt-4 text-2xl font-bold">¡Pedido confirmado!</h1>
+              <h1 className="mt-5 text-3xl font-bold tracking-tight sm:text-4xl">¡Pedido confirmado!</h1>
               <p className="mx-auto mt-2 max-w-md text-sm" style={{ color: sub }}>
                 {SUCCESS_MSG}
               </p>
@@ -157,21 +157,21 @@ export function CheckoutView({
 
   return (
     <main className="h-[100dvh] overflow-y-auto pb-28 lg:pb-8" style={{ background, color: text }}>
-      <div className="mx-auto w-full max-w-4xl px-4 py-4">
-        <div className="flex items-center justify-between gap-3">
+      <div className="mx-auto w-full max-w-5xl px-4 py-5 sm:px-6 sm:py-8">
+        <div className="flex items-center gap-3 border-b pb-4" style={{ borderColor: border }}>
           <Button asChild variant="outline" size="sm" className="min-h-9">
             <Link href={backHref}>
               <ArrowLeft className="h-4 w-4" />
               Volver
             </Link>
           </Button>
-          <p className="truncate text-xs font-medium" style={{ color: sub }}>
-            {businessName}
-          </p>
         </div>
 
-        <div className="mt-3 flex items-center gap-2">
-          <h1 className="text-2xl font-bold tracking-tight">Tu pedido</h1>
+        <div className="mt-7 flex items-end justify-between gap-3">
+          <div>
+            <p className="text-sm font-medium" style={{ color: sub }}>{businessName}</p>
+            <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">Tu pedido</h1>
+          </div>
           {count > 0 && (
             <Badge variant="secondary" className="tabular-nums">
               {count} {count === 1 ? "ítem" : "ítems"}
@@ -180,8 +180,8 @@ export function CheckoutView({
         </div>
 
         {items.length === 0 ? (
-          <Card className="mt-4">
-            <CardContent className="py-10 text-center">
+          <Card className="mt-7">
+            <CardContent className="px-6 py-12 text-center sm:px-12 sm:py-16">
               <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted">
                 <ShoppingBag className="h-6 w-6 text-muted-foreground" />
               </span>
@@ -194,7 +194,7 @@ export function CheckoutView({
             </CardContent>
           </Card>
         ) : (
-          <div className="mt-4 grid items-start gap-4 lg:grid-cols-[1fr_360px]">
+          <div className="mt-7 grid items-start gap-5 lg:grid-cols-[1fr_400px] lg:gap-7">
             <Card>
               <CardHeader className="flex-row items-center justify-between">
                 <CardTitle>Resumen</CardTitle>

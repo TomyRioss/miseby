@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getOrganizationForMember } from "@/lib/services/organizations";
 import { getRestaurantData } from "@/lib/restaurant-theme";
+import { cache } from "react";
 
 /**
  * Menú público por slug de organización. Solo lectura, sin cambios de DB.
@@ -9,7 +10,7 @@ import { getRestaurantData } from "@/lib/restaurant-theme";
  * dueño de la organización lo ve en modo preview; el resto recibe null
  * (la página responde notFound).
  */
-export async function getPublicMenuBySlug(slug: string) {
+export const getPublicMenuBySlug = cache(async function getPublicMenuBySlug(slug: string) {
   try {
     const key = decodeURIComponent(slug).trim().toLowerCase();
     if (!key) return null;
@@ -33,4 +34,4 @@ export async function getPublicMenuBySlug(slug: string) {
     console.error("[public menu]", e);
     return null;
   }
-}
+});

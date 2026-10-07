@@ -7,6 +7,8 @@ import {
   requestPasswordReset,
   confirmPasswordReset,
   changePassword,
+  confirmEmailVerification,
+  resendVerificationEmail,
 } from "@/lib/services/auth";
 import {
   registerSchema,
@@ -16,7 +18,7 @@ import {
 } from "@/lib/validations/auth";
 import { requireUser } from "@/lib/auth/guards";
 
-type ActionResult = { ok: true } | { ok: false; error: string };
+type ActionResult = { ok: true; code?: "verify_email" } | { ok: false; error: string; code?: "email_unverified" };
 
 export async function loginAction(email: string, password: string): Promise<ActionResult> {
   const cleanEmail = email.trim().toLowerCase();
@@ -34,6 +36,13 @@ export async function loginAction(email: string, password: string): Promise<Acti
           (error.cause as unknown as Error | null)?.message ??
           error.message ??
           "") as string;
+      if (/EMAIL_UNVERIFIED/.test(cause)) {
+        return {
+          ok: false,
+          error: "Tu cuenta aún no está verificada. Revisá tu email para activarla.",
+          code: "email_unverified",
+        };
+      }
       if (/suspend/i.test(cause)) {
         return { ok: false, error: "Tu cuenta fue suspendida. Escribinos a soporte para revisarla." };
       }
@@ -56,9 +65,29 @@ export async function registerAction(input: unknown): Promise<ActionResult> {
   }
   try {
     await registerBusinessOwner(parsed.data);
-    return { ok: true };
+    return { ok: true, code: "verify_email" as const };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "Error al registrar" };
+  }
+}
+
+export async function confirmEmailAction(token: string): Promise<ActionResult> {
+  try {
+    await confirmEmailVerification(token);
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "Token inválido" };
+  }
+}
+
+export async function resendVerificationAction(email: string): Promise<ActionResult> {
+  const clean = email.trim().toLowerCase();
+  if (!clean) return { ok: false, error: "Ingresá tu email." };
+  try {
+    await resendVerificationEmail(clean);
+    return { ok: true };
+  } catch {
+    return { ok: false, error: "No se pudo reenviar. Probá de nuevo." };
   }
 }
 

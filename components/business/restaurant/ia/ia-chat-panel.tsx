@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { ExternalLink, MessageCircle, RotateCcw, Send, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
@@ -57,10 +58,11 @@ function DishCards({ dishes }: { dishes: RecommendedDish[] }) {
       {dishes.map((d) => (
         <div key={d.id} className="flex gap-2.5 rounded-xl border border-border bg-background p-2 shadow-sm">
           {d.imageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Image
               src={d.imageUrl}
               alt={d.name}
+              width={56}
+              height={56}
               loading="lazy"
               className="h-14 w-14 shrink-0 rounded-lg object-cover"
             />

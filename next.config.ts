@@ -9,6 +9,15 @@ const googleEnabled = Boolean(
 );
 
 const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "ccoxxxvxmbrwaxlopvxz.supabase.co",
+        pathname: "/storage/**",
+      },
+    ],
+  },
   experimental: {
     // Fotos de producto: la UI promete máx 20 MB vía FormData en server action.
     // El default de Next (1 MB) rechazaba el body antes de llegar a la action

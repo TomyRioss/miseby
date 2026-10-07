@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Mail, MapPin, Phone, Plus, ReceiptText, Search, Trash2, Users } from "lucide-react";
+import { ArrowLeft, ChevronDown, Mail, MapPin, Phone, Plus, ReceiptText, Search, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +34,13 @@ const KEY = "miseby.clientes.v1";
 
 function digits(v: string): string {
   return (v ?? "").replace(/\D+/g, "");
+}
+
+function initials(name: string): string {
+  const parts = (name ?? "").trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
 function loadManual(): ManualClient[] {
@@ -76,6 +83,7 @@ export function ClientesAutoView({ initialClients }: { initialClients: ClientEnt
   const [query, setQuery] = useState("");
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [manual, setManual] = useState<ManualClient[]>(() => loadManual());
+  const [showForm, setShowForm] = useState(false);
   const [history, setHistory] = useState<HistOrder[]>([]);
   const [mName, setMName] = useState("");
   const [mPhone, setMPhone] = useState("");
@@ -131,6 +139,14 @@ export function ClientesAutoView({ initialClients }: { initialClients: ClientEnt
     return [...rows, ...extra];
   }, [initialClients, manual]);
 
+  const totals = useMemo(() => {
+    return {
+      clients: fused.length,
+      orders: fused.reduce((n, c) => n + (c.ordersCount ?? 0), 0),
+      spent: fused.reduce((n, c) => n + (c.totalSpent ?? 0), 0),
+    };
+  }, [fused]);
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return fused;
@@ -179,6 +195,7 @@ export function ClientesAutoView({ initialClients }: { initialClients: ClientEnt
     setMName("");
     setMPhone("");
     setMEmail("");
+    setShowForm(false);
     toast.success(`${n} agendado.`);
   }
 
@@ -198,6 +215,9 @@ export function ClientesAutoView({ initialClients }: { initialClients: ClientEnt
           <h2 className="text-base font-semibold tracking-tight">Clientes</h2>
           <Badge variant="secondary" className="ml-auto tabular-nums">{fused.length}</Badge>
         </div>
+        <p className="mt-1 text-xs text-muted-foreground tabular-nums">
+          {totals.orders} {totals.orders === 1 ? "pedido" : "pedidos"} · {fmtMoney(totals.spent)} acumulado
+        </p>
         <div className="relative mt-3">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -208,30 +228,41 @@ export function ClientesAutoView({ initialClients }: { initialClients: ClientEnt
             className="min-h-10 pl-9"
           />
         </div>
-        <div className="mt-3 flex gap-2">
-          <Input
-            value={mName}
-            onChange={(e) => setMName(e.target.value)}
-            placeholder="Nombre *"
-            maxLength={80}
-            onKeyDown={(e) => { if (e.key === "Enter") addManual(); }}
-            aria-label="Nombre del cliente"
-            className="min-h-10"
-          />
-          <Button
-            onClick={addManual}
-            disabled={!mName.trim()}
-            className="min-h-10 shrink-0 bg-[#0A2540] text-white hover:bg-[#0A2540]/90 active:scale-[0.98]"
-            aria-label="Agregar cliente manual"
-          >
-            <Plus className="h-4 w-4" /><span className="hidden sm:inline">Agregar</span>
-          </Button>
-        </div>
-        <div className="mt-2 flex gap-2">
-          <Input value={mPhone} onChange={(e) => setMPhone(e.target.value)} placeholder="Teléfono" inputMode="tel" maxLength={30} aria-label="Teléfono" className="min-h-10" />
-          <Input value={mEmail} onChange={(e) => setMEmail(e.target.value)} placeholder="Email" inputMode="email" type="email" maxLength={120} aria-label="Email" className="min-h-10" />
-        </div>
-        <div className="mt-3 flex max-h-[46vh] flex-col gap-2 overflow-y-auto lg:max-h-[52vh]">
+        <button
+          type="button"
+          onClick={() => setShowForm((v) => !v)}
+          aria-expanded={showForm}
+          className="mt-3 inline-flex min-h-10 w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-dashed border-border text-sm font-medium text-muted-foreground transition-colors hover:border-[#6D28D9]/40 hover:text-foreground"
+        >
+          <Plus className="h-4 w-4" />
+          Agendar manual
+          <ChevronDown className={`h-4 w-4 transition-transform ${showForm ? "rotate-180" : ""}`} />
+        </button>
+        {showForm && (
+          <div className="mt-2 space-y-2 rounded-xl bg-muted/50 p-3">
+            <Input
+              value={mName}
+              onChange={(e) => setMName(e.target.value)}
+              placeholder="Nombre *"
+              maxLength={80}
+              onKeyDown={(e) => { if (e.key === "Enter") addManual(); }}
+              aria-label="Nombre del cliente"
+              className="min-h-10 bg-background"
+            />
+            <div className="flex gap-2">
+              <Input value={mPhone} onChange={(e) => setMPhone(e.target.value)} placeholder="Teléfono" inputMode="tel" maxLength={30} aria-label="Teléfono" className="min-h-10 bg-background" />
+              <Input value={mEmail} onChange={(e) => setMEmail(e.target.value)} placeholder="Email" inputMode="email" type="email" maxLength={120} aria-label="Email" className="min-h-10 bg-background" />
+            </div>
+            <Button
+              onClick={addManual}
+              disabled={!mName.trim()}
+              className="min-h-10 w-full bg-[#0A2540] text-white hover:bg-[#0A2540]/90 active:scale-[0.98]"
+            >
+              Guardar cliente
+            </Button>
+          </div>
+        )}
+        <div className="mt-3 flex max-h-[46vh] flex-col gap-1.5 overflow-y-auto lg:max-h-[52vh]">
           {filtered.length === 0 ? (
             <p className="rounded-xl border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground">
               {fused.length === 0 ? "Todavía no hay clientes. Cuando entren pedidos desde tu menú o catálogo aparecen acá." : "Sin resultados para esa búsqueda."}
@@ -242,17 +273,20 @@ export function ClientesAutoView({ initialClients }: { initialClients: ClientEnt
                 key={c.key}
                 type="button"
                 onClick={() => setSelectedKey(c.key)}
-                className={`cursor-pointer rounded-xl border px-4 py-3 text-left transition-colors hover:bg-muted ${c.key === selectedKey ? "border-[#6D28D9]/40 bg-[#6D28D9]/5" : "border-border"}`}
+                aria-current={c.key === selectedKey}
+                className={`flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition-colors hover:bg-muted ${c.key === selectedKey ? "border-[#6D28D9]/40 bg-[#6D28D9]/5" : "border-transparent"}`}
               >
-                <span className="flex items-center gap-2">
-                  <span className="min-w-0 flex-1 truncate text-sm font-semibold">{c.name}</span>
-                  <Badge variant="secondary" className="shrink-0 tabular-nums">
-                    {c.ordersCount} {c.ordersCount === 1 ? "pedido" : "pedidos"}
-                  </Badge>
-                  {c.manual && <Badge variant="outline" className="shrink-0">Manual</Badge>}
+                <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#6D28D9]/10 text-xs font-bold text-[#6D28D9]">
+                  {initials(c.name)}
                 </span>
-                <span className="mt-0.5 block truncate text-xs text-muted-foreground">
-                  {[c.phone || "Sin teléfono", c.email || null].filter(Boolean).join(" · ") || "Sin contacto"} · Últ. compra {c.ordersCount > 0 ? fmtDate(c.lastOrderAt) : "—"}
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-center gap-2">
+                    <span className="min-w-0 flex-1 truncate text-sm font-semibold">{c.name}</span>
+                    {c.manual && <Badge variant="outline" className="shrink-0">Manual</Badge>}
+                  </span>
+                  <span className="mt-0.5 block truncate text-xs text-muted-foreground tabular-nums">
+                    {c.ordersCount} {c.ordersCount === 1 ? "pedido" : "pedidos"} · {fmtMoney(c.totalSpent)} · Últ. compra {c.ordersCount > 0 ? fmtDate(c.lastOrderAt) : "—"}
+                  </span>
                 </span>
               </button>
             ))
@@ -265,22 +299,25 @@ export function ClientesAutoView({ initialClients }: { initialClients: ClientEnt
         {!selected ? (
           <p className="px-4 py-16 text-center text-sm text-muted-foreground">Elegí un cliente de la lista para ver su detalle.</p>
         ) : (
-          <div>
+          <div key={selected.key} className="animate-in fade-in duration-150">
             <button type="button" onClick={() => setSelectedKey(null)} className="cursor-pointer mb-3 inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground lg:hidden">
               <ArrowLeft className="h-3.5 w-3.5" /> Volver a la lista
             </button>
-            <div className="flex items-start justify-between gap-2">
-              <div>
+            <div className="flex items-center gap-3">
+              <span aria-hidden className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#6D28D9]/10 text-base font-bold text-[#6D28D9]">
+                {initials(selected.name)}
+              </span>
+              <div className="min-w-0 flex-1">
                 <h2 className="flex flex-wrap items-center gap-2 text-lg font-semibold tracking-tight">
-                  {selected.name}
+                  <span className="truncate">{selected.name}</span>
                   {selected.manual && <Badge variant="outline">Manual</Badge>}
                 </h2>
-                <p className="mt-0.5 text-xs text-muted-foreground">
+                <p className="mt-0.5 text-xs text-muted-foreground tabular-nums">
                   {selected.ordersCount} {selected.ordersCount === 1 ? "pedido" : "pedidos"} · {fmtMoney(selected.totalSpent)} total
                 </p>
               </div>
               {selected.manualEntry && (
-                <Button variant="outline" onClick={() => removeManual(selected.manualEntry!.id)} className="min-h-10 text-destructive hover:text-destructive" aria-label="Eliminar cliente manual">
+                <Button variant="outline" onClick={() => removeManual(selected.manualEntry!.id)} className="min-h-10 shrink-0 text-destructive hover:text-destructive" aria-label="Eliminar cliente manual">
                   <Trash2 className="h-4 w-4" />
                 </Button>
               )}

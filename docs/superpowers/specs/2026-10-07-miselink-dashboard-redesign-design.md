@@ -1,10 +1,10 @@
 # MiseLink dashboard redesign
 
-Status: visual direction approved by user; implementation pending document review.
+Status: user-approved brand direction applied to both MiseLink dashboard screens.
 
 ## Goal
 
-Redesign only `/dashboard/miselink` with a digital-ocean identity distinct from Linktree. Keep editor behavior and content intact. Do not redesign `/dashboard/miselink/design`, the public page, or shared dashboard navigation.
+Redesign `/dashboard/miselink` and `/dashboard/miselink/design` with the Mar Digital Business identity, distinct from Linktree. Keep both screens' behavior and content intact. Preserve public rendering and shared dashboard navigation.
 
 ## Users and job
 
@@ -12,16 +12,14 @@ Inference from existing code: a business member manages the destinations on its 
 
 ## Direction
 
-Digital marine cartography: practical dashboard first, marine identity through a tide-like ordering rail and restrained sea-glass surfaces. Ordered destinations become a visible current: placement encodes the order shown on the public page. Avoid Linktree's familiar stack of isolated branded pill buttons as the editor's dominant visual.
+Mar Digital: use the supplied white `#FFFFFF` and navy `#0A2540` palette, plus a barely visible navy Tailwind retícula. Keep the inherited Geist typography. The links screen's ordered current rail distinguishes the editor from Linktree; the design screen uses the same pixel, color, type, and surface system while keeping its existing theme controls.
 
 ### Tokens
 
-- Bruma: `#F2F7F5` — workspace background.
-- Abisal: `#07384A` — primary ink and strong controls.
-- Marea: `#0E8C86` — active state and primary action.
-- Hielo: `#CDE9E5` — selected and preview surfaces.
-- Boya: `#F17A60` — limited attention/error accent.
-- Typography: Space Grotesk for display headings; Inter for interface text; JetBrains Mono for URLs and compact metadata.
+- White: `#FFFFFF` — editor canvas and primary surfaces.
+- Mar Digital navy: `#0A2540` — headings, core text, and brand anchor.
+- Grid: low-opacity Tailwind version of the existing MISE BY grid motif; do not modify global CSS or invent another principal color.
+- Typography: existing Geist Sans and Geist Mono from the root layout.
 
 ## Layout
 
@@ -30,6 +28,7 @@ Digital marine cartography: practical dashboard first, marine identity through a
 - Desktop: editor and existing live phone preview in two columns; preview remains available while editing.
 - Mobile: single column; editor controls remain reachable and preview opens through the existing preview action.
 - Empty state guides the first add action. Loading, save/publish errors, disabled and published states remain explicit.
+- Design editor keeps theme presets, header, wallpaper, buttons, typography, colors, save, discard, and live preview controls.
 
 ```text
 +----------------------+--------------------------------------+
@@ -63,7 +62,7 @@ Do not change action/service contracts or data shape. No database, Prisma, or mi
 - Tailwind and installed shadcn components; no global CSS edits.
 - Responsive desktop/mobile; visible keyboard focus; preserve semantics.
 - No new icon/image SVGs. Reuse existing assets and controls where possible.
-- Keep changes inside the route and its MiseLink editor components.
+- Keep changes inside these two routes and their MiseLink editor/design components.
 
 ## Verification
 

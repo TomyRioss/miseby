@@ -59,11 +59,25 @@ export default async function HomePage() {
 
   return (
     <div className="h-full overflow-y-auto bg-background">
-      <LandingNavbar />
+      <LandingNavbar heroOverlay />
 
       {/* Hero */}
-      <section className="mise-gradient relative overflow-hidden text-white">
-        <div className="relative mx-auto max-w-6xl px-4 pb-20 pt-16 sm:px-6 sm:pb-28 sm:pt-24">
+      <section className="relative isolate flex min-h-[90vh] items-center overflow-hidden bg-[#082b4b] text-white">
+        <video
+          className="absolute inset-0 h-full w-full object-cover"
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="metadata"
+          poster="/videos/hero-business-poster.jpg"
+          aria-hidden="true"
+          tabIndex={-1}
+        >
+          <source src="/videos/hero-business.mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-gradient-to-r from-[#061b30]/85 via-[#082b4b]/65 to-[#061b30]/25" />
+        <div className="relative mx-auto w-full max-w-6xl px-4 pb-20 pt-32 sm:px-6 sm:pb-24 sm:pt-36">
           <Reveal className="max-w-2xl">
             <h1 className="font-display text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
               Presencia digital para negocios
@@ -94,36 +108,36 @@ export default async function HomePage() {
       </section>
 
       {/* Planes */}
-      <section id="planes" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-16 sm:px-6 sm:py-24">
-        <div className="max-w-2xl">
-          <h2 className="font-display text-3xl font-bold tracking-tight text-foreground">
+      <section id="planes" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-20 sm:px-6 sm:py-28">
+        <div className="grid gap-5 border-b border-border pb-8 sm:gap-8 sm:pb-10 md:grid-cols-[1.15fr_0.85fr] md:items-end">
+          <h2 className="font-display max-w-2xl text-3xl font-bold leading-tight tracking-tight text-foreground sm:text-4xl">
             Tres planes, un mismo objetivo
           </h2>
-          <p className="mt-3 text-muted-foreground">
+          <p className="max-w-xl text-base leading-relaxed text-muted-foreground md:justify-self-end">
             Que tus clientes te encuentren, te conozcan y te compren. Compara y elige.
           </p>
         </div>
 
-        <div className="mt-10 grid gap-6 md:grid-cols-3">
+        <div className="mt-8 grid gap-px overflow-hidden rounded-2xl border border-border bg-border md:grid-cols-3">
           {PLANS.map((plan) => {
             const Icon = PLAN_ICONS[plan.slug];
             return (
               <article
                 key={plan.slug}
-                className="flex flex-col rounded-2xl border border-border bg-card p-6 shadow-sm transition-shadow hover:shadow-md"
+                className="flex flex-col bg-card p-6 transition-colors hover:bg-secondary/30 sm:p-7"
               >
                 <span
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-white"
-                  style={{ backgroundColor: plan.accent }}
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-white"
+                  style={{ backgroundColor: plan.slug === "mise-restaurant" ? "#007A93" : plan.accent }}
                 >
                   <Icon className="h-5 w-5" />
                 </span>
-                <h3 className="font-display mt-5 text-xl font-bold text-foreground">{plan.name}</h3>
-                <p className="mt-1 text-sm font-medium" style={{ color: plan.accent }}>
+                <h3 className="font-display mt-6 text-2xl font-bold tracking-tight text-foreground">{plan.name}</h3>
+                <p className="mt-1 text-sm font-medium" style={{ color: plan.slug === "mise-restaurant" ? "#007A93" : "#075296" }}>
                   {plan.tagline}
                 </p>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{plan.description}</p>
-                <ul className="mt-5 space-y-2.5">
+                <p className="mt-4 min-h-20 text-sm leading-relaxed text-muted-foreground">{plan.description}</p>
+                <ul className="mt-6 space-y-3 border-t border-border pt-5">
                   {plan.features.slice(0, 3).map((f) => (
                     <li key={f.title} className="flex items-start gap-2 text-sm text-foreground">
                       <Check className="mt-0.5 h-4 w-4 shrink-0" style={{ color: plan.accent }} />
@@ -131,10 +145,10 @@ export default async function HomePage() {
                     </li>
                   ))}
                 </ul>
-                <div className="mt-6 border-t border-border pt-5">
+                <div className="mt-auto pt-8">
                   <p className="font-display text-2xl font-bold text-foreground">{plan.priceLabel}</p>
                   <p className="mt-0.5 text-xs text-muted-foreground">{plan.priceNote}</p>
-                  <Button asChild className="mt-4 w-full">
+                  <Button asChild className="mt-5 w-full">
                     <Link href={plan.href} className="cursor-pointer">
                       Ver detalles <ArrowRight className="h-4 w-4" />
                     </Link>
@@ -147,19 +161,19 @@ export default async function HomePage() {
       </section>
 
       {/* Pasos */}
-      <section className="border-y border-border bg-secondary/50">
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <h2 className="font-display text-2xl font-bold tracking-tight text-foreground">
+      <section className="border-y border-border bg-[#edf5fb]">
+        <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-24">
+          <h2 className="font-display max-w-xl text-3xl font-bold leading-tight tracking-tight text-foreground sm:text-4xl">
             Empieza en tres pasos
           </h2>
-          <ol className="mt-8 grid gap-6 sm:grid-cols-3">
+          <ol className="mt-10 grid gap-0 sm:grid-cols-3">
             {STEPS.map((step, i) => (
-              <li key={step.title} className="rounded-2xl border border-border bg-card p-6">
-                <span className="font-display text-sm font-bold text-[#0E88E2]">
+              <li key={step.title} className="border-t border-[#b8cfe0] py-6 sm:mr-7 sm:last:mr-0">
+                <span className="font-display text-xs font-bold uppercase tracking-[0.14em] text-[#075296]">
                   Paso {i + 1}
                 </span>
-                <p className="font-display mt-2 font-semibold text-foreground">{step.title}</p>
-                <p className="mt-1.5 text-sm text-muted-foreground">{step.detail}</p>
+                <p className="font-display mt-4 text-xl font-semibold tracking-tight text-foreground">{step.title}</p>
+                <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">{step.detail}</p>
               </li>
             ))}
           </ol>
@@ -167,24 +181,26 @@ export default async function HomePage() {
       </section>
 
       {/* FAQ */}
-      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-        <h2 className="font-display text-2xl font-bold tracking-tight text-foreground">
+      <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-24">
+        <h2 className="font-display max-w-xl text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
           Preguntas frecuentes
         </h2>
-        <div className="mt-8 grid gap-6 md:grid-cols-3">
+        <div className="mt-9 grid gap-0 md:grid-cols-3 md:gap-8">
           {FAQS.map((faq) => (
-            <div key={faq.q}>
-              <p className="font-semibold text-foreground">{faq.q}</p>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{faq.a}</p>
+            <div key={faq.q} className="border-t border-border py-5 md:py-6">
+              <p className="font-display text-lg font-semibold leading-snug text-foreground">{faq.q}</p>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{faq.a}</p>
             </div>
           ))}
         </div>
-        <div className="mt-12 rounded-2xl bg-[#0A2540] p-8 text-center text-white sm:p-12">
-          <h3 className="font-display text-2xl font-bold">¿Listo para digitalizar tu negocio?</h3>
-          <p className="mx-auto mt-2 max-w-md text-sm text-white/70">
+        <div className="mt-14 grid gap-7 rounded-2xl bg-[#0A2540] p-7 text-white sm:p-10 md:grid-cols-[1fr_auto] md:items-center">
+          <div>
+            <h3 className="font-display max-w-lg text-2xl font-bold leading-tight sm:text-3xl">¿Listo para digitalizar tu negocio?</h3>
+            <p className="mt-3 max-w-md text-sm leading-relaxed text-white/75">
             Regístrate gratis y elige entre Mise Link, Mise y Mise Restaurant.
-          </p>
-          <Button size="lg" variant="secondary" asChild className="mt-6">
+            </p>
+          </div>
+          <Button size="lg" variant="secondary" asChild>
             <Link href="/register" className="cursor-pointer">
               Registrar mi negocio <ArrowRight className="h-4 w-4" />
             </Link>

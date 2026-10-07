@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Clock, Copy, Info, Package, Plus, Search, Share2, ShoppingBag, UtensilsCrossed, X } from "lucide-react";
@@ -116,8 +117,7 @@ function LocalHeader({
   return (
     <div className="flex items-center gap-3.5 px-5 py-4">
       {logoUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={logoUrl} alt="" className="h-14 w-14 shrink-0 rounded-xl object-cover shadow-lg ring-1 ring-black/10 dark:ring-white/15" />
+        <Image src={logoUrl} alt="" width={56} height={56} className="h-14 w-14 shrink-0 rounded-xl object-cover shadow-lg ring-1 ring-black/10 dark:ring-white/15" />
       ) : (
         <div
           className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl text-xl font-extrabold tracking-tight text-white shadow-lg ring-1 ring-black/10 dark:ring-white/15"
@@ -379,8 +379,7 @@ export function RestaurantPublicView({
                     return (
                       <div key={p.id} className="w-44 shrink-0 snap-start overflow-hidden rounded-2xl border border-black/10 bg-white dark:border-white/10 dark:bg-white/5">
                         {ap.showImages && p.imageUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={p.imageUrl} alt="" loading="lazy" className="aspect-[4/3] w-full bg-black/[0.04] object-cover dark:bg-white/[0.06]" />
+                          <Image src={p.imageUrl} alt="" width={176} height={132} loading="lazy" className="aspect-[4/3] w-full bg-black/[0.04] object-cover dark:bg-white/[0.06]" />
                         ) : null}
                         <div className="p-2.5">
                           <p title={p.name} className={`line-clamp-2 min-h-9 text-[13px] font-bold leading-snug ${titleCls(ap.titleFont)}`}>{p.name}</p>
@@ -430,8 +429,7 @@ export function RestaurantPublicView({
                           ) : null}
                         </div>
                         {ap.showImages && p.imageUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={p.imageUrl} alt="" loading="lazy" className="h-20 w-20 shrink-0 rounded-xl bg-black/[0.04] object-cover dark:bg-white/[0.06]" />
+                          <Image src={p.imageUrl} alt="" width={80} height={80} loading="lazy" className="h-20 w-20 shrink-0 rounded-xl bg-black/[0.04] object-cover dark:bg-white/[0.06]" />
                         ) : null}
                         {showCart && (
                           <button

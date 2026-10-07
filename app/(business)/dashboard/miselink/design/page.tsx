@@ -45,7 +45,7 @@ export default async function MiseLinkDesignPage() {
       <BusinessHeader markSuffix="LINK" />
       <div className="flex min-h-0 flex-1">
         <BusinessSidebar account={<SidebarAccount />} hasMiseLink planCode={planCode} orgRole={orgRole} />
-        <main className="min-h-0 w-full flex-1 overflow-y-auto px-6 py-6 sm:px-10 lg:px-12 lg:py-10">
+        <main className="min-h-0 w-full flex-1 overflow-y-auto bg-white px-4 py-6 sm:px-8 lg:px-10 lg:py-8">
           <div className="mx-auto w-full max-w-6xl">
             <DesignEditor
               username={page.username}

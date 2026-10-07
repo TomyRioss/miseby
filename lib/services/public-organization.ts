@@ -1,11 +1,12 @@
 import { prisma } from "@/lib/prisma";
+import { cache } from "react";
 
 /**
  * Lectura pública de organización por slug, con flag de visibilidad.
  * visible = organization.status === 'active'. null si no existe.
  * No filtra por estado: el consumidor (FE) decide qué mostrar según `visible`.
  */
-export async function getPublicOrganizationBySlug(slug: string) {
+export const getPublicOrganizationBySlug = cache(async function getPublicOrganizationBySlug(slug: string) {
   try {
     const key = decodeURIComponent(slug).trim().toLowerCase();
     if (!key) return null;
@@ -16,4 +17,4 @@ export async function getPublicOrganizationBySlug(slug: string) {
     console.error("[public organization]", e);
     return null;
   }
-}
+});

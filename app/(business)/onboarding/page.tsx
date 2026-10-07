@@ -8,6 +8,7 @@ import { getCurrentUser } from "@/lib/auth/session";
 import { getOrganizationForMember } from "@/lib/services/organizations";
 import { getOnboardingStatus } from "@/lib/services/onboarding";
 import { getOrCreateMiseLinkPage } from "@/lib/services/miselink";
+import { getPlanDashboardPath } from "@/lib/plan-routes";
 import { getRestaurantData } from "@/lib/restaurant-theme";
 import {
   OnboardingForm,
@@ -36,7 +37,12 @@ export default async function OnboardingPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
-  const data = await getOrganizationForMember(user.id).catch(() => null);
+  // Independientes (solo usan user.id): en paralelo, no en serie.
+  // La página de mise link se sigue creando solo si no completó onboarding.
+  const [data, status] = await Promise.all([
+    getOrganizationForMember(user.id).catch(() => null),
+    getOnboardingStatus(user.id).catch(() => null),
+  ]);
   if (!data?.organization) {
     return (
       <div className="flex min-h-[100dvh] flex-col items-center justify-center gap-4 bg-background px-6 text-center">
@@ -58,8 +64,8 @@ export default async function OnboardingPage() {
     ? (data.membership?.plan.code as OnboardingPlanCode)
     : "mise";
 
-  const status = await getOnboardingStatus(user.id).catch(() => null);
-  if (status?.completed) redirect("/dashboard");
+  const dashboardPath = getPlanDashboardPath(planCode);
+  if (status?.completed) redirect(dashboardPath);
 
   let username = "";
   let bio = "";
@@ -78,7 +84,7 @@ export default async function OnboardingPage() {
   }
 
   // Los miembros no administran: van directo al panel.
-  if (data.role !== "business_owner") redirect("/dashboard");
+  if (data.role !== "business_owner") redirect(dashboardPath);
 
   const initial: OnboardingInitial = {
     commercialName: org.commercialName ?? "",

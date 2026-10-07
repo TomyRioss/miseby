@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { FaUser } from "react-icons/fa6";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ShareTargetsRow } from "./share-targets";
@@ -33,8 +34,7 @@ export function PageShareDialog({
         <div className="flex flex-col items-center gap-3 rounded-3xl bg-[#2B2B33] px-6 py-8 text-center">
           <span className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-white/20">
             {avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={avatarUrl} alt={handle} className="h-full w-full object-cover" />
+              <Image src={avatarUrl} alt={handle} width={80} height={80} className="h-full w-full object-cover" unoptimized />
             ) : (
               <FaUser className="h-9 w-9 text-white/80" aria-hidden />
             )}

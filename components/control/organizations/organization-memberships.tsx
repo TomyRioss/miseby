@@ -90,6 +90,9 @@ export function OrganizationMemberships({
           <Plus className="h-4 w-4" /> Nueva membresía
         </button>
       </div>
+      <p className="-mt-2 mb-4 text-xs text-muted-foreground">
+        Solo una membresía puede estar activa o en prueba. Al activar otra, se suspende la vigente.
+      </p>
 
       {showForm && (
         <form onSubmit={submit} className="mb-5 space-y-3 rounded-xl border border-border bg-muted/40 p-4">

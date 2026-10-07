@@ -122,8 +122,8 @@ export function ScheduleDialog({ open, onOpenChange, value, disabled, onSave }: 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[88vh] gap-0 overflow-hidden p-0 sm:max-w-lg">
-        <div className="flex items-center justify-between bg-orange-500 px-5 py-3.5 text-white">
+      <DialogContent showCloseButton={false} className="max-h-[88vh] gap-0 overflow-hidden p-0 sm:max-w-lg">
+        <div className="flex items-center justify-between bg-[#0A2540] px-5 py-3.5 text-white">
           <DialogTitle className="text-[15px] font-semibold text-white">Configurar mis horarios</DialogTitle>
           <button
             type="button"
@@ -136,7 +136,7 @@ export function ScheduleDialog({ open, onOpenChange, value, disabled, onSave }: 
         </div>
 
         <div className="max-h-[62vh] space-y-5 overflow-y-auto px-5 py-5">
-          <div className="flex items-center gap-1.5 text-sm font-semibold text-orange-600">
+          <div className="flex items-center gap-1.5 text-sm font-semibold text-[#0A2540]">
             <Clock className="h-4 w-4" /> Horario de atención
           </div>
 
@@ -207,7 +207,7 @@ export function ScheduleDialog({ open, onOpenChange, value, disabled, onSave }: 
                       <button
                         type="button"
                         onClick={() => addSlot(day)}
-                        className="cursor-pointer inline-flex items-center gap-1 text-[13px] font-medium text-orange-600 hover:text-orange-700 hover:underline"
+                        className="cursor-pointer inline-flex items-center gap-1 text-[13px] font-medium text-[#6D28D9] hover:text-[#6D28D9]/80 hover:underline"
                       >
                         <Plus className="h-3.5 w-3.5" /> Agregar otro horario
                       </button>
@@ -222,7 +222,7 @@ export function ScheduleDialog({ open, onOpenChange, value, disabled, onSave }: 
         </div>
 
         <div className="border-t bg-background p-3">
-          <Button onClick={handleSave} disabled={disabled} className="min-h-11 w-full bg-orange-500 text-sm font-semibold hover:bg-orange-600">
+          <Button onClick={handleSave} disabled={disabled} className="min-h-11 w-full bg-[#0A2540] text-sm font-semibold text-white hover:bg-[#0A2540]/90">
             Guardar y cerrar
           </Button>
         </div>
