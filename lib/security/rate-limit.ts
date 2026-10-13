@@ -1,7 +1,9 @@
-import { RateLimiterMemory, RateLimiterRes } from "rate-limiter-flexible";
+import RateLimiterMemory from "rate-limiter-flexible/lib/RateLimiterMemory";
+import RateLimiterRes from "rate-limiter-flexible/lib/RateLimiterRes";
+import type { RateLimiterMemory as RateLimiterMemoryType } from "rate-limiter-flexible";
 import { createHash } from "node:crypto";
 
-const limiters = new Map<string, RateLimiterMemory>();
+const limiters = new Map<string, RateLimiterMemoryType>();
 
 /** Process-local quotas. Configure a shared store before scaling to multiple instances. */
 export async function allowRequest(scope: string, key: string, points: number, duration: number) {

@@ -6,7 +6,6 @@ import { MiseMark } from "@/components/brand/mise-mark";
 import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getOrganizationForMember } from "@/lib/services/organizations";
-import { getOnboardingStatus } from "@/lib/services/onboarding";
 import { getOrCreateMiseLinkPage } from "@/lib/services/miselink";
 import { getPlanDashboardPath } from "@/lib/plan-routes";
 import { getRestaurantData } from "@/lib/restaurant-theme";
@@ -37,12 +36,7 @@ export default async function OnboardingPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
-  // Independientes (solo usan user.id): en paralelo, no en serie.
-  // La página de mise link se sigue creando solo si no completó onboarding.
-  const [data, status] = await Promise.all([
-    getOrganizationForMember(user.id).catch(() => null),
-    getOnboardingStatus(user.id).catch(() => null),
-  ]);
+  const data = await getOrganizationForMember(user.id).catch(() => null);
   if (!data?.organization) {
     return (
       <div className="flex min-h-[100dvh] flex-col items-center justify-center gap-4 bg-background px-6 text-center">
@@ -65,7 +59,7 @@ export default async function OnboardingPage() {
     : "mise";
 
   const dashboardPath = getPlanDashboardPath(planCode);
-  if (status?.completed) redirect(dashboardPath);
+  if (org.phone?.trim() && org.city?.trim()) redirect(dashboardPath);
 
   let username = "";
   let bio = "";
