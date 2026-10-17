@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
-import { auth } from "@/auth";
-import { getCurrentUser } from "@/lib/auth/session";
+import { getAuthSession, getCurrentUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
 import { PlatformShell } from "@/components/control/platform-shell";
 import { AuthSessionProvider } from "@/components/providers/session-provider";
@@ -17,7 +16,7 @@ export default async function ControlLayout({ children }: { children: React.Reac
     select: { name: true },
   });
 
-  const session = await auth();
+  const session = await getAuthSession();
 
   return <AuthSessionProvider session={session}><PlatformShell userName={profile?.name ?? "Cuenta"} userEmail={user.email}>{children}</PlatformShell></AuthSessionProvider>;
 }

@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
-import { auth } from "@/auth";
-import { getCurrentUser } from "@/lib/auth/session";
+import { getAuthSession, getCurrentUser } from "@/lib/auth/session";
 import { AuthSessionProvider } from "@/components/providers/session-provider";
 
 export default async function BusinessLayout({ children }: { children: React.ReactNode }) {
@@ -10,9 +9,8 @@ export default async function BusinessLayout({ children }: { children: React.Rea
     redirect("/login");
   }
 
-  // auth() es solo decrypt del JWT (sin DB): la sesión inicial evita
-  // que el provider fetchee /api/auth/session en cada mount.
-  const session = await auth();
+  // Reutiliza la sesión ya leída y validada por getCurrentUser().
+  const session = await getAuthSession();
 
   return <AuthSessionProvider session={session}>{children}</AuthSessionProvider>;
 }

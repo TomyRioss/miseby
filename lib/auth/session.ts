@@ -3,21 +3,13 @@ import { cache } from "react";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
-// cache(): layout + página + guards comparten UNA sola query por request.
-// Sin esto cada llamada repetía auth + findUnique contra Supabase.
+// auth() valida estado, rol y credencial en el callback JWT; compartir su resultado
+// evita repetir esa validación y confundir un error de infraestructura con logout.
+export const getAuthSession = cache(async () => auth());
+
 export const getCurrentUser = cache(async () => {
-  const session = await auth();
-  const sessionUser = session?.user;
-  if (!sessionUser) return null;
-  // Estado fresco desde DB: una suspensión posterior al login bloquea la sesión.
-  const profile = await prisma.userProfile
-    .findUnique({
-      where: { id: sessionUser.id },
-      select: { role: true, status: true },
-    })
-    .catch(() => null);
-  if (!profile || profile.status !== "active") return null;
-  return { ...sessionUser, role: profile.role, status: profile.status };
+  const session = await getAuthSession();
+  return session?.user ?? null;
 });
 
 export type CurrentUser = NonNullable<Awaited<ReturnType<typeof getCurrentUser>>>;
