@@ -1,18 +1,20 @@
-import RateLimiterMemory from "rate-limiter-flexible/lib/RateLimiterMemory";
-import RateLimiterRes from "rate-limiter-flexible/lib/RateLimiterRes";
-import type { RateLimiterMemory as RateLimiterMemoryType } from "rate-limiter-flexible";
+import { RateLimiterMemory, RateLimiterRes } from "rate-limiter-flexible";
 import { createHash } from "node:crypto";
 
-const limiters = new Map<string, RateLimiterMemoryType>();
+const limiters = new Map<string, RateLimiterMemory>();
+
+function getLimiter(configuration: string, points: number, duration: number) {
+  const existing = limiters.get(configuration);
+  if (existing) return existing;
+  const limiter = new RateLimiterMemory({ points, duration });
+  limiters.set(configuration, limiter);
+  return limiter;
+}
 
 /** Process-local quotas. Configure a shared store before scaling to multiple instances. */
 export async function allowRequest(scope: string, key: string, points: number, duration: number) {
   const configuration = `${scope}:${points}:${duration}`;
-  let limiter = limiters.get(configuration);
-  if (!limiter) {
-    limiter = new RateLimiterMemory({ points, duration });
-    limiters.set(configuration, limiter);
-  }
+  const limiter = getLimiter(configuration, points, duration);
   try {
     await limiter.consume(createHash("sha256").update(key).digest("hex"));
     return true;
